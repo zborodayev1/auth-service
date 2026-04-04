@@ -2,22 +2,24 @@
   "name": "borodayev-auth-systems",
   "version": "1.0.0",
   "description": "Open source auth service",
-  "main": "dist/server.js",
+  "type": "module",
+  "main": "dist/main.js",
   "scripts": {
-    "start:dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/main.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/main.js",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
     "url": "git@github-personal:zborodayev1/borodayev-auth-systems"
   },
   "author": "zborodayev1",
-  "keywords": [
-    "auth",
-    "jwt",
-    "nodejs"
-  ],
+  "keywords": ["auth", "jwt", "nodejs"],
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -28,10 +30,16 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.5.0",
-    "tsx": "^3.12.7",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
     "typescript": "^6.0.2"
   }
 }
