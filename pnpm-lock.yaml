@@ -15,11 +15,14 @@ importers:
         specifier: ^2.8.6
         version: 2.8.6
       dotenv:
-        specifier: ^17.3.1
+        specifier: ^17.4.1
         version: 17.4.1
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      inversify:
+        specifier: ^8.1.0
+        version: 8.1.0(reflect-metadata@0.2.2)
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
@@ -272,6 +275,28 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
+
+  '@inversifyjs/common@2.0.1':
+    resolution: {integrity: sha512-pJAR4IAcT2jkYfZ9bD9XhtUDBLJRr8QOiSjb+2XyaHru6DLvu0VD2Id2iP7+tVRKkEe3XFUwDUEdKxcYlF699Q==}
+
+  '@inversifyjs/container@2.0.1':
+    resolution: {integrity: sha512-xoZU4Mha5Vo+U04xWUnD01QbpQMNoIh0nUEFlb965E3rIneUbsYYiXeLUoKl57BjXjErsOL0q8o3mXi1si8rBA==}
+    peerDependencies:
+      reflect-metadata: ~0.2.2
+
+  '@inversifyjs/core@10.0.1':
+    resolution: {integrity: sha512-z+DHdTbHFETivPLPRgowz9wWhHA4FNYqQnKhPyDCz7zX9H/PIDcK4gZIF1YNaf5Uc2bd1nehSlVgfaTzVbb0AA==}
+
+  '@inversifyjs/plugin@0.3.1':
+    resolution: {integrity: sha512-ByklTw731fydBCTMwMpkmwm+lv0U+JWm9NEqRsz3n5KzAC5Om2XtLjqzEC2w+8Ote3gVC3Qxsx6YmG9XLIZpvg==}
+
+  '@inversifyjs/prototype-utils@0.2.1':
+    resolution: {integrity: sha512-53cVE3cw+RxnSkGlg+jOFNSox2owJF9Fv3HgFKe4f+4aPullscltIiio88QRkx2Sc5yo3VlqPsXQFGw2CVJZnw==}
+
+  '@inversifyjs/reflect-metadata-utils@1.5.0':
+    resolution: {integrity: sha512-NpJVbRbuQ6Ao2vO+aw96un3oHDFCwXI0+pplsFt0Jh0gyR8DWk4m7ml/GBNMjdbeKVW/QgJ2S6NGXjk042uwqg==}
+    peerDependencies:
+      reflect-metadata: ~0.2.2
 
   '@types/bcrypt@6.0.0':
     resolution: {integrity: sha512-/oJGukuH3D2+D+3H4JWLaAsJ/ji86dhRidzZ/Od7H/i8g+aCmvkeCc6Ni/f9uxGLSQVCRZkX2/lqEFG2BvWtlQ==}
@@ -716,6 +741,9 @@ packages:
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
+  inversify@8.1.0:
+    resolution: {integrity: sha512-LeMjL2MKHM0E8UmKo2ilRvdxG3o0pLZPYFjkaHwcjcFIrhzBGetphNkaWJ6YaM78uC1gK9v45i1R7CkCJDvG4Q==}
+
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
@@ -915,6 +943,9 @@ packages:
   raw-body@3.0.2:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
+
+  reflect-metadata@0.2.2:
+    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -1183,6 +1214,34 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
+
+  '@inversifyjs/common@2.0.1': {}
+
+  '@inversifyjs/container@2.0.1(reflect-metadata@0.2.2)':
+    dependencies:
+      '@inversifyjs/common': 2.0.1
+      '@inversifyjs/core': 10.0.1(reflect-metadata@0.2.2)
+      '@inversifyjs/plugin': 0.3.1
+      '@inversifyjs/reflect-metadata-utils': 1.5.0(reflect-metadata@0.2.2)
+      reflect-metadata: 0.2.2
+
+  '@inversifyjs/core@10.0.1(reflect-metadata@0.2.2)':
+    dependencies:
+      '@inversifyjs/common': 2.0.1
+      '@inversifyjs/prototype-utils': 0.2.1
+      '@inversifyjs/reflect-metadata-utils': 1.5.0(reflect-metadata@0.2.2)
+    transitivePeerDependencies:
+      - reflect-metadata
+
+  '@inversifyjs/plugin@0.3.1': {}
+
+  '@inversifyjs/prototype-utils@0.2.1':
+    dependencies:
+      '@inversifyjs/common': 2.0.1
+
+  '@inversifyjs/reflect-metadata-utils@1.5.0(reflect-metadata@0.2.2)':
+    dependencies:
+      reflect-metadata: 0.2.2
 
   '@types/bcrypt@6.0.0':
     dependencies:
@@ -1720,6 +1779,14 @@ snapshots:
 
   inherits@2.0.4: {}
 
+  inversify@8.1.0(reflect-metadata@0.2.2):
+    dependencies:
+      '@inversifyjs/common': 2.0.1
+      '@inversifyjs/container': 2.0.1(reflect-metadata@0.2.2)
+      '@inversifyjs/core': 10.0.1(reflect-metadata@0.2.2)
+    transitivePeerDependencies:
+      - reflect-metadata
+
   ipaddr.js@1.9.1: {}
 
   is-extglob@2.1.1: {}
@@ -1891,6 +1958,8 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       unpipe: 1.0.0
+
+  reflect-metadata@0.2.2: {}
 
   resolve-from@4.0.0: {}
 

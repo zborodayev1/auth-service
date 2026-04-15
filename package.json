@@ -2,7 +2,6 @@
   "name": "borodayev-auth-systems",
   "version": "1.0.0",
   "description": "Open source auth service",
-  "type": "module",
   "main": "dist/main.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
@@ -19,13 +18,18 @@
     "url": "git@github-personal:zborodayev1/borodayev-auth-systems"
   },
   "author": "zborodayev1",
-  "keywords": ["auth", "jwt", "nodejs"],
+  "keywords": [
+    "auth",
+    "jwt",
+    "nodejs"
+  ],
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "inversify": "^8.1.0",
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
