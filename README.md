@@ -1,4 +1,4 @@
-# borodayev-auth-systems
+# auth-systems
 
 Open source authentication service built with Node.js and TypeScript. Free forever — for startups, side projects, and anyone who needs a solid auth foundation without reinventing the wheel.
 
