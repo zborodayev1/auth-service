@@ -17,8 +17,23 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@aggregates/*": ["./src/domain/aggregates/*"],
+      "@entities/*": ["./src/domain/entities/*"],
+      "@ports/*": ["./src/domain/ports/*"],
+      "@app/*": ["./src/application/*"],
+      "@valueObjects/*": ["./src/domain/valueObjects/*"],
+      "@infra/*": ["./src/infrastructure/*"],
+      "@libs/*": ["./src/libs/*"],
+      "@config/*": ["./src/config/*"],
+      "@prisma/*": ["./src/generated/prisma/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "projectUtils/**/*"],
   "exclude": ["node_modules", "dist"]
 }

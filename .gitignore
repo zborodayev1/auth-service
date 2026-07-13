@@ -3,3 +3,5 @@ node_modules
 dist
 .env
 environment.ts
+generated
+projectUtils

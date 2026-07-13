@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+// npx prisma migrate dev --name init
+// npx prisma generate
+// npx prisma studio
+// npx prisma migrate reset
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model Project {
+  id        String @id @default(uuid()) @db.Uuid
+  name      String @db.VarChar(64)
+
+  ownerId   String @db.Uuid
+  owner   Client @relation(fields: [ownerId], references: [id])
+
+  apiKey ApiKey?
+
+  createdAt DateTime @default(now())
+  @@unique([ownerId, name])
+}
+
+model ApiKey {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @db.VarChar(64)
+  hash      String  @db.Char(64)
+  revoked Boolean @default(false)
+
+  projectId String @unique @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model Client {
+  id    String @id @default(uuid()) @db.Uuid
+  name  String @db.VarChar(64)
+  email String @unique @db.VarChar(254)
+  passwordHash  String @db.Char(60)
+
+  refreshTokens RefreshToken[]
+  sessions Session[]
+  projects      Project[]
+
+  createdAt DateTime @default(now())
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+
+  clientId  String    @db.Uuid
+  client    Client    @relation(fields: [clientId], references: [id])
+
+  hash      String    @unique @db.Char(64)
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  createdAt DateTime  @default(now())
+
+  @@index([clientId])
+}
+
+model Session {
+    id                String   @id @default(uuid()) @db.Uuid
+
+    clientId          String   @db.Uuid
+    client            Client   @relation(fields: [clientId], references: [id])
+
+    refreshTokenHash  String   @unique @db.Char(64)
+
+    expiresAt         DateTime
+    revokedAt         DateTime?
+
+    createdAt         DateTime @default(now())
+    lastUsedAt        DateTime @default(now())
+
+    userAgent         String?
+    ipAddress         String?
+    deviceName        String?
+
+    @@index([clientId])
+}

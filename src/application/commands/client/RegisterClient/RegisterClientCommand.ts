@@ -1,0 +1,11 @@
+export class RegisterClientCommand {
+  constructor(
+    public readonly name: string,
+    public readonly email: string,
+    public readonly password: string,
+
+    public readonly userAgent: string | null,
+    public readonly ipAddress: string | null,
+    public readonly deviceName: string | null,
+  ) {}
+}
