@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { Container } from 'inversify'
 import { Application } from './application'
 import { ApplicationContext } from './contexts/ApplicationContext'
-import { InfrastructureContext } from './contexts/InfrastructureContex'
+import { InfrastructureContext } from './contexts/InfrastructureContext'
 import { ServiceContextBuilder } from './contexts/ServiceContextBuilder'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

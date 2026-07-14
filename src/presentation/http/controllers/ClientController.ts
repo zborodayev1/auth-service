@@ -8,7 +8,7 @@ import { LoginClientCommand } from '@app/commands/client/LoginClient/LoginClient
 import { ChangeClientEmailSchema } from '../validators/client/ChangeClientEmailValidator'
 import type { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
 import { ChangeClientEmailCommand } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailCommand'
-import { ChangeClientPasswordShema } from '../validators/client/ChangeClientPasswordValidator'
+import { ChangeClientPasswordSchema } from '../validators/client/ChangeClientPasswordValidator'
 import type { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { ChangeClientPasswordCommand } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordCommand'
 import type { LogoutAllSessionsHandler } from '@app/commands/client/LogoutAllSessions/LogoutAllSessionsHandler'
@@ -52,8 +52,8 @@ export class ClientController {
 
     const result = await this.loginHandler.execute(
       new LoginClientCommand(
-        body.email,
         body.password,
+        body.email,
         req.headers['user-agent'] ?? null,
         req.ip ?? null,
         body.deviceName ?? null,
@@ -74,7 +74,7 @@ export class ClientController {
   }
 
   async changePassword(req: Request, res: Response): Promise<void> {
-    const body = ChangeClientPasswordShema.parse(req.body)
+    const body = ChangeClientPasswordSchema.parse(req.body)
 
     const result = await this.changePasswordHandler.execute(
       new ChangeClientPasswordCommand(req.auth.clientId, body.currentPassword, body.newPassword),
@@ -85,14 +85,14 @@ export class ClientController {
 
   async logoutAll(req: Request, res: Response): Promise<void> {
     const result = await this.logoutAllHandler.execute(
-      new LogoutAllSessionsCommand(req.auth.clientId, req.auth.sessionId),
+      new LogoutAllSessionsCommand(req.auth.sessionId, req.auth.clientId),
     )
     res.status(200).json(result)
   }
 
   async logoutCurrent(req: Request, res: Response): Promise<void> {
     const result = await this.logoutCurrentHandler.execute(
-      new LogoutCurrentSessionCommand(req.auth.clientId, req.auth.sessionId),
+      new LogoutCurrentSessionCommand(req.auth.sessionId, req.auth.clientId),
     )
     res.status(200).json(result)
   }

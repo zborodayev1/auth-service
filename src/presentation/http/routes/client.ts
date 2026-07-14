@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { ClientController } from '../controllers/ClientControllet'
+import type { ClientController } from '../controllers/ClientController'
 import type { AuthMiddleware } from '../middleware/AuthMiddleware'
 
 export class ClientRouter {
