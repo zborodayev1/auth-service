@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import helmet from 'helmet'
 import { injectable } from 'inversify'
@@ -14,6 +15,7 @@ export class ExpressApp {
   private setup(): void {
     this.app.use(express.json())
     this.app.use(helmet())
+    this.app.use(cookieParser())
   }
 
   getInstance(): Express {

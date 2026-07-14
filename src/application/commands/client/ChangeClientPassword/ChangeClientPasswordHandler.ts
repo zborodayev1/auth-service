@@ -8,6 +8,10 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { SessionRepository } from '@aggregates/session/SessionRepository'
 
+interface ChangeClientPasswordResult {
+  message: string
+}
+
 @injectable()
 export class ChangeClientPasswordHandler {
   constructor(
@@ -21,7 +25,7 @@ export class ChangeClientPasswordHandler {
     private readonly sessions: SessionRepository,
   ) {}
 
-  async execute(command: ChangeClientPasswordCommand): Promise<void> {
+  async execute(command: ChangeClientPasswordCommand): Promise<ChangeClientPasswordResult> {
     Password.validateRaw(command.newPassword)
 
     if (command.currentPassword === command.newPassword) {
@@ -54,5 +58,9 @@ export class ChangeClientPasswordHandler {
 
     await this.clients.save(updated)
     await this.sessions.revokeAllByClientId(command.clientId)
+
+    return {
+      message: 'Password changed successfully',
+    }
   }
 }

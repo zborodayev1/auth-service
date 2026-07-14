@@ -7,6 +7,10 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
+interface ChangeClientEmailResult {
+  message: string
+}
+
 @injectable()
 export class ChangeClientEmailHandler {
   constructor(
@@ -17,7 +21,7 @@ export class ChangeClientEmailHandler {
     private readonly passwordHasher: PasswordHasher,
   ) {}
 
-  async execute(command: ChangeClientEmailCommand): Promise<void> {
+  async execute(command: ChangeClientEmailCommand): Promise<ChangeClientEmailResult> {
     const client = await this.clients.findById(command.clientId)
     if (!client) {
       throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
@@ -47,5 +51,7 @@ export class ChangeClientEmailHandler {
 
     const updated = client.changeEmail(newEmail)
     await this.clients.save(updated)
+
+    return { message: 'Email changed successfully' }
   }
 }
