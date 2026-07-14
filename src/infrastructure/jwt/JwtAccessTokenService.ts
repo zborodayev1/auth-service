@@ -17,7 +17,10 @@ export class JwtAccessTokenService implements AccessTokenService {
   }
 
   verify(token: string): AccessTokenPayload {
-    const payload = jwt.verify(token, this.config.jwtSecret)
+    const payload = jwt.verify(token, this.config.jwtSecret, {
+      algorithms: ['HS256'],
+      issuer: 'auth-system',
+    })
     if (
       typeof payload === 'string' ||
       typeof payload.sub !== 'string' ||
