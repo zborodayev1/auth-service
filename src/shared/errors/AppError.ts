@@ -1,5 +1,5 @@
 export abstract class AppError extends Error {
-  public readonly origin: string | undefined
+  abstract readonly httpStatus: number
 
   constructor(
     message: string,

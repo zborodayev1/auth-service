@@ -14,4 +14,4 @@ export interface RefreshTokenRepository {
   deleteExpired(): Promise<void>
 }
 
-export const RefreshTokenRepository = Symbol('RefreshTokenRepository')
+export const RefreshTokenRepository: unique symbol = Symbol('RefreshTokenRepository')
