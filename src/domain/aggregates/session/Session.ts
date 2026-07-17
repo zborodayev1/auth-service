@@ -5,8 +5,6 @@ export class Session extends AggregateRoot {
     id: string,
     public readonly clientId: string,
 
-    private readonly _refreshTokenHash: string,
-
     public readonly expiresAt: Date,
     private readonly _revokedAt: Date | null,
 
@@ -23,7 +21,6 @@ export class Session extends AggregateRoot {
   static create(
     id: string,
     clientId: string,
-    refreshTokenHash: string,
     expiresAt: Date,
     userAgent: string | null,
     ipAddress: string | null,
@@ -31,24 +28,12 @@ export class Session extends AggregateRoot {
   ): Session {
     const now = new Date()
 
-    return new Session(
-      id,
-      clientId,
-      refreshTokenHash,
-      expiresAt,
-      null,
-      now,
-      now,
-      userAgent,
-      ipAddress,
-      deviceName,
-    )
+    return new Session(id, clientId, expiresAt, null, now, now, userAgent, ipAddress, deviceName)
   }
 
   static reconstruct(
     id: string,
     clientId: string,
-    refreshTokenHash: string,
     expiresAt: Date,
     revokedAt: Date | null,
     createdAt: Date,
@@ -60,7 +45,6 @@ export class Session extends AggregateRoot {
     return new Session(
       id,
       clientId,
-      refreshTokenHash,
       expiresAt,
       revokedAt,
       createdAt,
@@ -69,10 +53,6 @@ export class Session extends AggregateRoot {
       ipAddress,
       deviceName,
     )
-  }
-
-  get refreshTokenHash(): string {
-    return this._refreshTokenHash
   }
 
   get revokedAt(): Date | null {
@@ -95,7 +75,6 @@ export class Session extends AggregateRoot {
     return new Session(
       this.id,
       this.clientId,
-      this._refreshTokenHash,
       this.expiresAt,
       new Date(),
       this.createdAt,
@@ -110,22 +89,7 @@ export class Session extends AggregateRoot {
     return new Session(
       this.id,
       this.clientId,
-      this._refreshTokenHash,
       this.expiresAt,
-      this._revokedAt,
-      this.createdAt,
-      new Date(),
-      this.userAgent,
-      this.ipAddress,
-      this.deviceName,
-    )
-  }
-  rotateRefreshToken(newHash: string, expiresAt: Date): Session {
-    return new Session(
-      this.id,
-      this.clientId,
-      newHash,
-      expiresAt,
       this._revokedAt,
       this.createdAt,
       new Date(),

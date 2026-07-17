@@ -7,6 +7,7 @@ import { ServiceContext } from './ServiceContext'
 import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
 import { LogoutAllSessionsHandler } from '@app/commands/client/LogoutAllSessions/LogoutAllSessionsHandler'
 import { RefreshAccessTokenHandler } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenHandler'
+import { LogoutCurrentSessionHandler } from '@app/commands/client/LogoutCurrentSession/LogoutCurrentSessionHandler'
 
 @injectable()
 export class ApplicationContext implements ServiceContext {
@@ -20,6 +21,8 @@ export class ApplicationContext implements ServiceContext {
     container.bind(ChangeClientEmailHandler).toSelf()
 
     container.bind(LogoutAllSessionsHandler).toSelf()
+
+    container.bind(LogoutCurrentSessionHandler).toSelf()
 
     container.bind(RefreshAccessTokenHandler).toSelf()
 

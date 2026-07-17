@@ -10,7 +10,7 @@ import { IdGenerator } from '@ports/IdGenerator'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { Container, injectable } from 'inversify'
 import { ServiceContext } from './ServiceContext'
-import { SessionService } from '@app/services/SessionService'
+import { SessionFactory } from '@app/factories/SessionFactory'
 import { ApiKeyService } from '@app/services/ApiKeyService'
 import { ServerConfig } from '@config/server'
 import { CryptoKeyGenerator } from '@infra/crypto/CryptoKeyGenerator'
@@ -19,16 +19,23 @@ import { HttpServerFactory } from '@infra/http/HttpServerFactory'
 import { JwtAccessTokenService } from '@infra/jwt/JwtAccessTokenService'
 import { AccessTokenService } from '@ports/AccessTokenService'
 import { KeyGenerator } from '@ports/KeyGenerator'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@generated/prisma/client'
 import { SessionRepository } from '@aggregates/session/SessionRepository'
 import { PrismaSessionRepository } from '@infra/persistence/session/PrismaSessionRepository'
+import { RefreshTokenFactory } from '@factories/RefreshTokenFactory'
+import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
+import { PrismaRefreshTokenRepository } from '@infra/persistence/refreshToken/PrismaRefreshTokenRepository'
+import { AuthService } from '@services/auth/AuthService'
+import { RefreshTokenService } from '@services/refresh-token/RefreshTokenService'
 
 @injectable()
 export class InfrastructureContext implements ServiceContext {
   register(container: Container): void {
     container.bind(ServerConfig).toSelf().inSingletonScope()
 
-    container.bind(PrismaClient).toSelf()
+    const prisma = new PrismaClient()
+
+    container.bind(PrismaClient).toConstantValue(prisma)
 
     container.bind(ExpressApp).toSelf().inSingletonScope()
 
@@ -52,6 +59,11 @@ export class InfrastructureContext implements ServiceContext {
 
     container.bind(ApiKeyService).toSelf().inSingletonScope()
 
-    container.bind(SessionService).toSelf().inSingletonScope()
+    container.bind(SessionFactory).toSelf().inSingletonScope()
+    container.bind(RefreshTokenFactory).toSelf().inSingletonScope()
+
+    container.bind(RefreshTokenRepository).to(PrismaRefreshTokenRepository).inSingletonScope()
+    container.bind(RefreshTokenService).toSelf().inSingletonScope()
+    container.bind(AuthService).toSelf().inSingletonScope()
   }
 }

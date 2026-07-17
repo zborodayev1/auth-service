@@ -1,5 +1,5 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@generated/prisma/client'
 import { injectable } from 'inversify'
 import { Email } from '@aggregates/client/Email'
 import { Client } from '@aggregates/client/Client'

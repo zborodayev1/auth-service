@@ -5,8 +5,6 @@ export interface SessionRepository {
 
   findById(id: string): Promise<Session | null>
 
-  findByRefreshTokenHash(hash: string): Promise<Session | null>
-
   findByClientId(clientId: string): Promise<Session[]>
 
   revokeAllByClientId(clientId: string): Promise<void>

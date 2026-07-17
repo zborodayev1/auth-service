@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "lib": ["ES2022"],
     "rootDir": "./src",
     "outDir": "./dist",
@@ -22,6 +22,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
+      "@factories/*": ["./src/application/factories/*"],
+      "@services/*": ["./src/application/services/*"],
       "@aggregates/*": ["./src/domain/aggregates/*"],
       "@entities/*": ["./src/domain/entities/*"],
       "@ports/*": ["./src/domain/ports/*"],
@@ -30,7 +32,7 @@
       "@infra/*": ["./src/infrastructure/*"],
       "@libs/*": ["./src/libs/*"],
       "@config/*": ["./src/config/*"],
-      "@prisma/*": ["./src/generated/prisma/*"],
+      "@generated/*": ["./src/generated/*"],
       "@shared/*": ["./src/shared/*"]
     }
   },

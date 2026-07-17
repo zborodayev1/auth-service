@@ -1,7 +1,7 @@
 import { Client } from '@aggregates/client/Client'
 import { Email } from '@aggregates/client/Email'
 import { Password } from '@aggregates/client/Password'
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@generated/prisma/client'
 import { Name } from '@valueObjects/Name'
 
 type PrismaClientRow = Prisma.ClientGetPayload<Record<string, never>>

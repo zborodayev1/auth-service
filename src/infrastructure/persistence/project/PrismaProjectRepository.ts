@@ -1,5 +1,5 @@
 import { injectable } from 'inversify'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@generated/prisma/client'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { Project } from '@aggregates/project/Project'
 import { projectToDomain } from './ProjectMapper'

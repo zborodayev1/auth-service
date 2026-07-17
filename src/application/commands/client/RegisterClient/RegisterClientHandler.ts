@@ -9,8 +9,7 @@ import { IdGenerator } from '@ports/IdGenerator'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { Name } from '@valueObjects/Name'
 import { AccessTokenService } from '@ports/AccessTokenService'
-import { SessionService } from '@app/services/SessionService'
-import { SessionRepository } from '@aggregates/session/SessionRepository'
+import { AuthService } from '@services/auth/AuthService'
 
 interface RegisterClientResult {
   clientId: string
@@ -31,13 +30,7 @@ export class RegisterClientHandler {
     private readonly idGenerator: IdGenerator,
 
     @inject(AccessTokenService)
-    private readonly tokenService: AccessTokenService,
-
-    @inject(SessionService)
-    private readonly sessionService: SessionService,
-
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
+    private readonly authService: AuthService,
   ) {}
 
   async execute(command: RegisterClientCommand): Promise<RegisterClientResult> {
@@ -61,17 +54,13 @@ export class RegisterClientHandler {
 
     await this.clients.save(client)
 
-    const { session, rawRefreshToken } = this.sessionService.create(
-      client.id,
-      command.userAgent,
-      command.ipAddress,
-      command.deviceName,
-    )
+    const tokens = await this.authService.login({
+      clientId: client.id,
+      userAgent: command.userAgent,
+      ipAddress: command.ipAddress,
+      deviceName: command.deviceName,
+    })
 
-    await this.sessions.save(session)
-
-    const accessToken = this.tokenService.sign(client.id, session.id)
-
-    return { clientId: client.id, accessToken, refreshToken: rawRefreshToken }
+    return { clientId: client.id, ...tokens }
   }
 }

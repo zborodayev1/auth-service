@@ -1,13 +1,10 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { Email } from '@aggregates/client/Email'
-
 import { PasswordHasher } from '@ports/PasswordHasher'
-import { AccessTokenService } from '@ports/AccessTokenService'
-import { SessionService } from '@app/services/SessionService'
 import { inject, injectable } from 'inversify'
 import { LoginClientCommand } from './LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { SessionRepository } from '@aggregates/session/SessionRepository'
+import { AuthService } from '@services/auth/AuthService'
 
 interface LoginClientResult {
   clientId: string
@@ -21,17 +18,11 @@ export class LoginClientHandler {
     @inject(ClientRepository)
     private readonly clients: ClientRepository,
 
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
-
     @inject(PasswordHasher)
     private readonly passwordHasher: PasswordHasher,
 
-    @inject(AccessTokenService)
-    private readonly tokenService: AccessTokenService,
-
-    @inject(SessionService)
-    private readonly sessionService: SessionService,
+    @inject(AuthService)
+    private readonly authService: AuthService,
   ) {}
 
   async execute(command: LoginClientCommand): Promise<LoginClientResult> {
@@ -47,17 +38,16 @@ export class LoginClientHandler {
       throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS')
     }
 
-    const { session, rawRefreshToken } = this.sessionService.create(
-      client.id,
-      command.userAgent,
-      command.ipAddress,
-      command.deviceName,
-    )
+    const tokens = await this.authService.login({
+      clientId: client.id,
+      deviceName: command.deviceName,
+      ipAddress: command.ipAddress,
+      userAgent: command.userAgent,
+    })
 
-    await this.sessions.save(session)
-
-    const accessToken = this.tokenService.sign(client.id, session.id)
-
-    return { clientId: client.id, accessToken, refreshToken: rawRefreshToken }
+    return {
+      clientId: client.id,
+      ...tokens,
+    }
   }
 }

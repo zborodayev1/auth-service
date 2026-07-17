@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client'
+import type { Prisma } from '@generated/prisma/client'
 import { Project } from '@aggregates/project/Project'
 import { ApiKey } from '@aggregates/project/ApiKey'
 import { NotFoundError } from '@shared/errors/NotFoundError'

@@ -1,6 +1,6 @@
 import { Session } from '@aggregates/session/Session'
 import type { SessionRepository } from '@aggregates/session/SessionRepository'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@generated/prisma/client'
 import { injectable } from 'inversify'
 import { sessionToDomain } from './SessionMapper'
 
@@ -12,7 +12,6 @@ export class PrismaSessionRepository implements SessionRepository {
     await this.prisma.session.upsert({
       where: { id: session.id },
       update: {
-        refreshTokenHash: session.refreshTokenHash,
         expiresAt: session.expiresAt,
         revokedAt: session.revokedAt,
         lastUsedAt: session.lastUsedAt,
@@ -23,7 +22,6 @@ export class PrismaSessionRepository implements SessionRepository {
       create: {
         id: session.id,
         clientId: session.clientId,
-        refreshTokenHash: session.refreshTokenHash,
         expiresAt: session.expiresAt,
         revokedAt: session.revokedAt,
         createdAt: session.createdAt,
@@ -38,14 +36,6 @@ export class PrismaSessionRepository implements SessionRepository {
   async findById(id: string): Promise<Session | null> {
     const raw = await this.prisma.session.findUnique({
       where: { id },
-    })
-
-    return raw ? sessionToDomain(raw) : null
-  }
-
-  async findByRefreshTokenHash(hash: string): Promise<Session | null> {
-    const raw = await this.prisma.session.findUnique({
-      where: { refreshTokenHash: hash },
     })
 
     return raw ? sessionToDomain(raw) : null
