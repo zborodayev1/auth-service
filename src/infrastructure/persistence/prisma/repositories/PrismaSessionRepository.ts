@@ -1,12 +1,12 @@
 import { Session } from '@aggregates/session/Session'
 import type { SessionRepository } from '@aggregates/session/SessionRepository'
-import { PrismaClient } from '@generated/prisma/client'
 import { injectable } from 'inversify'
-import { sessionToDomain } from './SessionMapper'
+import { PrismaProvider } from '../PrismaProvider'
+import { sessionToDomain } from '../mappers/SessionMapper'
 
 @injectable()
 export class PrismaSessionRepository implements SessionRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   async save(session: Session): Promise<void> {
     await this.prisma.session.upsert({

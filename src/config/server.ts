@@ -40,7 +40,11 @@ export class ServerConfig {
   }
 
   get jwtExpiresIn(): string {
-    return process.env['JWT_EXPIRES_IN'] ?? '1h'
+    const expiresIn = process.env['JWT_EXPIRES_IN']
+    if (!expiresIn || typeof expiresIn !== 'string') {
+      return '1h'
+    }
+    return expiresIn
   }
 
   get refreshTokenTtlMs(): number {
@@ -54,5 +58,14 @@ export class ServerConfig {
       )
     }
     return ms
+  }
+
+  get dbUrl(): string {
+    const url = process.env['DATABASE_URL']
+    if (!url) {
+      throw new InternalServerError('DATABASE_URL must be set')
+    }
+
+    return url
   }
 }
