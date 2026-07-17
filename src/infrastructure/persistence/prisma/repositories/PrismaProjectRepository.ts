@@ -1,12 +1,12 @@
 import { injectable } from 'inversify'
-import { PrismaClient } from '@generated/prisma/client'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { Project } from '@aggregates/project/Project'
-import { projectToDomain } from './ProjectMapper'
+import { PrismaProvider } from '../PrismaProvider'
+import { projectToDomain } from '../mappers/ProjectMapper'
 
 @injectable()
 export class PrismaProjectRepository implements ProjectRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   async findById(id: string): Promise<Project | null> {
     const raw = await this.prisma.project.findUnique({

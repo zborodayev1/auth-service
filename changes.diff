@@ -1,0 +1,338 @@
+diff --git a/src/config/server.ts b/src/config/server.ts
+index f667ba8..088a018 100644
+--- a/src/config/server.ts
++++ b/src/config/server.ts
+@@ -40,7 +40,11 @@ export class ServerConfig {
+   }
+ 
+   get jwtExpiresIn(): string {
+-    return process.env['JWT_EXPIRES_IN'] ?? '1h'
++    const expiresIn = process.env['JWT_EXPIRES_IN']
++    if (!expiresIn || typeof expiresIn !== 'string') {
++      return '1h'
++    }
++    return expiresIn
+   }
+ 
+   get refreshTokenTtlMs(): number {
+@@ -55,4 +59,13 @@ export class ServerConfig {
+     }
+     return ms
+   }
++
++  get dbUrl(): string {
++    const url = process.env['DATABASE_URL']
++    if (!url) {
++      throw new InternalServerError('DATABASE_URL must be set')
++    }
++
++    return url
++  }
+ }
+diff --git a/src/contexts/InfrastructureContext.ts b/src/contexts/InfrastructureContext.ts
+index 9108f07..5b84de5 100644
+--- a/src/contexts/InfrastructureContext.ts
++++ b/src/contexts/InfrastructureContext.ts
+@@ -3,8 +3,7 @@ import { ProjectRepository } from '@aggregates/project/ProjectRepository'
+ import { BcryptPasswordHasher } from '@infra/crypto/BcryptIPasswordHasher'
+ import { CryptoHasher } from '@infra/crypto/CryptoHasher'
+ import { UuidIdGenerator } from '@infra/identity/UuidIdGenerator'
+-import { PrismaClientRepository } from '@infra/persistence/client/PrismaClientRepository'
+-import { PrismaProjectRepository } from '@infra/persistence/project/PrismaProjectRepository'
++import { PrismaClientRepository } from '@infra/persistence/prisma/repositories/PrismaClientRepository'
+ import { Hasher } from '@ports/Hasher'
+ import { IdGenerator } from '@ports/IdGenerator'
+ import { PasswordHasher } from '@ports/PasswordHasher'
+@@ -19,24 +18,19 @@ import { HttpServerFactory } from '@infra/http/HttpServerFactory'
+ import { JwtAccessTokenService } from '@infra/jwt/JwtAccessTokenService'
+ import { AccessTokenService } from '@ports/AccessTokenService'
+ import { KeyGenerator } from '@ports/KeyGenerator'
+-import { PrismaClient } from '@generated/prisma/client'
+ import { SessionRepository } from '@aggregates/session/SessionRepository'
+-import { PrismaSessionRepository } from '@infra/persistence/session/PrismaSessionRepository'
+ import { RefreshTokenFactory } from '@factories/RefreshTokenFactory'
+ import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
+-import { PrismaRefreshTokenRepository } from '@infra/persistence/refreshToken/PrismaRefreshTokenRepository'
+ import { AuthService } from '@services/auth/AuthService'
+ import { RefreshTokenService } from '@services/refresh-token/RefreshTokenService'
++import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/PrismaSessionRepository'
++import { PrismaProjectRepository } from '@infra/persistence/prisma/repositories/PrismaProjectRepository'
+ 
+ @injectable()
+ export class InfrastructureContext implements ServiceContext {
+   register(container: Container): void {
+     container.bind(ServerConfig).toSelf().inSingletonScope()
+ 
+-    const prisma = new PrismaClient()
+-
+-    container.bind(PrismaClient).toConstantValue(prisma)
+-
+     container.bind(ExpressApp).toSelf().inSingletonScope()
+ 
+     container.bind(HttpServerFactory).toSelf().inSingletonScope()
+diff --git a/src/infrastructure/persistence/client/ClientMapper.ts b/src/infrastructure/persistence/client/ClientMapper.ts
+deleted file mode 100644
+index 0e75ce8..0000000
+--- a/src/infrastructure/persistence/client/ClientMapper.ts
++++ /dev/null
+@@ -1,17 +0,0 @@
+-import { Client } from '@aggregates/client/Client'
+-import { Email } from '@aggregates/client/Email'
+-import { Password } from '@aggregates/client/Password'
+-import type { Prisma } from '@generated/prisma/client'
+-import { Name } from '@valueObjects/Name'
+-
+-type PrismaClientRow = Prisma.ClientGetPayload<Record<string, never>>
+-
+-export function clientToDomain(raw: PrismaClientRow): Client {
+-  return Client.reconstruct(
+-    raw.id,
+-    Name.create(raw.name),
+-    Email.create(raw.email),
+-    Password.fromHash(raw.passwordHash),
+-    raw.createdAt,
+-  )
+-}
+diff --git a/src/infrastructure/persistence/client/PrismaClientRepository.ts b/src/infrastructure/persistence/client/PrismaClientRepository.ts
+deleted file mode 100644
+index 0ce2c40..0000000
+--- a/src/infrastructure/persistence/client/PrismaClientRepository.ts
++++ /dev/null
+@@ -1,40 +0,0 @@
+-import { ClientRepository } from '@aggregates/client/ClientRepository'
+-import { PrismaClient } from '@generated/prisma/client'
+-import { injectable } from 'inversify'
+-import { Email } from '@aggregates/client/Email'
+-import { Client } from '@aggregates/client/Client'
+-import { clientToDomain } from './ClientMapper'
+-
+-@injectable()
+-export class PrismaClientRepository implements ClientRepository {
+-  constructor(private readonly prisma: PrismaClient) {}
+-
+-  async findById(id: string): Promise<Client | null> {
+-    const raw = await this.prisma.client.findUnique({ where: { id } })
+-    return raw ? clientToDomain(raw) : null
+-  }
+-
+-  async findByEmail(email: Email): Promise<Client | null> {
+-    const raw = await this.prisma.client.findUnique({
+-      where: { email: email.toString() },
+-    })
+-    return raw ? clientToDomain(raw) : null
+-  }
+-
+-  async save(client: Client): Promise<void> {
+-    await this.prisma.client.upsert({
+-      where: { id: client.id },
+-      update: {
+-        name: client.name,
+-        email: client.email.toString(),
+-        passwordHash: client.password.getHash(),
+-      },
+-      create: {
+-        id: client.id,
+-        name: client.name,
+-        email: client.email.toString(),
+-        passwordHash: client.password.getHash(),
+-      },
+-    })
+-  }
+-}
+diff --git a/src/infrastructure/persistence/project/PrismaProjectRepository.ts b/src/infrastructure/persistence/project/PrismaProjectRepository.ts
+deleted file mode 100644
+index b661b37..0000000
+--- a/src/infrastructure/persistence/project/PrismaProjectRepository.ts
++++ /dev/null
+@@ -1,53 +0,0 @@
+-import { injectable } from 'inversify'
+-import { PrismaClient } from '@generated/prisma/client'
+-import { ProjectRepository } from '@aggregates/project/ProjectRepository'
+-import { Project } from '@aggregates/project/Project'
+-import { projectToDomain } from './ProjectMapper'
+-
+-@injectable()
+-export class PrismaProjectRepository implements ProjectRepository {
+-  constructor(private readonly prisma: PrismaClient) {}
+-
+-  async findById(id: string): Promise<Project | null> {
+-    const raw = await this.prisma.project.findUnique({
+-      where: { id },
+-      include: { apiKey: true },
+-    })
+-    return raw ? projectToDomain(raw) : null
+-  }
+-
+-  async findByOwnerId(ownerId: string): Promise<Project[]> {
+-    const raws = await this.prisma.project.findMany({
+-      where: { ownerId },
+-      include: { apiKey: true },
+-    })
+-    return raws.map(projectToDomain)
+-  }
+-
+-  async save(project: Project): Promise<void> {
+-    await this.prisma.$transaction(async (tx) => {
+-      await tx.project.upsert({
+-        where: { id: project.id },
+-        create: {
+-          id: project.id,
+-          name: project.name,
+-          ownerId: project.ownerId,
+-          createdAt: project.createdAt,
+-        },
+-        update: { name: project.name },
+-      })
+-
+-      await tx.apiKey.upsert({
+-        where: { projectId: project.id },
+-        create: {
+-          id: project.apiKey.id,
+-          name: project.apiKey.name,
+-          hash: project.apiKey.hash,
+-          revoked: project.apiKey.revoked,
+-          projectId: project.id,
+-        },
+-        update: { revoked: project.apiKey.revoked, hash: project.apiKey.hash },
+-      })
+-    })
+-  }
+-}
+diff --git a/src/infrastructure/persistence/project/ProjectMapper.ts b/src/infrastructure/persistence/project/ProjectMapper.ts
+deleted file mode 100644
+index 67d847c..0000000
+--- a/src/infrastructure/persistence/project/ProjectMapper.ts
++++ /dev/null
+@@ -1,26 +0,0 @@
+-import type { Prisma } from '@generated/prisma/client'
+-import { Project } from '@aggregates/project/Project'
+-import { ApiKey } from '@aggregates/project/ApiKey'
+-import { NotFoundError } from '@shared/errors/NotFoundError'
+-import { Name } from '@valueObjects/Name'
+-
+-type PrismaProjectWithApiKey = Prisma.ProjectGetPayload<{
+-  include: { apiKey: true }
+-}>
+-
+-export function projectToDomain(raw: PrismaProjectWithApiKey): Project {
+-  if (!raw.apiKey)
+-    throw new NotFoundError('Project has no apiKey', 'PROJECT_HAS_NO_API_KEY', {
+-      projectId: raw.id,
+-    })
+-
+-  const apiKey = ApiKey.reconstruct(
+-    raw.apiKey.id,
+-    Name.create(raw.apiKey.name),
+-    raw.apiKey.hash,
+-    raw.apiKey.revoked,
+-    raw.apiKey.createdAt,
+-  )
+-
+-  return Project.reconstruct(raw.id, Name.create(raw.name), raw.ownerId, apiKey, raw.createdAt)
+-}
+diff --git a/src/infrastructure/persistence/session/PrismaSessionRepository.ts b/src/infrastructure/persistence/session/PrismaSessionRepository.ts
+deleted file mode 100644
+index 1ea81ab..0000000
+--- a/src/infrastructure/persistence/session/PrismaSessionRepository.ts
++++ /dev/null
+@@ -1,76 +0,0 @@
+-import { Session } from '@aggregates/session/Session'
+-import type { SessionRepository } from '@aggregates/session/SessionRepository'
+-import { PrismaClient } from '@generated/prisma/client'
+-import { injectable } from 'inversify'
+-import { sessionToDomain } from './SessionMapper'
+-
+-@injectable()
+-export class PrismaSessionRepository implements SessionRepository {
+-  constructor(private readonly prisma: PrismaClient) {}
+-
+-  async save(session: Session): Promise<void> {
+-    await this.prisma.session.upsert({
+-      where: { id: session.id },
+-      update: {
+-        expiresAt: session.expiresAt,
+-        revokedAt: session.revokedAt,
+-        lastUsedAt: session.lastUsedAt,
+-        userAgent: session.userAgent,
+-        ipAddress: session.ipAddress,
+-        deviceName: session.deviceName,
+-      },
+-      create: {
+-        id: session.id,
+-        clientId: session.clientId,
+-        expiresAt: session.expiresAt,
+-        revokedAt: session.revokedAt,
+-        createdAt: session.createdAt,
+-        lastUsedAt: session.lastUsedAt,
+-        userAgent: session.userAgent,
+-        ipAddress: session.ipAddress,
+-        deviceName: session.deviceName,
+-      },
+-    })
+-  }
+-
+-  async findById(id: string): Promise<Session | null> {
+-    const raw = await this.prisma.session.findUnique({
+-      where: { id },
+-    })
+-
+-    return raw ? sessionToDomain(raw) : null
+-  }
+-
+-  async findByClientId(clientId: string): Promise<Session[]> {
+-    const raws = await this.prisma.session.findMany({
+-      where: { clientId },
+-      orderBy: {
+-        createdAt: 'desc',
+-      },
+-    })
+-
+-    return raws.map(sessionToDomain)
+-  }
+-
+-  async revokeAllByClientId(clientId: string): Promise<void> {
+-    await this.prisma.session.updateMany({
+-      where: {
+-        clientId,
+-        revokedAt: null,
+-      },
+-      data: {
+-        revokedAt: new Date(),
+-      },
+-    })
+-  }
+-
+-  async deleteExpired(): Promise<void> {
+-    await this.prisma.session.deleteMany({
+-      where: {
+-        expiresAt: {
+-          lt: new Date(),
+-        },
+-      },
+-    })
+-  }
+-}
+diff --git a/src/infrastructure/persistence/session/SessionMapper.ts b/src/infrastructure/persistence/session/SessionMapper.ts
+deleted file mode 100644
+index 00c3ddb..0000000
+--- a/src/infrastructure/persistence/session/SessionMapper.ts
++++ /dev/null
+@@ -1,18 +0,0 @@
+-import { Session } from '@aggregates/session/Session'
+-import type { Prisma } from '@generated/prisma/client'
+-
+-type PrismaSessionRow = Prisma.SessionGetPayload<Record<string, never>>
+-
+-export function sessionToDomain(raw: PrismaSessionRow): Session {
+-  return Session.reconstruct(
+-    raw.id,
+-    raw.clientId,
+-    raw.expiresAt,
+-    raw.revokedAt,
+-    raw.createdAt,
+-    raw.lastUsedAt,
+-    raw.userAgent,
+-    raw.ipAddress,
+-    raw.deviceName,
+-  )
+-}

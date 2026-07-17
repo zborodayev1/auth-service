@@ -3,8 +3,7 @@ import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { BcryptPasswordHasher } from '@infra/crypto/BcryptIPasswordHasher'
 import { CryptoHasher } from '@infra/crypto/CryptoHasher'
 import { UuidIdGenerator } from '@infra/identity/UuidIdGenerator'
-import { PrismaClientRepository } from '@infra/persistence/client/PrismaClientRepository'
-import { PrismaProjectRepository } from '@infra/persistence/project/PrismaProjectRepository'
+import { PrismaClientRepository } from '@infra/persistence/prisma/repositories/PrismaClientRepository'
 import { Hasher } from '@ports/Hasher'
 import { IdGenerator } from '@ports/IdGenerator'
 import { PasswordHasher } from '@ports/PasswordHasher'
@@ -19,27 +18,25 @@ import { HttpServerFactory } from '@infra/http/HttpServerFactory'
 import { JwtAccessTokenService } from '@infra/jwt/JwtAccessTokenService'
 import { AccessTokenService } from '@ports/AccessTokenService'
 import { KeyGenerator } from '@ports/KeyGenerator'
-import { PrismaClient } from '@generated/prisma/client'
 import { SessionRepository } from '@aggregates/session/SessionRepository'
-import { PrismaSessionRepository } from '@infra/persistence/session/PrismaSessionRepository'
 import { RefreshTokenFactory } from '@factories/RefreshTokenFactory'
 import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
-import { PrismaRefreshTokenRepository } from '@infra/persistence/refreshToken/PrismaRefreshTokenRepository'
 import { AuthService } from '@services/auth/AuthService'
 import { RefreshTokenService } from '@services/refresh-token/RefreshTokenService'
+import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/PrismaSessionRepository'
+import { PrismaProjectRepository } from '@infra/persistence/prisma/repositories/PrismaProjectRepository'
+import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 
 @injectable()
 export class InfrastructureContext implements ServiceContext {
   register(container: Container): void {
     container.bind(ServerConfig).toSelf().inSingletonScope()
 
-    const prisma = new PrismaClient()
-
-    container.bind(PrismaClient).toConstantValue(prisma)
-
     container.bind(ExpressApp).toSelf().inSingletonScope()
 
     container.bind(HttpServerFactory).toSelf().inSingletonScope()
+
+    container.bind(PrismaProvider).toSelf().inSingletonScope()
 
     container.bind(ClientRepository).to(PrismaClientRepository).inSingletonScope()
 

@@ -1,13 +1,13 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
-import { PrismaClient } from '@generated/prisma/client'
 import { injectable } from 'inversify'
 import { Email } from '@aggregates/client/Email'
 import { Client } from '@aggregates/client/Client'
-import { clientToDomain } from './ClientMapper'
+import { clientToDomain } from '../mappers/ClientMapper'
+import { PrismaProvider } from '../PrismaProvider'
 
 @injectable()
 export class PrismaClientRepository implements ClientRepository {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaProvider) {}
 
   async findById(id: string): Promise<Client | null> {
     const raw = await this.prisma.client.findUnique({ where: { id } })
