@@ -26,6 +26,7 @@ import { RefreshTokenService } from '@services/refresh-token/RefreshTokenService
 import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/PrismaSessionRepository'
 import { PrismaProjectRepository } from '@infra/persistence/prisma/repositories/PrismaProjectRepository'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
+import { PrismaRefreshTokenRepository } from '@infra/persistence/prisma/repositories/PrismaRefreshTokenRepository'
 
 @injectable()
 export class InfrastructureContext implements ServiceContext {
