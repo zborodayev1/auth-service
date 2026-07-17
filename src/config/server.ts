@@ -68,4 +68,18 @@ export class ServerConfig {
 
     return url
   }
+
+  get logLevel(): string {
+    const level = process.env['LOG_LEVEL']
+
+    if (!level) {
+      return 'info'
+    }
+
+    return level
+  }
+
+  get isProduction(): boolean {
+    return process.env['NODE_ENV'] === 'production'
+  }
 }

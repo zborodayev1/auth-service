@@ -5,8 +5,6 @@ import { SessionRepository } from '@aggregates/session/SessionRepository'
 import { AccessTokenService } from '@ports/AccessTokenService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
-// import type { AuthenticatedRequest } from '../types/AuthenticatedRequest'
-
 @injectable()
 export class AuthMiddleware {
   constructor(

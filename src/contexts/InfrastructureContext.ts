@@ -27,6 +27,8 @@ import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/
 import { PrismaProjectRepository } from '@infra/persistence/prisma/repositories/PrismaProjectRepository'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { PrismaRefreshTokenRepository } from '@infra/persistence/prisma/repositories/PrismaRefreshTokenRepository'
+import { ILogger } from '@ports/logger/ILogger'
+import { PinoLogger } from '@infra/logger/PinoLogger'
 
 @injectable()
 export class InfrastructureContext implements ServiceContext {
@@ -63,5 +65,7 @@ export class InfrastructureContext implements ServiceContext {
     container.bind(RefreshTokenRepository).to(PrismaRefreshTokenRepository).inSingletonScope()
     container.bind(RefreshTokenService).toSelf().inSingletonScope()
     container.bind(AuthService).toSelf().inSingletonScope()
+
+    container.bind(ILogger).to(PinoLogger).inSingletonScope()
   }
 }
