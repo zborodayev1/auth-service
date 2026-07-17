@@ -5,3 +5,5 @@ dist
 environment.ts
 generated
 projectUtils
+*.md
+*.diff
