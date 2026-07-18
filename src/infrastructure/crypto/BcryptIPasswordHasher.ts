@@ -1,5 +1,5 @@
 import type { PasswordHasher } from '@ports/PasswordHasher'
-import { ServerConfig } from '@config/server'
+import { ServerConfig } from '@config/server/server'
 import bcrypt from 'bcrypt'
 import { inject, injectable } from 'inversify'
 

@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import pino, { type Logger, type LoggerOptions } from 'pino'
-import { ServerConfig } from '@config/server'
+import { ServerConfig } from '@config/server/server'
 import { ErrorLogData, LogData } from '@ports/logger/LogData'
 import { ILogger } from '@ports/logger/ILogger'
 

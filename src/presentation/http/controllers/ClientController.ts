@@ -19,7 +19,7 @@ import type { RefreshAccessTokenHandler } from '@app/commands/client/RefreshAcce
 import { RefreshAccessTokenCommand } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenCommand'
 import { RefreshTokenCookiesSchema } from '../validators/client/RefreshAccessTokenValidator'
 import { inject, injectable } from 'inversify'
-import { ServerConfig } from '@config/server'
+import { ServerConfig } from '@config/server/server'
 
 @injectable()
 export class ClientController {

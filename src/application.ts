@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import http from 'http'
-import { ServerConfig } from './config/server'
+import { ServerConfig } from './config/server/server'
 import { inject, injectable } from 'inversify'
 import { HttpServerFactory } from '@infra/http/HttpServerFactory'
 import { InternalServerError } from '@shared/errors/InternalServerError'

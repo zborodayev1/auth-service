@@ -4,7 +4,7 @@ import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { inject, injectable } from 'inversify'
 import { Hasher } from '@ports/Hasher'
 import { KeyGenerator } from '@ports/KeyGenerator'
-import { ServerConfig } from '@config/server'
+import { ServerConfig } from '@config/server/server'
 import { RefreshTokenFactory } from '@app/factories/RefreshTokenFactory'
 import type { GeneratedRefreshToken } from './types'
 

@@ -1,5 +1,5 @@
 import type { AccessTokenPayload, AccessTokenService } from '@ports/AccessTokenService'
-import { ServerConfig } from '@config/server'
+import { ServerConfig } from '@config/server/server'
 import { inject, injectable } from 'inversify'
 import jwt from 'jsonwebtoken'
 import { ValidationError } from '@shared/errors/ValidationError'
@@ -12,7 +12,7 @@ export class JwtAccessTokenService implements AccessTokenService {
   ) {}
 
   sign(clientId: string, sessionId: string): string {
-    const expiresIn = this.config.jwtExpiresIn as jwt.SignOptions['expiresIn'] & string
+    const expiresIn = this.config.jwtExpiresInString as jwt.SignOptions['expiresIn'] & string
     return jwt.sign({ sub: clientId, sid: sessionId }, this.config.jwtSecret, { expiresIn })
   }
 
