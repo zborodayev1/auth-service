@@ -18,7 +18,10 @@ import { LogoutCurrentSessionCommand } from '@app/commands/client/LogoutCurrentS
 import type { RefreshAccessTokenHandler } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenHandler'
 import { RefreshAccessTokenCommand } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenCommand'
 import { RefreshTokenCookiesSchema } from '../validators/client/RefreshAccessTokenValidator'
+import { inject, injectable } from 'inversify'
+import { ServerConfig } from '@config/server'
 
+@injectable()
 export class ClientController {
   constructor(
     private readonly registerHandler: RegisterClientHandler,
@@ -28,12 +31,15 @@ export class ClientController {
     private readonly logoutAllHandler: LogoutAllSessionsHandler,
     private readonly logoutCurrentHandler: LogoutCurrentSessionHandler,
     private readonly refreshHandler: RefreshAccessTokenHandler,
+
+    @inject(ServerConfig)
+    private readonly serverConfig: ServerConfig,
   ) {}
 
   async register(req: Request, res: Response): Promise<void> {
     const body = RegisterClientSchema.parse(req.body)
 
-    const result = await this.registerHandler.execute(
+    const { accessToken, refreshToken, clientId } = await this.registerHandler.execute(
       new RegisterClientCommand(
         body.name,
         body.email,
@@ -44,13 +50,23 @@ export class ClientController {
       ),
     )
 
-    res.status(201).json(result)
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 100,
+    })
+
+    res.status(201).json({
+      clientId,
+      accessToken,
+    })
   }
 
   async login(req: Request, res: Response): Promise<void> {
     const body = LoginClientSchema.parse(req.body)
 
-    const result = await this.loginHandler.execute(
+    const { accessToken, refreshToken, clientId } = await this.loginHandler.execute(
       new LoginClientCommand(
         body.password,
         body.email,
@@ -60,7 +76,17 @@ export class ClientController {
       ),
     )
 
-    res.status(201).json(result)
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 100,
+    })
+
+    res.status(201).json({
+      clientId,
+      accessToken,
+    })
   }
 
   async changeEmail(req: Request, res: Response): Promise<void> {
