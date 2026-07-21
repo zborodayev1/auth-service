@@ -1,21 +1,21 @@
-import { RefreshToken } from '@aggregates/refreshToken/RefreshToken'
-import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
+import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { inject, injectable } from 'inversify'
 import { Hasher } from '@ports/Hasher'
 import { KeyGenerator } from '@ports/KeyGenerator'
 import { ServerConfig } from '@config/server/server'
-import { RefreshTokenFactory } from '@app/factories/RefreshTokenFactory'
+import { ClientRefreshTokenFactory } from '@factories/ClientRefreshTokenFactory'
 import type { GeneratedRefreshToken } from './types'
+import { ClientRefreshToken } from '@aggregates/clientRefreshToken/RefreshToken'
 
 @injectable()
-export class RefreshTokenService {
+export class ClientRefreshTokenService {
   constructor(
-    @inject(RefreshTokenRepository)
-    private readonly refreshTokens: RefreshTokenRepository,
+    @inject(ClientRefreshTokenRepository)
+    private readonly refreshTokens: ClientRefreshTokenRepository,
 
-    @inject(RefreshTokenFactory)
-    private readonly refreshFactory: RefreshTokenFactory,
+    @inject(ClientRefreshTokenFactory)
+    private readonly clientRefreshFactory: ClientRefreshTokenFactory,
 
     @inject(Hasher)
     private readonly hasher: Hasher,
@@ -25,7 +25,7 @@ export class RefreshTokenService {
     @inject(KeyGenerator) private readonly keyGenerator: KeyGenerator,
   ) {}
 
-  async requireValid(rawToken: string): Promise<RefreshToken> {
+  async requireValid(rawToken: string): Promise<ClientRefreshToken> {
     const hash = this.hasher.hash(rawToken)
 
     const token = await this.refreshTokens.findByHash(hash)
@@ -45,7 +45,7 @@ export class RefreshTokenService {
     return token
   }
 
-  async detectReuse(token: RefreshToken): Promise<void> {
+  async detectReuse(token: ClientRefreshToken): Promise<void> {
     if (token.isUsed()) {
       await this.refreshTokens.revokeAllBySessionId(token.sessionId)
 
@@ -53,12 +53,12 @@ export class RefreshTokenService {
     }
   }
 
-  async rotate(currentToken: RefreshToken): Promise<GeneratedRefreshToken> {
+  async rotate(currentToken: ClientRefreshToken): Promise<GeneratedRefreshToken> {
     await this.refreshTokens.save(currentToken.markAsUsed())
 
     const refreshData = this.generate()
 
-    const refreshToken = this.refreshFactory.create({
+    const refreshToken = this.clientRefreshFactory.create({
       sessionId: currentToken.sessionId,
       refresh: refreshData,
     })

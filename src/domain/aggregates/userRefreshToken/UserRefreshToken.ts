@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
 
-export class RefreshToken extends AggregateRoot {
+export class UserRefreshToken extends AggregateRoot {
   private constructor(
     id: string,
 
@@ -17,8 +17,13 @@ export class RefreshToken extends AggregateRoot {
     super(id)
   }
 
-  static create(id: string, sessionId: string, hash: string, expiresAt: Date): RefreshToken {
-    return new RefreshToken(id, sessionId, hash, null, null, expiresAt, new Date())
+  static create(
+    id: string,
+    sessionId: string,
+    hash: string,
+    expiresAt: Date,
+  ): UserRefreshToken {
+    return new UserRefreshToken(id, sessionId, hash, null, null, expiresAt, new Date())
   }
 
   static reconstruct(
@@ -29,8 +34,8 @@ export class RefreshToken extends AggregateRoot {
     revokedAt: Date | null,
     expiresAt: Date,
     createdAt: Date,
-  ): RefreshToken {
-    return new RefreshToken(id, sessionId, hash, usedAt, revokedAt, expiresAt, createdAt)
+  ): UserRefreshToken {
+    return new UserRefreshToken(id, sessionId, hash, usedAt, revokedAt, expiresAt, createdAt)
   }
 
   get hash(): string {
@@ -61,8 +66,8 @@ export class RefreshToken extends AggregateRoot {
     return !this.isUsed() && !this.isRevoked() && !this.isExpired()
   }
 
-  markAsUsed(): RefreshToken {
-    return new RefreshToken(
+  markAsUsed(): UserRefreshToken {
+    return new UserRefreshToken(
       this.id,
       this.sessionId,
       this._hash,
@@ -73,8 +78,8 @@ export class RefreshToken extends AggregateRoot {
     )
   }
 
-  revoke(): RefreshToken {
-    return new RefreshToken(
+  revoke(): UserRefreshToken {
+    return new UserRefreshToken(
       this.id,
       this.sessionId,
       this._hash,

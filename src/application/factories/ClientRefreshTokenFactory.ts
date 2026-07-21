@@ -1,4 +1,4 @@
-import { RefreshToken } from '@aggregates/refreshToken/RefreshToken'
+import { ClientRefreshToken } from '@aggregates/clientRefreshToken/RefreshToken'
 import { IdGenerator } from '@ports/IdGenerator'
 import type { GeneratedRefreshToken } from '@services/refresh-token/types'
 import { injectable, inject } from 'inversify'
@@ -9,13 +9,13 @@ interface CreateRefreshToken {
 }
 
 @injectable()
-export class RefreshTokenFactory {
+export class ClientRefreshTokenFactory {
   constructor(
     @inject(IdGenerator)
     private readonly idGenerator: IdGenerator,
   ) {}
-  create(params: CreateRefreshToken): RefreshToken {
-    return RefreshToken.create(
+  create(params: CreateRefreshToken): ClientRefreshToken {
+    return ClientRefreshToken.create(
       this.idGenerator.generate(),
       params.sessionId,
       params.refresh.hash,

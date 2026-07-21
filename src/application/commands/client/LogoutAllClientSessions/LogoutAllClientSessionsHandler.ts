@@ -1,20 +1,20 @@
 import { inject, injectable } from 'inversify'
-import { LogoutAllSessionsCommand } from './LogoutAllSessionsCommand'
+import { LogoutAllClientSessionsCommand } from './LogoutAllClientSessionsCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { SessionRepository } from '@aggregates/session/SessionRepository'
+import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 
 interface LogoutAllSessionsResult {
   message: string
 }
 
 @injectable()
-export class LogoutAllSessionsHandler {
+export class LogoutAllClientSessionsHandler {
   constructor(
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
+    @inject(ClientSessionRepository)
+    private readonly sessions: ClientSessionRepository,
   ) {}
 
-  async execute(command: LogoutAllSessionsCommand): Promise<LogoutAllSessionsResult> {
+  async execute(command: LogoutAllClientSessionsCommand): Promise<LogoutAllSessionsResult> {
     const session = await this.sessions.findById(command.sessionId)
 
     if (!session?.isActive()) {

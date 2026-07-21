@@ -22,5 +22,5 @@ export function projectToDomain(raw: PrismaProjectWithApiKey): Project {
     raw.apiKey.createdAt,
   )
 
-  return Project.reconstruct(raw.id, Name.create(raw.name), raw.ownerId, apiKey, raw.createdAt)
+  return Project.reconstruct(raw.id, Name.create(raw.name), raw.ownerId, apiKey, raw.jwtSecret, raw.createdAt)
 }

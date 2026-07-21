@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify'
-import type { RefreshAccessTokenCommand } from './RefreshAccessTokenCommand'
+import type { RefreshClientAccessTokenCommand } from './RefreshClientAccessTokenCommand'
 import { AuthService } from '@services/auth/AuthService'
 
 export interface TokenPair {
@@ -8,13 +8,13 @@ export interface TokenPair {
 }
 
 @injectable()
-export class RefreshAccessTokenHandler {
+export class RefreshClientAccessTokenHandler {
   constructor(
     @inject(AuthService)
     private readonly authService: AuthService,
   ) {}
 
-  async execute(command: RefreshAccessTokenCommand): Promise<TokenPair> {
+  async execute(command: RefreshClientAccessTokenCommand): Promise<TokenPair> {
     return await this.authService.refresh(command.rawToken)
   }
 }

@@ -1,10 +1,10 @@
-import { Session } from '@aggregates/session/Session'
+import { ClientSession } from '@aggregates/clientSession/ClientSession'
 import type { Prisma } from '@generated/prisma/client'
 
 type PrismaSessionRow = Prisma.SessionGetPayload<Record<string, never>>
 
-export function sessionToDomain(raw: PrismaSessionRow): Session {
-  return Session.reconstruct(
+export function sessionToDomain(raw: PrismaSessionRow): ClientSession {
+  return ClientSession.reconstruct(
     raw.id,
     raw.clientId,
     raw.expiresAt,

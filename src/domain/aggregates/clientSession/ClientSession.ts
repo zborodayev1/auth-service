@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
 
-export class Session extends AggregateRoot {
+export class ClientSession extends AggregateRoot {
   private constructor(
     id: string,
     public readonly clientId: string,
@@ -25,10 +25,9 @@ export class Session extends AggregateRoot {
     userAgent: string | null,
     ipAddress: string | null,
     deviceName: string | null,
-  ): Session {
+  ): ClientSession {
     const now = new Date()
-
-    return new Session(id, clientId, expiresAt, null, now, now, userAgent, ipAddress, deviceName)
+    return new ClientSession(id, clientId, expiresAt, null, now, now, userAgent, ipAddress, deviceName)
   }
 
   static reconstruct(
@@ -41,8 +40,8 @@ export class Session extends AggregateRoot {
     userAgent: string | null,
     ipAddress: string | null,
     deviceName: string | null,
-  ): Session {
-    return new Session(
+  ): ClientSession {
+    return new ClientSession(
       id,
       clientId,
       expiresAt,
@@ -71,8 +70,8 @@ export class Session extends AggregateRoot {
     return !this.isExpired() && !this.isRevoked()
   }
 
-  revoke(): Session {
-    return new Session(
+  revoke(): ClientSession {
+    return new ClientSession(
       this.id,
       this.clientId,
       this.expiresAt,
@@ -85,8 +84,8 @@ export class Session extends AggregateRoot {
     )
   }
 
-  touch(): Session {
-    return new Session(
+  touch(): ClientSession {
+    return new ClientSession(
       this.id,
       this.clientId,
       this.expiresAt,

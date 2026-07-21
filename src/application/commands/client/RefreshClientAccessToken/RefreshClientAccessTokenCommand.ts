@@ -1,3 +1,3 @@
-export class RefreshAccessTokenCommand {
+export class RefreshClientAccessTokenCommand {
   constructor(public readonly rawToken: string) {}
 }

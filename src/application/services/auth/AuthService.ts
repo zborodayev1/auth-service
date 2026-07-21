@@ -1,22 +1,22 @@
-import type { TokenPair } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenHandler'
+import type { TokenPair } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { inject, injectable } from 'inversify'
-import { RefreshTokenService } from '../refresh-token/RefreshTokenService'
+import { ClientRefreshTokenService } from '../refresh-token/ClientRefreshTokenService'
 import { AccessTokenService } from '@ports/AccessTokenService'
-import { SessionRepository } from '@aggregates/session/SessionRepository'
-import { RefreshTokenFactory } from '@app/factories/RefreshTokenFactory'
+import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
+import { ClientRefreshTokenFactory } from '@factories/ClientRefreshTokenFactory'
 import { SessionFactory } from '@app/factories/SessionFactory'
-import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
+import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { LoginContext } from './types'
 
 @injectable()
 export class AuthService {
   constructor(
-    @inject(RefreshTokenService)
-    private readonly refreshTokenService: RefreshTokenService,
+    @inject(ClientRefreshTokenService)
+    private readonly clientRefreshTokenService: ClientRefreshTokenService,
 
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
+    @inject(ClientSessionRepository)
+    private readonly sessions: ClientSessionRepository,
 
     @inject(AccessTokenService)
     private readonly accessTokenService: AccessTokenService,
@@ -24,17 +24,17 @@ export class AuthService {
     @inject(SessionFactory)
     private readonly sessionFactory: SessionFactory,
 
-    @inject(RefreshTokenFactory)
-    private readonly refreshFactory: RefreshTokenFactory,
+    @inject(ClientRefreshTokenFactory)
+    private readonly clientRefreshFactory: ClientRefreshTokenFactory,
 
-    @inject(RefreshTokenRepository)
-    private readonly refreshTokens: RefreshTokenRepository,
+    @inject(ClientRefreshTokenRepository)
+    private readonly refreshTokens: ClientRefreshTokenRepository,
   ) {}
 
   async refresh(rawToken: string): Promise<TokenPair> {
-    const token = await this.refreshTokenService.requireValid(rawToken)
+    const token = await this.clientRefreshTokenService.requireValid(rawToken)
 
-    await this.refreshTokenService.detectReuse(token)
+    await this.clientRefreshTokenService.detectReuse(token)
 
     const session = await this.sessions.findById(token.sessionId)
 
@@ -42,7 +42,7 @@ export class AuthService {
       throw new UnauthorizedError('Session is invalid or has been revoked')
     }
 
-    const refresh = await this.refreshTokenService.rotate(token)
+    const refresh = await this.clientRefreshTokenService.rotate(token)
 
     await this.sessions.save(session.touch())
 
@@ -53,7 +53,7 @@ export class AuthService {
   }
 
   async login(context: LoginContext): Promise<TokenPair> {
-    const refreshData = this.refreshTokenService.generate()
+    const refreshData = this.clientRefreshTokenService.generate()
 
     const session = this.sessionFactory.create({
       clientId: context.clientId,
@@ -63,7 +63,7 @@ export class AuthService {
       expiresAt: refreshData.expiresAt,
     })
 
-    const refreshToken = this.refreshFactory.create({
+    const refreshToken = this.clientRefreshFactory.create({
       sessionId: session.id,
       refresh: refreshData,
     })

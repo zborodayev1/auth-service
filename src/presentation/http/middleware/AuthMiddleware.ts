@@ -1,7 +1,7 @@
 import type { NextFunction, Response, Request } from 'express'
 import { inject, injectable } from 'inversify'
 
-import { SessionRepository } from '@aggregates/session/SessionRepository'
+import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { AccessTokenService } from '@ports/AccessTokenService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
@@ -11,8 +11,8 @@ export class AuthMiddleware {
     @inject(AccessTokenService)
     private readonly accessTokens: AccessTokenService,
 
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
+    @inject(ClientSessionRepository)
+    private readonly sessions: ClientSessionRepository,
   ) {}
 
   async authenticate(req: Request, _: Response, next: NextFunction): Promise<void> {

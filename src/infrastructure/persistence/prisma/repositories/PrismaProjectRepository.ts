@@ -32,6 +32,7 @@ export class PrismaProjectRepository implements ProjectRepository {
           id: project.id,
           name: project.name,
           ownerId: project.ownerId,
+          jwtSecret: project.jwtSecret,
           createdAt: project.createdAt,
         },
         update: { name: project.name },

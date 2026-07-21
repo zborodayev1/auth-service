@@ -6,7 +6,7 @@ import { PasswordHasher } from '@ports/PasswordHasher'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { SessionRepository } from '@aggregates/session/SessionRepository'
+import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 
 interface ChangeClientPasswordResult {
   message: string
@@ -21,8 +21,8 @@ export class ChangeClientPasswordHandler {
     @inject(PasswordHasher)
     private readonly passwordHasher: PasswordHasher,
 
-    @inject(SessionRepository)
-    private readonly sessions: SessionRepository,
+    @inject(ClientSessionRepository)
+    private readonly sessions: ClientSessionRepository,
   ) {}
 
   async execute(command: ChangeClientPasswordCommand): Promise<ChangeClientPasswordResult> {
