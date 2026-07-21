@@ -11,12 +11,12 @@ import { ChangeClientEmailCommand } from '@app/commands/client/ChangeClientEmail
 import { ChangeClientPasswordSchema } from '../validators/client/ChangeClientPasswordValidator'
 import type { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { ChangeClientPasswordCommand } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordCommand'
-import type { LogoutAllSessionsHandler } from '@app/commands/client/LogoutAllSessions/LogoutAllSessionsHandler'
-import { LogoutAllSessionsCommand } from '@app/commands/client/LogoutAllSessions/LogoutAllSessionsCommand'
-import type { LogoutCurrentSessionHandler } from '@app/commands/client/LogoutCurrentSession/LogoutCurrentSessionHandler'
-import { LogoutCurrentSessionCommand } from '@app/commands/client/LogoutCurrentSession/LogoutCurrentSessionCommand'
-import type { RefreshAccessTokenHandler } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenHandler'
-import { RefreshAccessTokenCommand } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenCommand'
+import type { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
+import { LogoutAllClientSessionsCommand } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsCommand'
+import type { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
+import { LogoutCurrentClientSessionCommand } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionCommand'
+import type { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
+import { RefreshClientAccessTokenCommand } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenCommand'
 import { RefreshTokenCookiesSchema } from '../validators/client/RefreshAccessTokenValidator'
 import { inject, injectable } from 'inversify'
 import { ServerConfig } from '@config/server/server'
@@ -28,9 +28,9 @@ export class ClientController {
     private readonly loginHandler: LoginClientHandler,
     private readonly changeEmailHandler: ChangeClientEmailHandler,
     private readonly changePasswordHandler: ChangeClientPasswordHandler,
-    private readonly logoutAllHandler: LogoutAllSessionsHandler,
-    private readonly logoutCurrentHandler: LogoutCurrentSessionHandler,
-    private readonly refreshHandler: RefreshAccessTokenHandler,
+    private readonly logoutAllHandler: LogoutAllClientSessionsHandler,
+    private readonly logoutCurrentHandler: LogoutCurrentClientSessionHandler,
+    private readonly refreshHandler: RefreshClientAccessTokenHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -111,14 +111,14 @@ export class ClientController {
 
   async logoutAll(req: Request, res: Response): Promise<void> {
     const result = await this.logoutAllHandler.execute(
-      new LogoutAllSessionsCommand(req.auth.sessionId, req.auth.clientId),
+      new LogoutAllClientSessionsCommand(req.auth.sessionId, req.auth.clientId),
     )
     res.status(200).json(result)
   }
 
   async logoutCurrent(req: Request, res: Response): Promise<void> {
     const result = await this.logoutCurrentHandler.execute(
-      new LogoutCurrentSessionCommand(req.auth.sessionId, req.auth.clientId),
+      new LogoutCurrentClientSessionCommand(req.auth.sessionId, req.auth.clientId),
     )
     res.status(200).json(result)
   }
@@ -127,7 +127,7 @@ export class ClientController {
     const cookies = RefreshTokenCookiesSchema.parse(req.cookies)
 
     const result = await this.refreshHandler.execute(
-      new RefreshAccessTokenCommand(cookies.refresh_token),
+      new RefreshClientAccessTokenCommand(cookies.refresh_token),
     )
 
     res.status(200).json(result)

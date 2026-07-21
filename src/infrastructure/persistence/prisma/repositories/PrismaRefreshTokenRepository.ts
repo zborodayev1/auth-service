@@ -1,14 +1,15 @@
-import { RefreshTokenRepository } from '@aggregates/refreshToken/RefreshTokenRepository'
+import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { injectable } from 'inversify'
-import { RefreshToken } from '@aggregates/refreshToken/RefreshToken'
+
 import { PrismaProvider } from '../PrismaProvider'
 import { refreshToDomain } from '../mappers/RefreshTokenMapper'
+import { ClientRefreshToken } from '@aggregates/clientRefreshToken/RefreshToken'
 
 @injectable()
-export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
+export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
-  async save(token: RefreshToken): Promise<void> {
+  async save(token: ClientRefreshToken): Promise<void> {
     await this.prisma.refreshToken.upsert({
       where: { id: token.id },
       update: {
@@ -28,7 +29,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
     })
   }
 
-  async findById(id: string): Promise<RefreshToken | null> {
+  async findById(id: string): Promise<ClientRefreshToken | null> {
     const raw = await this.prisma.refreshToken.findUnique({
       where: { id },
     })
@@ -37,7 +38,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
     return refreshToDomain(raw)
   }
 
-  async findByHash(hash: string): Promise<RefreshToken | null> {
+  async findByHash(hash: string): Promise<ClientRefreshToken | null> {
     const raw = await this.prisma.refreshToken.findUnique({
       where: { hash },
     })
@@ -46,7 +47,7 @@ export class PrismaRefreshTokenRepository implements RefreshTokenRepository {
     return refreshToDomain(raw)
   }
 
-  async findBySessionId(sessionId: string): Promise<RefreshToken[]> {
+  async findBySessionId(sessionId: string): Promise<ClientRefreshToken[]> {
     const raws = await this.prisma.refreshToken.findMany({
       where: { sessionId },
     })

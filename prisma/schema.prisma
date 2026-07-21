@@ -17,6 +17,15 @@ datasource db {
 
 }
 
+enum FieldType {
+  string
+  number
+  boolean
+  date
+  enum
+}
+
+
 model Project {
   id        String @id @default(uuid()) @db.Uuid
   name      String @db.VarChar(64)
@@ -24,7 +33,11 @@ model Project {
   ownerId   String @db.Uuid
   owner   Client @relation(fields: [ownerId], references: [id])
 
+  fields    ProjectField[]
+  users     User[]
+
   apiKey ApiKey?
+  jwtSecret String
 
   createdAt DateTime @default(now())
   @@unique([ownerId, name])
@@ -94,4 +107,95 @@ model Session {
     deviceName        String?
 
     @@index([clientId])
+}
+
+model ProjectField {
+  id        String @id @default(uuid()) @db.Uuid
+  projectId String @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id])
+
+  name  String @db.VarChar(64)
+
+  required  Boolean  @default(false)
+  defaultValue String?
+
+  type FieldType
+  enumValues String[]
+
+  createdAt DateTime @default(now())
+
+  fieldValues UserFieldValue[]
+  @@unique([projectId, name])
+}
+
+model UserFieldValue {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @db.Uuid
+  user      User         @relation(fields: [userId], references: [id])
+  fieldId   String       @db.Uuid
+  field     ProjectField @relation(fields: [fieldId], references: [id])
+  value     String
+  updatedAt DateTime     @updatedAt
+
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, fieldId])
+}
+
+
+model User {
+  id        String @id @default(uuid()) @db.Uuid
+  projectId String @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id])
+
+  sessions UserSession[]
+  fieldValues UserFieldValue[]
+  
+
+  email String @db.VarChar(254)
+  passwordHash  String @db.Char(60)
+
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, email])
+}
+
+model UserRefreshToken {
+  id        String @id @default(uuid()) @db.Uuid
+  sessionId String @db.Uuid
+  session UserSession @relation(fields:[sessionId], references:[id])
+
+  hash String @unique @db.Char(64)
+
+  usedAt DateTime?
+
+  revokedAt DateTime?
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+model UserSession {
+  id        String @id @default(uuid()) @db.Uuid
+
+  userId          String   @db.Uuid
+  user            User   @relation(fields: [userId], references: [id])
+
+  expiresAt         DateTime
+  revokedAt         DateTime?
+
+  refreshTokens UserRefreshToken[]
+
+  createdAt DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  userAgent         String?
+  ipAddress         String?
+  deviceName        String?
+
+  @@index([userId])
 }

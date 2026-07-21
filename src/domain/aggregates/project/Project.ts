@@ -8,6 +8,7 @@ export class Project extends AggregateRoot {
     private _name: Name,
     public readonly ownerId: string,
     private _apiKey: ApiKey,
+    public readonly jwtSecret: string,
     public readonly createdAt: Date,
   ) {
     super(id)
@@ -21,8 +22,14 @@ export class Project extends AggregateRoot {
     return this._apiKey
   }
 
-  static create(id: string, name: Name, ownerId: string, apiKey: ApiKey): Project {
-    return new Project(id, name, ownerId, apiKey, new Date())
+  static create(
+    id: string,
+    name: Name,
+    ownerId: string,
+    apiKey: ApiKey,
+    jwtSecret: string,
+  ): Project {
+    return new Project(id, name, ownerId, apiKey, jwtSecret, new Date())
   }
 
   static reconstruct(
@@ -30,9 +37,10 @@ export class Project extends AggregateRoot {
     name: Name,
     ownerId: string,
     apiKey: ApiKey,
+    jwtSecret: string,
     createdAt: Date,
   ): Project {
-    return new Project(id, name, ownerId, apiKey, createdAt)
+    return new Project(id, name, ownerId, apiKey, jwtSecret, createdAt)
   }
 
   revokeApiKey(): void {

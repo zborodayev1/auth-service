@@ -1,4 +1,4 @@
-import { Session } from '@aggregates/session/Session'
+import { ClientSession } from '@aggregates/clientSession/ClientSession'
 import { IdGenerator } from '@ports/IdGenerator'
 import { inject, injectable } from 'inversify'
 
@@ -14,8 +14,8 @@ interface CreateSessionParams {
 export class SessionFactory {
   constructor(@inject(IdGenerator) private readonly idGenerator: IdGenerator) {}
 
-  create(params: CreateSessionParams): Session {
-    return Session.create(
+  create(params: CreateSessionParams): ClientSession {
+    return ClientSession.create(
       this.idGenerator.generate(),
       params.clientId,
       params.expiresAt,

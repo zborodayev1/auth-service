@@ -1,14 +1,14 @@
-import { Session } from '@aggregates/session/Session'
-import type { SessionRepository } from '@aggregates/session/SessionRepository'
+import { ClientSession } from '@aggregates/clientSession/ClientSession'
+import type { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { injectable } from 'inversify'
 import { PrismaProvider } from '../PrismaProvider'
 import { sessionToDomain } from '../mappers/SessionMapper'
 
 @injectable()
-export class PrismaSessionRepository implements SessionRepository {
+export class PrismaSessionRepository implements ClientSessionRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
-  async save(session: Session): Promise<void> {
+  async save(session: ClientSession): Promise<void> {
     await this.prisma.session.upsert({
       where: { id: session.id },
       update: {
@@ -33,7 +33,7 @@ export class PrismaSessionRepository implements SessionRepository {
     })
   }
 
-  async findById(id: string): Promise<Session | null> {
+  async findById(id: string): Promise<ClientSession | null> {
     const raw = await this.prisma.session.findUnique({
       where: { id },
     })
@@ -41,7 +41,7 @@ export class PrismaSessionRepository implements SessionRepository {
     return raw ? sessionToDomain(raw) : null
   }
 
-  async findByClientId(clientId: string): Promise<Session[]> {
+  async findByClientId(clientId: string): Promise<ClientSession[]> {
     const raws = await this.prisma.session.findMany({
       where: { clientId },
       orderBy: {

@@ -5,9 +5,9 @@ import { CreateProjectHandler } from '@app/commands/project/CreateProject/Create
 import { Container, injectable } from 'inversify'
 import { ServiceContext } from './ServiceContext'
 import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
-import { LogoutAllSessionsHandler } from '@app/commands/client/LogoutAllSessions/LogoutAllSessionsHandler'
-import { RefreshAccessTokenHandler } from '@app/commands/client/RefreshAccessToken/RefreshAccessTokenHandler'
-import { LogoutCurrentSessionHandler } from '@app/commands/client/LogoutCurrentSession/LogoutCurrentSessionHandler'
+import { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
+import { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
+import { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 
 @injectable()
 export class ApplicationContext implements ServiceContext {
@@ -20,11 +20,11 @@ export class ApplicationContext implements ServiceContext {
 
     container.bind(ChangeClientEmailHandler).toSelf()
 
-    container.bind(LogoutAllSessionsHandler).toSelf()
+    container.bind(LogoutAllClientSessionsHandler).toSelf()
 
-    container.bind(LogoutCurrentSessionHandler).toSelf()
+    container.bind(LogoutCurrentClientSessionHandler).toSelf()
 
-    container.bind(RefreshAccessTokenHandler).toSelf()
+    container.bind(RefreshClientAccessTokenHandler).toSelf()
 
     container.bind(CreateProjectHandler).toSelf()
   }
