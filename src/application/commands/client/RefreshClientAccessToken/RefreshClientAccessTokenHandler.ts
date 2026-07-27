@@ -1,17 +1,13 @@
 import { inject, injectable } from 'inversify'
 import type { RefreshClientAccessTokenCommand } from './RefreshClientAccessTokenCommand'
-import { AuthService } from '@services/auth/AuthService'
-
-export interface TokenPair {
-  accessToken: string
-  refreshToken: string
-}
+import { ClientAuthService } from '@services/auth/ClientAuthService'
+import { TokenPair } from '@services/auth/types'
 
 @injectable()
 export class RefreshClientAccessTokenHandler {
   constructor(
-    @inject(AuthService)
-    private readonly authService: AuthService,
+    @inject(ClientAuthService)
+    private readonly authService: ClientAuthService,
   ) {}
 
   async execute(command: RefreshClientAccessTokenCommand): Promise<TokenPair> {

@@ -17,8 +17,8 @@ export class ClientRefreshToken extends AggregateRoot {
     super(id)
   }
 
-  static create(id: string, sessionId: string, hash: string, expiresAt: Date): ClientRefreshToken {
-    return new ClientRefreshToken(id, sessionId, hash, null, null, expiresAt, new Date())
+  static create(params: { id: string; sessionId: string; hash: string; expiresAt: Date }): ClientRefreshToken {
+    return new ClientRefreshToken(params.id, params.sessionId, params.hash, null, null, params.expiresAt, new Date())
   }
 
   static reconstruct(

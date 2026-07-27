@@ -1,6 +1,6 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { injectable } from 'inversify'
-import { Email } from '@aggregates/client/Email'
+import { Email } from '@valueObjects/Email'
 import { Client } from '@aggregates/client/Client'
 import { clientToDomain } from '../mappers/ClientMapper'
 import { PrismaProvider } from '../PrismaProvider'

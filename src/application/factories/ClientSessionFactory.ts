@@ -11,7 +11,7 @@ interface CreateSessionParams {
 }
 
 @injectable()
-export class SessionFactory {
+export class ClientSessionFactory {
   constructor(@inject(IdGenerator) private readonly idGenerator: IdGenerator) {}
 
   create(params: CreateSessionParams): ClientSession {

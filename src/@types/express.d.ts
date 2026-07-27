@@ -1,9 +1,11 @@
-import type { AccessTokenPayload } from '@ports/AccessTokenService'
+import type { ClientAccessTokenPayload } from '@ports/ClientAccessTokenService'
+import type { UserAccessTokenPayload } from '@ports/UserAccessTokenService'
 
 declare global {
   namespace Express {
     interface Request {
-      auth: AccessTokenPayload
+      auth: ClientAccessTokenPayload
+      userAuth: UserAccessTokenPayload
     }
   }
 }

@@ -22,6 +22,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
+      "@presentation/*": ["./src/presentation/*"],
       "@factories/*": ["./src/application/factories/*"],
       "@services/*": ["./src/application/services/*"],
       "@aggregates/*": ["./src/domain/aggregates/*"],

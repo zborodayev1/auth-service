@@ -17,23 +17,23 @@ export class ProjectField extends AggregateRoot {
     super(id)
   }
 
-  static create(
-    id: string,
-    projectId: string,
-    name: string,
-    type: FieldType,
-    required: boolean,
-    defaultValue: string | null,
-    enumValues: string[],
-  ): ProjectField {
+  static create(params: {
+    id: string
+    projectId: string
+    name: string
+    type: FieldType
+    required: boolean
+    defaultValue: string | null
+    enumValues: string[]
+  }): ProjectField {
     return new ProjectField(
-      id,
-      projectId,
-      name,
-      type,
-      required,
-      defaultValue,
-      enumValues,
+      params.id,
+      params.projectId,
+      params.name,
+      params.type,
+      params.required,
+      params.defaultValue,
+      params.enumValues,
       new Date(),
     )
   }
@@ -57,6 +57,24 @@ export class ProjectField extends AggregateRoot {
       defaultValue,
       enumValues,
       createdAt,
+    )
+  }
+
+  update(params: {
+    name?: string
+    required?: boolean
+    defaultValue?: string | null
+    enumValues?: string[]
+  }): ProjectField {
+    return new ProjectField(
+      this.id,
+      this.projectId,
+      params.name ?? this.name,
+      this.type,
+      params.required ?? this.required,
+      params.defaultValue !== undefined ? params.defaultValue : this.defaultValue,
+      params.enumValues ?? this.enumValues,
+      this.createdAt,
     )
   }
 }

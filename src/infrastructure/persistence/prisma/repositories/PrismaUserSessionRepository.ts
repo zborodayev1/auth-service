@@ -14,6 +14,7 @@ export class PrismaUserSessionRepository implements UserSessionRepository {
       create: {
         id: session.id,
         userId: session.userId,
+        projectId: session.projectId,
         expiresAt: session.expiresAt,
         revokedAt: session.revokedAt,
         createdAt: session.createdAt,

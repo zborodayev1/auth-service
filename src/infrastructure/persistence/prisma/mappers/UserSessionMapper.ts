@@ -7,6 +7,7 @@ export function userSessionToDomain(raw: PrismaUserSessionRow): UserSession {
   return UserSession.reconstruct(
     raw.id,
     raw.userId,
+    raw.projectId,
     raw.expiresAt,
     raw.revokedAt,
     raw.createdAt,

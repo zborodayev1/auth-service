@@ -11,8 +11,8 @@ export class UserFieldValue extends Entity {
     super(id)
   }
 
-  static create(id: string, userId: string, fieldId: string, value: string): UserFieldValue {
-    return new UserFieldValue(id, userId, fieldId, value, new Date())
+  static create(params: { id: string; userId: string; fieldId: string; value: string }): UserFieldValue {
+    return new UserFieldValue(params.id, params.userId, params.fieldId, params.value, new Date())
   }
 
   static reconstruct(

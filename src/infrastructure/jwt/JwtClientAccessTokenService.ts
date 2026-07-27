@@ -1,11 +1,14 @@
-import type { AccessTokenPayload, AccessTokenService } from '@ports/AccessTokenService'
+import type {
+  ClientAccessTokenPayload,
+  ClientAccessTokenService,
+} from '@ports/ClientAccessTokenService'
 import { ServerConfig } from '@config/server/server'
 import { inject, injectable } from 'inversify'
 import jwt from 'jsonwebtoken'
 import { ValidationError } from '@shared/errors/ValidationError'
 
 @injectable()
-export class JwtAccessTokenService implements AccessTokenService {
+export class JwtClientAccessTokenService implements ClientAccessTokenService {
   constructor(
     @inject(ServerConfig)
     private readonly config: ServerConfig,
@@ -16,7 +19,7 @@ export class JwtAccessTokenService implements AccessTokenService {
     return jwt.sign({ sub: clientId, sid: sessionId }, this.config.jwtSecret, { expiresIn })
   }
 
-  verify(token: string): AccessTokenPayload {
+  verify(token: string): ClientAccessTokenPayload {
     const payload = jwt.verify(token, this.config.jwtSecret, {
       algorithms: ['HS256'],
       issuer: 'auth-system',

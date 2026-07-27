@@ -15,11 +15,11 @@ export class ClientRefreshTokenFactory {
     private readonly idGenerator: IdGenerator,
   ) {}
   create(params: CreateRefreshToken): ClientRefreshToken {
-    return ClientRefreshToken.create(
-      this.idGenerator.generate(),
-      params.sessionId,
-      params.refresh.hash,
-      params.refresh.expiresAt,
-    )
+    return ClientRefreshToken.create({
+      id: this.idGenerator.generate(),
+      sessionId: params.sessionId,
+      hash: params.refresh.hash,
+      expiresAt: params.refresh.expiresAt,
+    })
   }
 }

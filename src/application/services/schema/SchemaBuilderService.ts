@@ -20,7 +20,7 @@ export class SchemaBuilderService {
 
       if (!field.required) zodType = zodType.optional() as z.ZodType
       if (field.defaultValue != null)
-        zodType = zodType.default(this.parseDefault(field)) as z.ZodType
+        zodType = zodType.default(this.parseDefault(field.type, field.defaultValue)) as z.ZodType
 
       shape[field.name] = zodType
     }
@@ -43,9 +43,8 @@ export class SchemaBuilderService {
     }
   }
 
-  private parseDefault(field: ProjectFieldDefinition): unknown {
-    const raw = field.defaultValue!
-    switch (field.type) {
+  private parseDefault(type: FieldType, raw: string): unknown {
+    switch (type) {
       case 'number':
         return Number(raw)
       case 'boolean':
