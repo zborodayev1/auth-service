@@ -2,14 +2,14 @@ import type { NextFunction, Response, Request } from 'express'
 import { inject, injectable } from 'inversify'
 
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
-import { AccessTokenService } from '@ports/AccessTokenService'
+import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
 @injectable()
-export class AuthMiddleware {
+export class ClientAuthMiddleware {
   constructor(
-    @inject(AccessTokenService)
-    private readonly accessTokens: AccessTokenService,
+    @inject(ClientAccessTokenService)
+    private readonly accessTokens: ClientAccessTokenService,
 
     @inject(ClientSessionRepository)
     private readonly sessions: ClientSessionRepository,

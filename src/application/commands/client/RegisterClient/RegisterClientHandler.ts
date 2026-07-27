@@ -1,15 +1,14 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { injectable, inject } from 'inversify'
 import { RegisterClientCommand } from './RegisterClientCommand'
-import { Email } from '@aggregates/client/Email'
-import { Password } from '@aggregates/client/Password'
+import { Email } from '@valueObjects/Email'
+import { Password } from '@valueObjects/Password'
 import { Client } from '@aggregates/client/Client'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { IdGenerator } from '@ports/IdGenerator'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { Name } from '@valueObjects/Name'
-import { AccessTokenService } from '@ports/AccessTokenService'
-import { AuthService } from '@services/auth/AuthService'
+import { ClientAuthService } from '@services/auth/ClientAuthService'
 
 interface RegisterClientResult {
   clientId: string
@@ -29,8 +28,8 @@ export class RegisterClientHandler {
     @inject(IdGenerator)
     private readonly idGenerator: IdGenerator,
 
-    @inject(AccessTokenService)
-    private readonly authService: AuthService,
+    @inject(ClientAuthService)
+    private readonly authService: ClientAuthService,
   ) {}
 
   async execute(command: RegisterClientCommand): Promise<RegisterClientResult> {

@@ -11,6 +11,7 @@ export class ServerConfig {
   readonly jwtExpiresInMs: number
   readonly jwtExpiresInString: string
   readonly refreshTokenTtlMs: number
+  readonly cookieMaxAge: number
   readonly dbUrl: string
   readonly logLevel: LogLevel
   readonly environment: Environment
@@ -25,6 +26,8 @@ export class ServerConfig {
     this.jwtExpiresInString = this.string('JWT_EXPIRES_IN', '1h')
 
     this.jwtExpiresInMs = this.duration('JWT_EXPIRES_IN', '1h')
+
+    this.cookieMaxAge = this.duration('COOKIE_MAX_AGE', '1h')
 
     this.refreshTokenTtlMs = this.duration('REFRESH_TOKEN_TTL_MS', '30d')
 

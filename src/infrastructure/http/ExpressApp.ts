@@ -2,12 +2,13 @@ import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import helmet from 'helmet'
 import { injectable } from 'inversify'
+import { HttpRouterRegistry } from './HttpRouterRegistry'
 
 @injectable()
 export class ExpressApp {
   private readonly app: Express
 
-  constructor() {
+  constructor(private readonly routerRegistry: HttpRouterRegistry) {
     this.app = express()
     this.setup()
   }
@@ -16,6 +17,7 @@ export class ExpressApp {
     this.app.use(express.json())
     this.app.use(helmet())
     this.app.use(cookieParser())
+    this.routerRegistry.register(this.app)
   }
 
   getInstance(): Express {

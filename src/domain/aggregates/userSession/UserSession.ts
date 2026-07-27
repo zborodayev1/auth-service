@@ -4,6 +4,7 @@ export class UserSession extends AggregateRoot {
   private constructor(
     id: string,
     public readonly userId: string,
+    public readonly projectId: string,
 
     public readonly expiresAt: Date,
     private readonly _revokedAt: Date | null,
@@ -18,21 +19,34 @@ export class UserSession extends AggregateRoot {
     super(id)
   }
 
-  static create(
-    id: string,
-    userId: string,
-    expiresAt: Date,
-    userAgent: string | null,
-    ipAddress: string | null,
-    deviceName: string | null,
-  ): UserSession {
+  static create(params: {
+    id: string
+    userId: string
+    projectId: string
+    expiresAt: Date
+    userAgent: string | null
+    ipAddress: string | null
+    deviceName: string | null
+  }): UserSession {
     const now = new Date()
-    return new UserSession(id, userId, expiresAt, null, now, now, userAgent, ipAddress, deviceName)
+    return new UserSession(
+      params.id,
+      params.userId,
+      params.projectId,
+      params.expiresAt,
+      null,
+      now,
+      now,
+      params.userAgent,
+      params.ipAddress,
+      params.deviceName,
+    )
   }
 
   static reconstruct(
     id: string,
     userId: string,
+    projectId: string,
     expiresAt: Date,
     revokedAt: Date | null,
     createdAt: Date,
@@ -44,6 +58,7 @@ export class UserSession extends AggregateRoot {
     return new UserSession(
       id,
       userId,
+      projectId,
       expiresAt,
       revokedAt,
       createdAt,
@@ -74,6 +89,7 @@ export class UserSession extends AggregateRoot {
     return new UserSession(
       this.id,
       this.userId,
+      this.projectId,
       this.expiresAt,
       new Date(),
       this.createdAt,
@@ -88,6 +104,7 @@ export class UserSession extends AggregateRoot {
     return new UserSession(
       this.id,
       this.userId,
+      this.projectId,
       this.expiresAt,
       this._revokedAt,
       this.createdAt,

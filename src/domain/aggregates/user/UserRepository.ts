@@ -1,5 +1,5 @@
 import type { User } from './User'
-import type { Email } from '@aggregates/client/Email'
+import type { Email } from '@valueObjects/Email'
 
 export interface UserRepository {
   save(user: User): Promise<void>

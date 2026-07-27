@@ -1,16 +1,15 @@
-import type { TokenPair } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { inject, injectable } from 'inversify'
 import { ClientRefreshTokenService } from '../refresh-token/ClientRefreshTokenService'
-import { AccessTokenService } from '@ports/AccessTokenService'
+import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { ClientRefreshTokenFactory } from '@factories/ClientRefreshTokenFactory'
-import { SessionFactory } from '@app/factories/SessionFactory'
+import { ClientSessionFactory } from '@factories/ClientSessionFactory'
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
-import { LoginContext } from './types'
+import { ClientLoginContext, TokenPair } from './types'
 
 @injectable()
-export class AuthService {
+export class ClientAuthService {
   constructor(
     @inject(ClientRefreshTokenService)
     private readonly clientRefreshTokenService: ClientRefreshTokenService,
@@ -18,11 +17,11 @@ export class AuthService {
     @inject(ClientSessionRepository)
     private readonly sessions: ClientSessionRepository,
 
-    @inject(AccessTokenService)
-    private readonly accessTokenService: AccessTokenService,
+    @inject(ClientAccessTokenService)
+    private readonly accessTokenService: ClientAccessTokenService,
 
-    @inject(SessionFactory)
-    private readonly sessionFactory: SessionFactory,
+    @inject(ClientSessionFactory)
+    private readonly sessionFactory: ClientSessionFactory,
 
     @inject(ClientRefreshTokenFactory)
     private readonly clientRefreshFactory: ClientRefreshTokenFactory,
@@ -52,7 +51,7 @@ export class AuthService {
     }
   }
 
-  async login(context: LoginContext): Promise<TokenPair> {
+  async login(context: ClientLoginContext): Promise<TokenPair> {
     const refreshData = this.clientRefreshTokenService.generate()
 
     const session = this.sessionFactory.create({

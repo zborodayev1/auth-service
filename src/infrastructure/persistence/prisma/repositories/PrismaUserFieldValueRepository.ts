@@ -41,4 +41,10 @@ export class PrismaUserFieldValueRepository implements UserFieldValueRepository 
     const count = await this.prisma.userFieldValue.count({ where: { fieldId } })
     return count > 0
   }
+
+  async deleteByFieldId(fieldId: string): Promise<void> {
+    await this.prisma.userFieldValue.deleteMany({
+      where: { fieldId },
+    })
+  }
 }

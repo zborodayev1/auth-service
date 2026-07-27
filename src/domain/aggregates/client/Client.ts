@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
-import type { Email } from './Email'
-import type { Password } from './Password'
+import type { Email } from '../../valueObjects/Email'
+import type { Password } from '../../valueObjects/Password'
 import type { Name } from '@valueObjects/Name'
 
 export class Client extends AggregateRoot {
@@ -28,7 +28,7 @@ export class Client extends AggregateRoot {
 
   static create(id: string, name: Name, email: Email, password: Password): Client {
     const client = new Client(id, name, email, password, new Date())
-    // client.addDomainEvent({ eventName: 'ClientRegistered', occurredAt: new Date() })
+
     return client
   }
 

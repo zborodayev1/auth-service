@@ -1,10 +1,10 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
-import { Email } from '@aggregates/client/Email'
+import { Email } from '@valueObjects/Email'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { inject, injectable } from 'inversify'
 import { LoginClientCommand } from './LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { AuthService } from '@services/auth/AuthService'
+import { ClientAuthService } from '@services/auth/ClientAuthService'
 
 interface LoginClientResult {
   clientId: string
@@ -21,8 +21,8 @@ export class LoginClientHandler {
     @inject(PasswordHasher)
     private readonly passwordHasher: PasswordHasher,
 
-    @inject(AuthService)
-    private readonly authService: AuthService,
+    @inject(ClientAuthService)
+    private readonly authService: ClientAuthService,
   ) {}
 
   async execute(command: LoginClientCommand): Promise<LoginClientResult> {

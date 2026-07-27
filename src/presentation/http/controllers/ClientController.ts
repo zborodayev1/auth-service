@@ -17,7 +17,7 @@ import type { LogoutCurrentClientSessionHandler } from '@app/commands/client/Log
 import { LogoutCurrentClientSessionCommand } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionCommand'
 import type { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenCommand'
-import { RefreshTokenCookiesSchema } from '../validators/client/RefreshAccessTokenValidator'
+import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
 import { inject, injectable } from 'inversify'
 import { ServerConfig } from '@config/server/server'
 
@@ -54,7 +54,7 @@ export class ClientController {
       httpOnly: true,
       secure: this.serverConfig.isProduction,
       sameSite: 'strict',
-      maxAge: 60 * 60 * 100,
+      maxAge: this.serverConfig.cookieMaxAge,
     })
 
     res.status(201).json({
@@ -80,7 +80,7 @@ export class ClientController {
       httpOnly: true,
       secure: this.serverConfig.isProduction,
       sameSite: 'strict',
-      maxAge: 60 * 60 * 100,
+      maxAge: this.serverConfig.cookieMaxAge,
     })
 
     res.status(201).json({
@@ -111,7 +111,7 @@ export class ClientController {
 
   async logoutAll(req: Request, res: Response): Promise<void> {
     const result = await this.logoutAllHandler.execute(
-      new LogoutAllClientSessionsCommand(req.auth.sessionId, req.auth.clientId),
+      new LogoutAllClientSessionsCommand(req.auth.clientId),
     )
     res.status(200).json(result)
   }
@@ -126,10 +126,17 @@ export class ClientController {
   async refresh(req: Request, res: Response): Promise<void> {
     const cookies = RefreshTokenCookiesSchema.parse(req.cookies)
 
-    const result = await this.refreshHandler.execute(
+    const { accessToken, refreshToken } = await this.refreshHandler.execute(
       new RefreshClientAccessTokenCommand(cookies.refresh_token),
     )
 
-    res.status(200).json(result)
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.serverConfig.cookieMaxAge,
+    })
+
+    res.status(200).json({ accessToken })
   }
 }

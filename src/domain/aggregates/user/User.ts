@@ -1,5 +1,5 @@
-import type { Email } from '@aggregates/client/Email'
-import type { Password } from '@aggregates/client/Password'
+import type { Email } from '@valueObjects/Email'
+import type { Password } from '@valueObjects/Password'
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
 
 export class User extends AggregateRoot {
@@ -23,8 +23,8 @@ export class User extends AggregateRoot {
     return this._password
   }
 
-  static create(id: string, projectId: string, email: Email, password: Password): User {
-    return new User(id, projectId, email, password, new Date())
+  static create(params: { id: string; projectId: string; email: Email; password: Password }): User {
+    return new User(params.id, params.projectId, params.email, params.password, new Date())
   }
 
   static reconstruct(

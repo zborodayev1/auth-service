@@ -5,6 +5,7 @@ export interface UserFieldValueRepository {
   saveMany(values: UserFieldValue[]): Promise<void>
   findByUserId(userId: string): Promise<UserFieldValue[]>
   findByUserAndField(userId: string, fieldId: string): Promise<UserFieldValue | null>
+  deleteByFieldId(fieldId: string): Promise<void>
   existsByFieldId(fieldId: string): Promise<boolean>
 }
 
