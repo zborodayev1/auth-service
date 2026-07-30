@@ -12,22 +12,18 @@ export class UserRouter {
 
   build(): Router {
     const router = Router({ mergeParams: true })
+    const authenticate = this.auth.authenticate.bind(this.auth)
+    const c = this.controller
 
-    router.post('/register', this.controller.register.bind(this.controller))
-    router.post('/login', this.controller.login.bind(this.controller))
-    router.post('/refresh', this.controller.refresh.bind(this.controller))
+    router.post('/register', c.register.bind(c))
+    router.post('/login', c.login.bind(c))
+    router.post('/refresh', c.refresh.bind(c))
 
-    router.post(
-      '/logout',
-      this.auth.authenticate.bind(this.auth),
-      this.controller.logoutCurrent.bind(this.controller),
-    )
+    router.post('/logout', authenticate, c.logoutCurrent.bind(c))
 
-    router.post(
-      '/logout-all',
-      this.auth.authenticate.bind(this.auth),
-      this.controller.logoutAll.bind(this.controller),
-    )
+    router.post('/logout-all', authenticate, c.logoutAll.bind(c))
+
+    router.patch('/me/fields/:name', authenticate, c.update.bind(c))
 
     return router
   }

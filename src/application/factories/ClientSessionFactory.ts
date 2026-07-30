@@ -15,13 +15,13 @@ export class ClientSessionFactory {
   constructor(@inject(IdGenerator) private readonly idGenerator: IdGenerator) {}
 
   create(params: CreateSessionParams): ClientSession {
-    return ClientSession.create(
-      this.idGenerator.generate(),
-      params.clientId,
-      params.expiresAt,
-      params.userAgent,
-      params.ipAddress,
-      params.deviceName,
-    )
+    return ClientSession.create({
+      id: this.idGenerator.generate(),
+      clientId: params.clientId,
+      expiresAt: params.expiresAt,
+      userAgent: params.userAgent,
+      ipAddress: params.ipAddress,
+      deviceName: params.deviceName,
+    })
   }
 }

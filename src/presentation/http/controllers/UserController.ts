@@ -15,6 +15,12 @@ import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTok
 import { RefreshUserAccessTokenCommand } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenCommand'
 import { LogoutAllUserSessionsCommand } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsCommand'
 import { LogoutUserSessionCommand } from '@app/commands/user/LogoutUserSession/LogoutUserSessionCommand'
+import {
+  UpdateUserFieldBodySchema,
+  UpdateUserFieldParamSchema,
+} from '../validators/user/UpdateUserFieldValidator'
+import { UpdateUserFieldHandler } from '@app/commands/user/UpdateUserField/UpdateUserFieldHandler'
+import { UpdateUserFieldCommand } from '@app/commands/user/UpdateUserField/UpdateUserFieldCommand'
 
 @injectable()
 export class UserController {
@@ -24,6 +30,8 @@ export class UserController {
     private readonly refreshHandler: RefreshUserAccessTokenHandler,
     private readonly logoutCurrentHandler: LogoutUserSessionHandler,
     private readonly logoutAllHandler: LogoutAllUserSessionsHandler,
+    private readonly updateHandler: UpdateUserFieldHandler,
+
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
   ) {}
@@ -115,6 +123,23 @@ export class UserController {
     const result = await this.logoutCurrentHandler.execute(
       new LogoutUserSessionCommand(req.userAuth.sessionId),
     )
+    res.status(200).json(result)
+  }
+
+  async update(req: Request, res: Response): Promise<void> {
+    const body = UpdateUserFieldBodySchema.parse(req.body)
+
+    const params = UpdateUserFieldParamSchema.parse(req.params)
+
+    const result = await this.updateHandler.execute(
+      new UpdateUserFieldCommand(
+        req.userAuth.userId,
+        req.userAuth.projectId,
+        params.name,
+        String(body.value),
+      ),
+    )
+
     res.status(200).json(result)
   }
 }

@@ -20,6 +20,8 @@ import { RefreshClientAccessTokenCommand } from '@app/commands/client/RefreshCli
 import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
 import { inject, injectable } from 'inversify'
 import { ServerConfig } from '@config/server/server'
+import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
+import { GetClientProjectsQuery } from '@app/queries/client/GetClientProjects/GetClientProjectsQuery'
 
 @injectable()
 export class ClientController {
@@ -31,6 +33,7 @@ export class ClientController {
     private readonly logoutAllHandler: LogoutAllClientSessionsHandler,
     private readonly logoutCurrentHandler: LogoutCurrentClientSessionHandler,
     private readonly refreshHandler: RefreshClientAccessTokenHandler,
+    private readonly getProjectsHandler: GetClientProjectsHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -138,5 +141,25 @@ export class ClientController {
     })
 
     res.status(200).json({ accessToken })
+  }
+
+  async getProjects(req: Request, res: Response): Promise<void> {
+    const projects = await this.getProjectsHandler.execute(
+      new GetClientProjectsQuery(req.auth.clientId),
+    )
+
+    res.status(200).json(
+      projects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        createdAt: p.createdAt,
+        apiKey: {
+          id: p.apiKey.id,
+          name: p.apiKey.name,
+          revoked: p.apiKey.revoked,
+          createdAt: p.apiKey.createdAt,
+        },
+      })),
+    )
   }
 }

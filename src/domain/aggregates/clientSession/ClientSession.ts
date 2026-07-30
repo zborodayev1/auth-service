@@ -18,39 +18,49 @@ export class ClientSession extends AggregateRoot {
     super(id)
   }
 
-  static create(
-    id: string,
-    clientId: string,
-    expiresAt: Date,
-    userAgent: string | null,
-    ipAddress: string | null,
-    deviceName: string | null,
-  ): ClientSession {
+  static create(params: {
+    id: string
+    clientId: string
+    expiresAt: Date
+    userAgent: string | null
+    ipAddress: string | null
+    deviceName: string | null
+  }): ClientSession {
     const now = new Date()
-    return new ClientSession(id, clientId, expiresAt, null, now, now, userAgent, ipAddress, deviceName)
+    return new ClientSession(
+      params.id,
+      params.clientId,
+      params.expiresAt,
+      null,
+      now,
+      now,
+      params.userAgent,
+      params.ipAddress,
+      params.deviceName,
+    )
   }
 
-  static reconstruct(
-    id: string,
-    clientId: string,
-    expiresAt: Date,
-    revokedAt: Date | null,
-    createdAt: Date,
-    lastUsedAt: Date,
-    userAgent: string | null,
-    ipAddress: string | null,
-    deviceName: string | null,
-  ): ClientSession {
+  static reconstruct(params: {
+    id: string
+    clientId: string
+    expiresAt: Date
+    revokedAt: Date | null
+    createdAt: Date
+    lastUsedAt: Date
+    userAgent: string | null
+    ipAddress: string | null
+    deviceName: string | null
+  }): ClientSession {
     return new ClientSession(
-      id,
-      clientId,
-      expiresAt,
-      revokedAt,
-      createdAt,
-      lastUsedAt,
-      userAgent,
-      ipAddress,
-      deviceName,
+      params.id,
+      params.clientId,
+      params.expiresAt,
+      params.revokedAt,
+      params.createdAt,
+      params.lastUsedAt,
+      params.userAgent,
+      params.ipAddress,
+      params.deviceName,
     )
   }
 
