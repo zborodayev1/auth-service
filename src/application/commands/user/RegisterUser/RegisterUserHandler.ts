@@ -12,6 +12,7 @@ import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRep
 import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldValueRepository'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { UserFieldValue } from '@aggregates/userFieldValue/UserFieldValue'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface RegisterUserResult {
   userId: string
@@ -22,6 +23,9 @@ interface RegisterUserResult {
 @injectable()
 export class RegisterUserHandler {
   constructor(
+    @inject(UnitOfWork)
+    private readonly unitOfWork: UnitOfWork,
+
     @inject(UserRepository)
     private readonly users: UserRepository,
 
@@ -75,15 +79,16 @@ export class RegisterUserHandler {
         }),
       )
 
-    await this.users.save(user)
-    await this.fieldValues.saveMany(values)
-
-    const tokens = await this.authService.login({
-      userId: user.id,
-      projectId: command.projectId,
-      userAgent: command.userAgent,
-      ipAddress: command.ipAddress,
-      deviceName: command.deviceName,
+    const tokens = await this.unitOfWork.execute(async () => {
+      await this.users.save(user)
+      await this.fieldValues.saveMany(values)
+      return this.authService.login({
+        userId: user.id,
+        projectId: command.projectId,
+        userAgent: command.userAgent,
+        ipAddress: command.ipAddress,
+        deviceName: command.deviceName,
+      })
     })
 
     return { userId: user.id, ...tokens }

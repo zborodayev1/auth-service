@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 import { DeleteProjectFieldCommand } from './DeleteProjectFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ConflictError } from '@shared/errors/ConflictError'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface DeleteProjectFieldResult {
   message: string
@@ -12,6 +13,8 @@ interface DeleteProjectFieldResult {
 @injectable()
 export class DeleteProjectFieldHandler {
   constructor(
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
     @inject(UserFieldValueRepository)
     private readonly fieldValues: UserFieldValueRepository,
 
@@ -32,9 +35,13 @@ export class DeleteProjectFieldHandler {
 
     if (values) {
       if (!command.force) throw new ConflictError('Cannot delete field with existing data')
-      await this.fieldValues.deleteByFieldId(field.id)
+      await this.unitOfWork.execute(async () => {
+        await this.fieldValues.deleteByFieldId(field.id)
+        await this.projectFields.delete(field.id)
+      })
+    } else {
+      await this.projectFields.delete(field.id)
     }
-    await this.projectFields.delete(field.id)
 
     return { message: 'Success deleted project field' }
   }

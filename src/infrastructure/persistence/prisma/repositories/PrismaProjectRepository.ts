@@ -1,15 +1,14 @@
 import { injectable } from 'inversify'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { Project } from '@aggregates/project/Project'
-import { PrismaProvider } from '../PrismaProvider'
+
 import { projectToDomain } from '../mappers/ProjectMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaProjectRepository implements ProjectRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaProjectRepository extends PrismaRepository implements ProjectRepository {
   async findById(id: string): Promise<Project | null> {
-    const raw = await this.prisma.project.findUnique({
+    const raw = await this.prismaClient.project.findUnique({
       where: { id },
       include: { apiKey: true },
     })
@@ -17,7 +16,7 @@ export class PrismaProjectRepository implements ProjectRepository {
   }
 
   async findByOwnerId(ownerId: string): Promise<Project[]> {
-    const raws = await this.prisma.project.findMany({
+    const raws = await this.prismaClient.project.findMany({
       where: { ownerId },
       include: { apiKey: true },
     })
@@ -25,7 +24,7 @@ export class PrismaProjectRepository implements ProjectRepository {
   }
 
   async save(project: Project): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
+    await this.withAtomicOps(async (tx) => {
       await tx.project.upsert({
         where: { id: project.id },
         create: {

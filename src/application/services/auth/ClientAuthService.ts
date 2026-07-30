@@ -7,10 +7,13 @@ import { ClientRefreshTokenFactory } from '@factories/ClientRefreshTokenFactory'
 import { ClientSessionFactory } from '@factories/ClientSessionFactory'
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { ClientLoginContext, TokenPair } from './types'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 @injectable()
 export class ClientAuthService {
   constructor(
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
     @inject(ClientRefreshTokenService)
     private readonly clientRefreshTokenService: ClientRefreshTokenService,
 
@@ -41,9 +44,11 @@ export class ClientAuthService {
       throw new UnauthorizedError('Session is invalid or has been revoked')
     }
 
-    const refresh = await this.clientRefreshTokenService.rotate(token)
-
-    await this.sessions.save(session.touch())
+    const [refresh] = await this.unitOfWork.execute(async () => {
+      const r = await this.clientRefreshTokenService.rotate(token)
+      await this.sessions.save(session.touch())
+      return [r]
+    })
 
     return {
       accessToken: this.accessTokenService.sign(session.clientId, session.id),
@@ -67,9 +72,10 @@ export class ClientAuthService {
       refresh: refreshData,
     })
 
-    await this.sessions.save(session)
-
-    await this.refreshTokens.save(refreshToken)
+    await this.unitOfWork.execute(async () => {
+      await this.sessions.save(session)
+      await this.refreshTokens.save(refreshToken)
+    })
 
     const accessToken = this.accessTokenService.sign(context.clientId, session.id)
 

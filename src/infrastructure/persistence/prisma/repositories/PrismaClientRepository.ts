@@ -3,26 +3,25 @@ import { injectable } from 'inversify'
 import { Email } from '@valueObjects/Email'
 import { Client } from '@aggregates/client/Client'
 import { clientToDomain } from '../mappers/ClientMapper'
-import { PrismaProvider } from '../PrismaProvider'
+
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaClientRepository implements ClientRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaClientRepository extends PrismaRepository implements ClientRepository {
   async findById(id: string): Promise<Client | null> {
-    const raw = await this.prisma.client.findUnique({ where: { id } })
+    const raw = await this.prismaClient.client.findUnique({ where: { id } })
     return raw ? clientToDomain(raw) : null
   }
 
   async findByEmail(email: Email): Promise<Client | null> {
-    const raw = await this.prisma.client.findUnique({
+    const raw = await this.prismaClient.client.findUnique({
       where: { email: email.toString() },
     })
     return raw ? clientToDomain(raw) : null
   }
 
   async save(client: Client): Promise<void> {
-    await this.prisma.client.upsert({
+    await this.prismaClient.client.upsert({
       where: { id: client.id },
       update: {
         name: client.name,

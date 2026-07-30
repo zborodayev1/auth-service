@@ -1,15 +1,13 @@
 import { injectable } from 'inversify'
 import { UserSession } from '@aggregates/userSession/UserSession'
 import type { UserSessionRepository } from '@aggregates/userSession/UserSessionRepository'
-import { PrismaProvider } from '../PrismaProvider'
 import { userSessionToDomain } from '../mappers/UserSessionMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaUserSessionRepository implements UserSessionRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaUserSessionRepository extends PrismaRepository implements UserSessionRepository {
   async save(session: UserSession): Promise<void> {
-    await this.prisma.userSession.upsert({
+    await this.prismaClient.userSession.upsert({
       where: { id: session.id },
       create: {
         id: session.id,
@@ -32,12 +30,12 @@ export class PrismaUserSessionRepository implements UserSessionRepository {
   }
 
   async findById(id: string): Promise<UserSession | null> {
-    const raw = await this.prisma.userSession.findUnique({ where: { id } })
+    const raw = await this.prismaClient.userSession.findUnique({ where: { id } })
     return raw ? userSessionToDomain(raw) : null
   }
 
   async findByUserId(userId: string): Promise<UserSession[]> {
-    const raws = await this.prisma.userSession.findMany({
+    const raws = await this.prismaClient.userSession.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     })
@@ -45,14 +43,14 @@ export class PrismaUserSessionRepository implements UserSessionRepository {
   }
 
   async revokeAllByUserId(userId: string): Promise<void> {
-    await this.prisma.userSession.updateMany({
+    await this.prismaClient.userSession.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     })
   }
 
   async deleteExpired(): Promise<void> {
-    await this.prisma.userSession.deleteMany({
+    await this.prismaClient.userSession.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     })
   }

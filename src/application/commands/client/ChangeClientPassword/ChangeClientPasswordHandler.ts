@@ -7,6 +7,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface ChangeClientPasswordResult {
   message: string
@@ -15,6 +16,8 @@ interface ChangeClientPasswordResult {
 @injectable()
 export class ChangeClientPasswordHandler {
   constructor(
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
     @inject(ClientRepository)
     private readonly clients: ClientRepository,
 
@@ -56,8 +59,10 @@ export class ChangeClientPasswordHandler {
     const newPassword = Password.fromHash(hash)
     const updated = client.changePassword(newPassword)
 
-    await this.clients.save(updated)
-    await this.sessions.revokeAllByClientId(command.clientId)
+    await this.unitOfWork.execute(async () => {
+      await this.clients.save(updated)
+      await this.sessions.revokeAllByClientId(command.clientId)
+    })
 
     return {
       message: 'Password changed successfully',

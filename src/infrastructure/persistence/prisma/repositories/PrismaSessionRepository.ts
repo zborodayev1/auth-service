@@ -1,15 +1,13 @@
 import { ClientSession } from '@aggregates/clientSession/ClientSession'
 import type { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { injectable } from 'inversify'
-import { PrismaProvider } from '../PrismaProvider'
 import { sessionToDomain } from '../mappers/SessionMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaSessionRepository implements ClientSessionRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaSessionRepository extends PrismaRepository implements ClientSessionRepository {
   async save(session: ClientSession): Promise<void> {
-    await this.prisma.session.upsert({
+    await this.prismaClient.session.upsert({
       where: { id: session.id },
       update: {
         expiresAt: session.expiresAt,
@@ -34,7 +32,7 @@ export class PrismaSessionRepository implements ClientSessionRepository {
   }
 
   async findById(id: string): Promise<ClientSession | null> {
-    const raw = await this.prisma.session.findUnique({
+    const raw = await this.prismaClient.session.findUnique({
       where: { id },
     })
 
@@ -42,7 +40,7 @@ export class PrismaSessionRepository implements ClientSessionRepository {
   }
 
   async findByClientId(clientId: string): Promise<ClientSession[]> {
-    const raws = await this.prisma.session.findMany({
+    const raws = await this.prismaClient.session.findMany({
       where: { clientId },
       orderBy: {
         createdAt: 'desc',
@@ -53,7 +51,7 @@ export class PrismaSessionRepository implements ClientSessionRepository {
   }
 
   async revokeAllByClientId(clientId: string): Promise<void> {
-    await this.prisma.session.updateMany({
+    await this.prismaClient.session.updateMany({
       where: {
         clientId,
         revokedAt: null,
@@ -65,7 +63,7 @@ export class PrismaSessionRepository implements ClientSessionRepository {
   }
 
   async deleteExpired(): Promise<void> {
-    await this.prisma.session.deleteMany({
+    await this.prismaClient.session.deleteMany({
       where: {
         expiresAt: {
           lt: new Date(),
