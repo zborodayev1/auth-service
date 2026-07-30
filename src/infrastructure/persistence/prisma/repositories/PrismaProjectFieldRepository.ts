@@ -1,15 +1,16 @@
 import { injectable } from 'inversify'
 import { ProjectField } from '@aggregates/projectField/ProjectField'
 import type { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
-import { PrismaProvider } from '../PrismaProvider'
 import { projectFieldToDomain } from '../mappers/ProjectFieldMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaProjectFieldRepository implements ProjectFieldRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaProjectFieldRepository
+  extends PrismaRepository
+  implements ProjectFieldRepository
+{
   async save(field: ProjectField): Promise<void> {
-    await this.prisma.projectField.upsert({
+    await this.prismaClient.projectField.upsert({
       where: { id: field.id },
       create: {
         id: field.id,
@@ -31,23 +32,23 @@ export class PrismaProjectFieldRepository implements ProjectFieldRepository {
   }
 
   async findById(id: string): Promise<ProjectField | null> {
-    const raw = await this.prisma.projectField.findUnique({ where: { id } })
+    const raw = await this.prismaClient.projectField.findUnique({ where: { id } })
     return raw ? projectFieldToDomain(raw) : null
   }
 
   async findByProjectId(projectId: string): Promise<ProjectField[]> {
-    const raws = await this.prisma.projectField.findMany({ where: { projectId } })
+    const raws = await this.prismaClient.projectField.findMany({ where: { projectId } })
     return raws.map(projectFieldToDomain)
   }
 
   async findByProjectAndName(projectId: string, name: string): Promise<ProjectField | null> {
-    const raw = await this.prisma.projectField.findUnique({
+    const raw = await this.prismaClient.projectField.findUnique({
       where: { projectId_name: { projectId, name } },
     })
     return raw ? projectFieldToDomain(raw) : null
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.projectField.delete({ where: { id } })
+    await this.prismaClient.projectField.delete({ where: { id } })
   }
 }

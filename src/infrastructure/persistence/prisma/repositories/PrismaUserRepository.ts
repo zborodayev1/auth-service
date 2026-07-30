@@ -2,15 +2,13 @@ import { injectable } from 'inversify'
 import { User } from '@aggregates/user/User'
 import type { UserRepository } from '@aggregates/user/UserRepository'
 import type { Email } from '@valueObjects/Email'
-import { PrismaProvider } from '../PrismaProvider'
 import { userToDomain } from '../mappers/UserMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaUserRepository implements UserRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaUserRepository extends PrismaRepository implements UserRepository {
   async save(user: User): Promise<void> {
-    await this.prisma.user.upsert({
+    await this.prismaClient.user.upsert({
       where: { id: user.id },
       create: {
         id: user.id,
@@ -27,12 +25,12 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const raw = await this.prisma.user.findUnique({ where: { id } })
+    const raw = await this.prismaClient.user.findUnique({ where: { id } })
     return raw ? userToDomain(raw) : null
   }
 
   async findByProjectAndEmail(projectId: string, email: Email): Promise<User | null> {
-    const raw = await this.prisma.user.findUnique({
+    const raw = await this.prismaClient.user.findUnique({
       where: { projectId_email: { projectId, email: email.toString() } },
     })
     return raw ? userToDomain(raw) : null

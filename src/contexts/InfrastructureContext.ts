@@ -54,6 +54,10 @@ import { ILogger } from '@ports/logger/ILogger'
 import { PinoLogger } from '@infra/logger/PinoLogger'
 import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
 
+import { TransactionContext } from '@infra/persistence/prisma/TransactionContext'
+import { PrismaUnitOfWork } from '@infra/persistence/prisma/PrismaUnitOfWork'
+import { UnitOfWork } from '@ports/UnitOfWork'
+
 @injectable()
 export class InfrastructureContext implements ServiceContext {
   register(container: Container): void {
@@ -109,5 +113,8 @@ export class InfrastructureContext implements ServiceContext {
     container.bind(ApiKeyService).toSelf().inSingletonScope()
     container.bind(SchemaBuilderService).toSelf().inSingletonScope()
     container.bind(ILogger).to(PinoLogger).inSingletonScope()
+
+    container.bind(TransactionContext).toSelf().inSingletonScope()
+    container.bind(UnitOfWork).to(PrismaUnitOfWork).inSingletonScope()
   }
 }

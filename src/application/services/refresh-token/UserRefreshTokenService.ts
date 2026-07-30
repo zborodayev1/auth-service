@@ -7,10 +7,13 @@ import type { GeneratedRefreshToken } from './types'
 import { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRefreshTokenRepository'
 import { UserRefreshTokenFactory } from '@factories/UserRefreshTokenFactory'
 import { UserRefreshToken } from '@aggregates/userRefreshToken/UserRefreshToken'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 @injectable()
 export class UserRefreshTokenService {
   constructor(
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
     @inject(UserRefreshTokenRepository)
     private readonly refreshTokens: UserRefreshTokenRepository,
 
@@ -54,7 +57,7 @@ export class UserRefreshTokenService {
   }
 
   async rotate(currentToken: UserRefreshToken): Promise<GeneratedRefreshToken> {
-    await this.refreshTokens.save(currentToken.markAsUsed())
+    const markedToken = currentToken.markAsUsed()
 
     const refreshData = this.generate()
 
@@ -63,7 +66,10 @@ export class UserRefreshTokenService {
       refresh: refreshData,
     })
 
-    await this.refreshTokens.save(refreshToken)
+    await this.unitOfWork.execute(async () => {
+      await this.refreshTokens.save(markedToken)
+      await this.refreshTokens.save(refreshToken)
+    })
 
     return refreshData
   }

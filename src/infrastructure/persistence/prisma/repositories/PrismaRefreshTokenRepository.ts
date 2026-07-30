@@ -1,16 +1,17 @@
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { injectable } from 'inversify'
 
-import { PrismaProvider } from '../PrismaProvider'
 import { refreshToDomain } from '../mappers/RefreshTokenMapper'
 import { ClientRefreshToken } from '@aggregates/clientRefreshToken/RefreshToken'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaRefreshTokenRepository
+  extends PrismaRepository
+  implements ClientRefreshTokenRepository
+{
   async save(token: ClientRefreshToken): Promise<void> {
-    await this.prisma.refreshToken.upsert({
+    await this.prismaClient.refreshToken.upsert({
       where: { id: token.id },
       update: {
         usedAt: token.usedAt,
@@ -30,7 +31,7 @@ export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepositor
   }
 
   async findById(id: string): Promise<ClientRefreshToken | null> {
-    const raw = await this.prisma.refreshToken.findUnique({
+    const raw = await this.prismaClient.refreshToken.findUnique({
       where: { id },
     })
     if (!raw) return null
@@ -39,7 +40,7 @@ export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepositor
   }
 
   async findByHash(hash: string): Promise<ClientRefreshToken | null> {
-    const raw = await this.prisma.refreshToken.findUnique({
+    const raw = await this.prismaClient.refreshToken.findUnique({
       where: { hash },
     })
     if (!raw) return null
@@ -48,7 +49,7 @@ export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepositor
   }
 
   async findBySessionId(sessionId: string): Promise<ClientRefreshToken[]> {
-    const raws = await this.prisma.refreshToken.findMany({
+    const raws = await this.prismaClient.refreshToken.findMany({
       where: { sessionId },
     })
 
@@ -56,7 +57,7 @@ export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepositor
   }
 
   async revokeAllBySessionId(sessionId: string): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
+    await this.prismaClient.refreshToken.updateMany({
       where: {
         sessionId,
         revokedAt: null,
@@ -68,7 +69,7 @@ export class PrismaRefreshTokenRepository implements ClientRefreshTokenRepositor
   }
 
   async deleteExpired(): Promise<void> {
-    await this.prisma.refreshToken.deleteMany({
+    await this.prismaClient.refreshToken.deleteMany({
       where: {
         expiresAt: {
           lt: new Date(),

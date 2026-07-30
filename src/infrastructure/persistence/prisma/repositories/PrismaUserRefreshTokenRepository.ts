@@ -1,15 +1,17 @@
 import { injectable } from 'inversify'
 import { UserRefreshToken } from '@aggregates/userRefreshToken/UserRefreshToken'
 import type { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRefreshTokenRepository'
-import { PrismaProvider } from '../PrismaProvider'
+
 import { userRefreshTokenToDomain } from '../mappers/UserRefreshTokenMapper'
+import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaUserRefreshTokenRepository implements UserRefreshTokenRepository {
-  constructor(private readonly prisma: PrismaProvider) {}
-
+export class PrismaUserRefreshTokenRepository
+  extends PrismaRepository
+  implements UserRefreshTokenRepository
+{
   async save(token: UserRefreshToken): Promise<void> {
-    await this.prisma.userRefreshToken.upsert({
+    await this.prismaClient.userRefreshToken.upsert({
       where: { id: token.id },
       create: {
         id: token.id,
@@ -28,29 +30,29 @@ export class PrismaUserRefreshTokenRepository implements UserRefreshTokenReposit
   }
 
   async findById(id: string): Promise<UserRefreshToken | null> {
-    const raw = await this.prisma.userRefreshToken.findUnique({ where: { id } })
+    const raw = await this.prismaClient.userRefreshToken.findUnique({ where: { id } })
     return raw ? userRefreshTokenToDomain(raw) : null
   }
 
   async findByHash(hash: string): Promise<UserRefreshToken | null> {
-    const raw = await this.prisma.userRefreshToken.findUnique({ where: { hash } })
+    const raw = await this.prismaClient.userRefreshToken.findUnique({ where: { hash } })
     return raw ? userRefreshTokenToDomain(raw) : null
   }
 
   async findBySessionId(sessionId: string): Promise<UserRefreshToken[]> {
-    const raws = await this.prisma.userRefreshToken.findMany({ where: { sessionId } })
+    const raws = await this.prismaClient.userRefreshToken.findMany({ where: { sessionId } })
     return raws.map(userRefreshTokenToDomain)
   }
 
   async revokeAllBySessionId(sessionId: string): Promise<void> {
-    await this.prisma.userRefreshToken.updateMany({
+    await this.prismaClient.userRefreshToken.updateMany({
       where: { sessionId, revokedAt: null },
       data: { revokedAt: new Date() },
     })
   }
 
   async deleteExpired(): Promise<void> {
-    await this.prisma.userRefreshToken.deleteMany({
+    await this.prismaClient.userRefreshToken.deleteMany({
       where: { expiresAt: { lt: new Date() } },
     })
   }

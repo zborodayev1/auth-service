@@ -8,10 +8,13 @@ import { UserRefreshTokenService } from '@services/refresh-token/UserRefreshToke
 import { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRefreshTokenRepository'
 import { UserAccessTokenService } from '@ports/UserAccessTokenService'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 @injectable()
 export class UserAuthService {
   constructor(
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
     @inject(UserRefreshTokenService)
     private readonly userRefreshTokenService: UserRefreshTokenService,
 
@@ -49,9 +52,11 @@ export class UserAuthService {
       throw new UnauthorizedError('Invalid token')
     }
 
-    const refresh = await this.userRefreshTokenService.rotate(token)
-
-    await this.sessions.save(session.touch())
+    const [refresh] = await this.unitOfWork.execute(async () => {
+      const r = await this.userRefreshTokenService.rotate(token)
+      await this.sessions.save(session.touch())
+      return [r]
+    })
 
     return {
       accessToken: this.accessTokenService.sign(
@@ -84,9 +89,10 @@ export class UserAuthService {
     const project = await this.projects.findById(context.projectId)
     if (!project) throw new UnauthorizedError('Project not found')
 
-    await this.sessions.save(session)
-
-    await this.refreshTokens.save(refreshToken)
+    await this.unitOfWork.execute(async () => {
+      await this.sessions.save(session)
+      await this.refreshTokens.save(refreshToken)
+    })
 
     const accessToken = this.accessTokenService.sign(
       context.userId,
