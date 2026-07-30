@@ -4,15 +4,15 @@ import type { Prisma } from '@generated/prisma/client'
 type PrismaSessionRow = Prisma.SessionGetPayload<Record<string, never>>
 
 export function sessionToDomain(raw: PrismaSessionRow): ClientSession {
-  return ClientSession.reconstruct(
-    raw.id,
-    raw.clientId,
-    raw.expiresAt,
-    raw.revokedAt,
-    raw.createdAt,
-    raw.lastUsedAt,
-    raw.userAgent,
-    raw.ipAddress,
-    raw.deviceName,
-  )
+  return ClientSession.reconstruct({
+    id: raw.id,
+    clientId: raw.clientId,
+    expiresAt: raw.expiresAt,
+    revokedAt: raw.revokedAt,
+    createdAt: raw.createdAt,
+    lastUsedAt: raw.lastUsedAt,
+    userAgent: raw.userAgent,
+    ipAddress: raw.ipAddress,
+    deviceName: raw.deviceName,
+  })
 }

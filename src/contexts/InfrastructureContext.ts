@@ -52,6 +52,7 @@ import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/Cli
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { ILogger } from '@ports/logger/ILogger'
 import { PinoLogger } from '@infra/logger/PinoLogger'
+import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
 
 @injectable()
 export class InfrastructureContext implements ServiceContext {
@@ -83,13 +84,17 @@ export class InfrastructureContext implements ServiceContext {
     // User infrastructure
     container.bind(UserRepository).to(PrismaUserRepository).inSingletonScope()
     container.bind(UserSessionRepository).to(PrismaUserSessionRepository).inSingletonScope()
-    container.bind(UserRefreshTokenRepository).to(PrismaUserRefreshTokenRepository).inSingletonScope()
+    container
+      .bind(UserRefreshTokenRepository)
+      .to(PrismaUserRefreshTokenRepository)
+      .inSingletonScope()
     container.bind(UserFieldValueRepository).to(PrismaUserFieldValueRepository).inSingletonScope()
     container.bind(UserAccessTokenService).to(JwtUserAccessTokenService).inSingletonScope()
     container.bind(UserSessionFactory).toSelf().inSingletonScope()
     container.bind(UserRefreshTokenFactory).toSelf().inSingletonScope()
     container.bind(UserRefreshTokenService).toSelf().inSingletonScope()
     container.bind(UserAuthService).toSelf().inSingletonScope()
+    container.bind(UserFieldValueFactory).toSelf().inSingletonScope()
 
     // Project infrastructure
     container.bind(ProjectRepository).to(PrismaProjectRepository).inSingletonScope()

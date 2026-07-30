@@ -22,6 +22,7 @@ import { Container, injectable } from 'inversify'
 import { ServiceContext } from './ServiceContext'
 import { ClientController } from '@presentation/http/controllers/ClientController'
 import { ProjectController } from '@presentation/http/controllers/ProjectController'
+import { UpdateUserFieldHandler } from '@app/commands/user/UpdateUserField/UpdateUserFieldHandler'
 
 @injectable()
 export class ApplicationContext implements ServiceContext {
@@ -41,6 +42,7 @@ export class ApplicationContext implements ServiceContext {
     container.bind(LogoutAllUserSessionsHandler).toSelf()
     container.bind(LogoutUserSessionHandler).toSelf()
     container.bind(RefreshUserAccessTokenHandler).toSelf()
+    container.bind(UpdateUserFieldHandler).toSelf()
 
     // Project commands
     container.bind(CreateProjectHandler).toSelf()
