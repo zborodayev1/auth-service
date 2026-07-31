@@ -41,7 +41,10 @@ export class ClientAuthService {
     const session = await this.sessions.findById(token.sessionId)
 
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Session is invalid or has been revoked')
+      throw new UnauthorizedError('Session is invalid or has been revoked', 'INVALID_SESSION', {
+        session: session,
+        token: token,
+      })
     }
 
     const [refresh] = await this.unitOfWork.execute(async () => {
