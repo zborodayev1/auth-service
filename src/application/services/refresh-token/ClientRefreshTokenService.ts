@@ -38,11 +38,15 @@ export class ClientRefreshTokenService {
     }
 
     if (token.isExpired()) {
-      throw new UnauthorizedError('Expired refresh token')
+      throw new UnauthorizedError('Expired refresh token', 'REFRESH_TOKEN_EXPIRED', {
+        token: token,
+      })
     }
 
     if (token.isRevoked()) {
-      throw new UnauthorizedError('Revoked refresh token')
+      throw new UnauthorizedError('Revoked refresh token', 'REFRESH_TOKEN_REVOKED', {
+        token: token,
+      })
     }
 
     return token
@@ -52,7 +56,9 @@ export class ClientRefreshTokenService {
     if (token.isUsed()) {
       await this.refreshTokens.revokeAllBySessionId(token.sessionId)
 
-      throw new UnauthorizedError('Refresh token reuse detected', 'REFRESH_TOKEN_REUSE_DETECTED')
+      throw new UnauthorizedError('Refresh token reuse detected', 'REFRESH_TOKEN_REUSE_DETECTED', {
+        token,
+      })
     }
   }
 

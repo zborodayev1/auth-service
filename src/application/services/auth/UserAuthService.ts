@@ -43,13 +43,19 @@ export class UserAuthService {
 
     const session = await this.sessions.findById(token.sessionId)
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Session is invalid or has been revoked')
+      throw new UnauthorizedError('Session is invalid or has been revoked', 'INVALID_SESSION', {
+        session: session,
+        token: token,
+      })
     }
 
     const project = await this.projects.findById(session.projectId)
 
     if (!project) {
-      throw new UnauthorizedError('Invalid token')
+      throw new UnauthorizedError('Invalid token', 'INVALID_TOKEN', {
+        session: session,
+        token: token,
+      })
     }
 
     const [refresh] = await this.unitOfWork.execute(async () => {
@@ -87,7 +93,11 @@ export class UserAuthService {
     })
 
     const project = await this.projects.findById(context.projectId)
-    if (!project) throw new UnauthorizedError('Project not found')
+    if (!project)
+      throw new UnauthorizedError('Project not found', 'PROJECT_NOT_FOUND', {
+        session: session,
+        refreshToken: refreshToken,
+      })
 
     await this.unitOfWork.execute(async () => {
       await this.sessions.save(session)

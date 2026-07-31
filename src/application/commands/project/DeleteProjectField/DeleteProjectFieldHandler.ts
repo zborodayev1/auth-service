@@ -24,17 +24,25 @@ export class DeleteProjectFieldHandler {
   async execute(command: DeleteProjectFieldCommand): Promise<DeleteProjectFieldResult> {
     const field = await this.projectFields.findById(command.fieldId)
     if (!field) {
-      throw new NotFoundError('Field not found')
+      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+        command: command,
+      })
     }
 
     if (field.projectId !== command.projectId) {
-      throw new NotFoundError('Field not found')
+      throw new NotFoundError('Field not found', 'INVALID_PROJECT_ID', {
+        command: command,
+        field: field,
+      })
     }
 
     const values = await this.fieldValues.existsByFieldId(field.id)
 
     if (values) {
-      if (!command.force) throw new ConflictError('Cannot delete field with existing data')
+      if (!command.force)
+        throw new ConflictError('Cannot delete field with existing data', 'ACTION_IS_NOT_FORCE', {
+          command: command,
+        })
       await this.unitOfWork.execute(async () => {
         await this.fieldValues.deleteByFieldId(field.id)
         await this.projectFields.delete(field.id)
