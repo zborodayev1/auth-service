@@ -20,7 +20,10 @@ export class AddProjectFieldHandler {
     const exists = await this.projectFields.findByProjectAndName(command.projectId, command.name)
 
     if (exists) {
-      throw new ConflictError('Project field already exists')
+      throw new ConflictError('Project field already exists', 'FIELD_ALREADY_EXISTS', {
+        command: command,
+        field: exists,
+      })
     }
 
     const projectField = this.projectFieldFactory.create({

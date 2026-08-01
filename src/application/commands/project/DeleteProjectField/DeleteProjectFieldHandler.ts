@@ -39,7 +39,10 @@ export class DeleteProjectFieldHandler {
     const values = await this.fieldValues.existsByFieldId(field.id)
 
     if (values) {
-      if (!command.force) throw new ConflictError('Cannot delete field with existing data')
+      if (!command.force)
+        throw new ConflictError('Cannot delete field with existing data', 'ACTION_IS_NOT_FORCE', {
+          command: command,
+        })
       await this.unitOfWork.execute(async () => {
         await this.fieldValues.deleteByFieldId(field.id)
         await this.projectFields.delete(field.id)

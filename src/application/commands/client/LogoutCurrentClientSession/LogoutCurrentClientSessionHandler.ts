@@ -18,7 +18,10 @@ export class LogoutCurrentClientSessionHandler {
     const session = await this.sessions.findById(command.sessionId)
 
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Invalid or expired session')
+      throw new UnauthorizedError('Invalid or expired session', 'EXPIRED_SESSION', {
+        command: command,
+        session: session,
+      })
     }
 
     await this.sessions.save(session.revoke())
