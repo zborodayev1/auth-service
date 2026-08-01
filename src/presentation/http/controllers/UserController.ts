@@ -21,6 +21,21 @@ import {
 } from '../validators/user/UpdateUserFieldValidator'
 import { UpdateUserFieldHandler } from '@app/commands/user/UpdateUserField/UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from '@app/commands/user/UpdateUserField/UpdateUserFieldCommand'
+import { GetUserProfileHandler } from '@app/queries/user/GetUserProfile/GetUserProfileHandler'
+import { GetUserProfileQuery } from '@app/queries/user/GetUserProfile/GetUserProfileQuery'
+import { ChangeUserEmailHandler } from '@app/commands/user/ChangeUserEmail/ChangeUserEmailHandler'
+import { ChangeUserEmailSchema } from '../validators/user/ChangeUserEmailValidator'
+import { ChangeUserEmailCommand } from '@app/commands/user/ChangeUserEmail/ChangeUserEmailCommand'
+import { ChangeUserPasswordHandler } from '@app/commands/user/ChangeUserPassword/ChangeUserPasswordHandler'
+import { ChangeUserPasswordSchema } from '../validators/user/ChangeUserPasswordValidator'
+import { ChangeUserPasswordCommand } from '@app/commands/user/ChangeUserPassword/ChangeUserPasswordCommand'
+import { DeleteUserSelfHandler } from '@app/commands/user/DeleteUserSelf/DeleteUserSelfHandler'
+import { DeleteUserSelfSchema } from '../validators/user/DeleteUserSelfValidator'
+import { DeleteUserSelfCommand } from '@app/commands/user/DeleteUserSelf/DeleteUserSelfCommand'
+import { GetUserFieldsHandler } from '@app/queries/user/GetUserFields/GetUserFieldsHandler'
+import { GetUserFieldsQuery } from '@app/queries/user/GetUserFields/GetUserFieldsQuery'
+import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
+import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQuery'
 
 @injectable()
 export class UserController {
@@ -31,6 +46,12 @@ export class UserController {
     private readonly logoutCurrentHandler: LogoutUserSessionHandler,
     private readonly logoutAllHandler: LogoutAllUserSessionsHandler,
     private readonly updateHandler: UpdateUserFieldHandler,
+    private readonly getProfileHandler: GetUserProfileHandler,
+    private readonly changeEmailHandler: ChangeUserEmailHandler,
+    private readonly changePasswordHandler: ChangeUserPasswordHandler,
+    private readonly deleteSelfHandler: DeleteUserSelfHandler,
+    private readonly getFieldsHandler: GetUserFieldsHandler,
+    private readonly getFieldHandler: GetUserFieldHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -137,6 +158,68 @@ export class UserController {
         req.userAuth.projectId,
         params.name,
         String(body.value),
+      ),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async getProfile(req: Request, res: Response): Promise<void> {
+    const result = await this.getProfileHandler.execute(
+      new GetUserProfileQuery(req.userAuth.userId),
+    )
+    res.status(200).json(result)
+  }
+
+  async deleteSelf(req: Request, res: Response): Promise<void> {
+    const body = DeleteUserSelfSchema.parse(req.body)
+
+    const result = await this.deleteSelfHandler.execute(
+      new DeleteUserSelfCommand(req.userAuth.userId, body.password),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async changePassword(req: Request, res: Response): Promise<void> {
+    const body = ChangeUserPasswordSchema.parse(req.body)
+
+    const result = await this.changePasswordHandler.execute(
+      new ChangeUserPasswordCommand(
+        req.userAuth.userId,
+        req.userAuth.projectId,
+        body.currentPassword,
+        body.newPassword,
+      ),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async getField(req: Request, res: Response): Promise<void> {
+    const params = UpdateUserFieldParamSchema.parse(req.params)
+    const result = await this.getFieldHandler.execute(
+      new GetUserFieldQuery(req.userAuth.userId, req.userAuth.projectId, params.name),
+    )
+    res.status(200).json(result)
+  }
+
+  async getFields(req: Request, res: Response): Promise<void> {
+    const result = await this.getFieldsHandler.execute(
+      new GetUserFieldsQuery(req.userAuth.userId, req.userAuth.projectId),
+    )
+    res.status(200).json(result)
+  }
+
+  async changeEmail(req: Request, res: Response): Promise<void> {
+    const body = ChangeUserEmailSchema.parse(req.body)
+
+    const result = await this.changeEmailHandler.execute(
+      new ChangeUserEmailCommand(
+        req.userAuth.userId,
+        req.userAuth.projectId,
+        body.newEmail,
+        body.password,
       ),
     )
 

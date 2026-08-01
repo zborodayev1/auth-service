@@ -36,4 +36,12 @@ export class User extends AggregateRoot {
   ): User {
     return new User(id, projectId, email, password, createdAt)
   }
+
+  changeEmail(newEmail: Email): User {
+    return new User(this.id, this.projectId, newEmail, this._password, this.createdAt)
+  }
+
+  changePassword(newPassword: Password): User {
+    return new User(this.id, this.projectId, this._email, newPassword, this.createdAt)
+  }
 }

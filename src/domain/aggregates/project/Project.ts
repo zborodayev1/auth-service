@@ -43,15 +43,33 @@ export class Project extends AggregateRoot {
     return new Project(id, name, ownerId, apiKey, jwtSecret, createdAt)
   }
 
-  revokeApiKey(): void {
-    this._apiKey = this._apiKey.revoke()
+  revokeApiKey(): Project {
+    return new Project(
+      this.id,
+      this._name,
+      this.ownerId,
+      this._apiKey.revoke(),
+      this.jwtSecret,
+      this.createdAt,
+    )
   }
 
-  reName(newName: Name): void {
-    this._name = newName
+  reName(newName: Name): Project {
+    return new Project(this.id, newName, this.ownerId, this._apiKey, this.jwtSecret, this.createdAt)
   }
 
-  reNameApiKey(newName: Name): void {
-    this._apiKey = this._apiKey.reName(newName)
+  reNameApiKey(newName: Name): Project {
+    return new Project(
+      this.id,
+      this._name,
+      this.ownerId,
+      this._apiKey.reName(newName),
+      this.jwtSecret,
+      this.createdAt,
+    )
+  }
+
+  replaceApiKey(newApiKey: ApiKey): Project {
+    return new Project(this.id, this._name, this.ownerId, newApiKey, this.jwtSecret, this.createdAt)
   }
 }

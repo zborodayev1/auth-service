@@ -34,7 +34,9 @@ export class UpdateUserFieldHandler {
     )
 
     if (!field) {
-      throw new NotFoundError('Field not found')
+      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+        command: command,
+      })
     }
 
     const validated = this.schemaBuilder

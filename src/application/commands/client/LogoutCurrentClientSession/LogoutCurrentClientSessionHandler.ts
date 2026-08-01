@@ -4,7 +4,7 @@ import { ClientSessionRepository } from '@aggregates/clientSession/ClientSession
 import { LogoutCurrentClientSessionCommand } from './LogoutCurrentClientSessionCommand'
 
 interface LogoutCurrentSessionResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -23,6 +23,6 @@ export class LogoutCurrentClientSessionHandler {
 
     await this.sessions.save(session.revoke())
 
-    return { message: 'Session revoked successfully' }
+    return { success: true }
   }
 }

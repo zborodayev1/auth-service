@@ -7,7 +7,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface DeleteProjectFieldResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -24,11 +24,16 @@ export class DeleteProjectFieldHandler {
   async execute(command: DeleteProjectFieldCommand): Promise<DeleteProjectFieldResult> {
     const field = await this.projectFields.findById(command.fieldId)
     if (!field) {
-      throw new NotFoundError('Field not found')
+      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+        command: command,
+      })
     }
 
     if (field.projectId !== command.projectId) {
-      throw new NotFoundError('Field not found')
+      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
+        command: command,
+        field: field,
+      })
     }
 
     const values = await this.fieldValues.existsByFieldId(field.id)
@@ -43,6 +48,6 @@ export class DeleteProjectFieldHandler {
       await this.projectFields.delete(field.id)
     }
 
-    return { message: 'Success deleted project field' }
+    return { success: true }
   }
 }

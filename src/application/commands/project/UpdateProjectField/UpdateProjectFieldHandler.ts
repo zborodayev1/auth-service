@@ -2,7 +2,6 @@ import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRep
 import { inject, injectable } from 'inversify'
 import { UpdateProjectFieldCommand } from './UpdateProjectFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
 interface UpdateProjectFieldResult {
   fieldId: string
@@ -17,8 +16,15 @@ export class UpdateProjectFieldHandler {
   async execute(command: UpdateProjectFieldCommand): Promise<UpdateProjectFieldResult> {
     const field = await this.projectFields.findById(command.fieldId)
 
-    if (!field) throw new NotFoundError('Field not found')
-    if (field.projectId !== command.projectId) throw new UnauthorizedError('Field not found')
+    if (!field)
+      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+        command: command,
+      })
+    if (field.projectId !== command.projectId)
+      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
+        command: command,
+        field: field,
+      })
 
     const updated = field.update({
       name: command.name,

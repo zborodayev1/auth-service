@@ -3,7 +3,7 @@ import { LogoutAllClientSessionsCommand } from './LogoutAllClientSessionsCommand
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 
 interface LogoutAllSessionsResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -15,6 +15,6 @@ export class LogoutAllClientSessionsHandler {
 
   async execute(command: LogoutAllClientSessionsCommand): Promise<LogoutAllSessionsResult> {
     await this.sessions.revokeAllByClientId(command.clientId)
-    return { message: 'All sessions revoked successfully' }
+    return { success: true }
   }
 }

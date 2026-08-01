@@ -35,4 +35,27 @@ export class PrismaUserRepository extends PrismaRepository implements UserReposi
     })
     return raw ? userToDomain(raw) : null
   }
+
+  async findByProjectId(
+    projectId: string,
+    opts?: { limit: number; offset: number },
+  ): Promise<User[]> {
+    const raw = await this.prismaClient.user.findMany({
+      where: { projectId },
+      ...(opts && { take: opts.limit, skip: opts.offset }),
+    })
+    return raw.map(userToDomain)
+  }
+
+  async countByProjectId(projectId: string): Promise<number> {
+    return this.prismaClient.user.count({ where: { projectId } })
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prismaClient.user.delete({ where: { id } })
+  }
+
+  async deleteByProjectId(projectId: string): Promise<void> {
+    await this.prismaClient.user.deleteMany({ where: { projectId } })
+  }
 }

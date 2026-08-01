@@ -6,6 +6,8 @@ export interface UserSessionRepository {
   findByUserId(userId: string): Promise<UserSession[]>
   revokeAllByUserId(userId: string): Promise<void>
   deleteExpired(): Promise<void>
+  deleteByUserId(userId: string): Promise<void>
+  deleteByProjectId(projectId: string): Promise<void>
 }
 
 export const UserSessionRepository: unique symbol = Symbol('UserSessionRepository')

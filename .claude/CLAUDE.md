@@ -92,6 +92,15 @@ Configured in `tsconfig.json`, resolved at runtime by `tsconfig-paths`, at build
 
 ## DDD Decisions
 
+**Aggregate immutability** — all aggregate mutation methods return a new instance, never mutate in place. `void` mutation methods are forbidden.
+```ts
+// wrong
+reName(name: Name): void { this._name = name }
+
+// correct
+reName(name: Name): Client { return new Client(this.id, name, ...) }
+```
+
 **Pragmatic over strict DDD** — performance wins over purity when trade-off is clear:
 - `ProjectField` is a separate aggregate root with its own repository (not an entity inside `Project`). Reason: loading all fields every time `Project` is needed is wasteful. Commands for fields live under `commands/project/` (conceptual ownership), but `ProjectField` is loaded independently.
 - Same pattern applies to `ApiKey`, `UserSession`, `UserRefreshToken`, `UserFieldValue` — all separate aggregate roots despite belonging to parent aggregates conceptually.

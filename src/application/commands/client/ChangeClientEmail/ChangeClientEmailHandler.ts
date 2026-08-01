@@ -8,7 +8,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
 interface ChangeClientEmailResult {
-  message: string
+  email: string
 }
 
 @injectable()
@@ -52,6 +52,6 @@ export class ChangeClientEmailHandler {
     const updated = client.changeEmail(newEmail)
     await this.clients.save(updated)
 
-    return { message: 'Email changed successfully' }
+    return { email: command.newEmail }
   }
 }

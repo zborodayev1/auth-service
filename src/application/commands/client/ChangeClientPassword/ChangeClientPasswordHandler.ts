@@ -10,7 +10,7 @@ import { ClientSessionRepository } from '@aggregates/clientSession/ClientSession
 import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface ChangeClientPasswordResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -64,8 +64,6 @@ export class ChangeClientPasswordHandler {
       await this.sessions.revokeAllByClientId(command.clientId)
     })
 
-    return {
-      message: 'Password changed successfully',
-    }
+    return { success: true }
   }
 }
