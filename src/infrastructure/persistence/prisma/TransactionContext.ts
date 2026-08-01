@@ -1,13 +1,13 @@
 import { Prisma, PrismaClient } from '@generated/prisma/client'
 import { AsyncLocalStorage } from 'async_hooks'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { PrismaProvider } from './PrismaProvider'
 
 @injectable()
 export class TransactionContext {
   private storage = new AsyncLocalStorage<Prisma.TransactionClient>()
 
-  constructor(private readonly prisma: PrismaProvider) {}
+  constructor(@inject(PrismaProvider) private readonly prisma: PrismaProvider) {}
 
   get client(): PrismaClient | Prisma.TransactionClient {
     return this.storage.getStore() ?? this.prisma

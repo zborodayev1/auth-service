@@ -1,8 +1,11 @@
-import 'reflect-metadata'
 import { Container } from 'inversify'
 import { Application } from './application'
-import { ApplicationContext } from './contexts/ApplicationContext'
-import { InfrastructureContext } from './contexts/InfrastructureContext'
+import { PersistenceContext } from './contexts/infrastructure/PersistenceContext'
+import { HttpContext } from './contexts/infrastructure/HttpContext'
+import { AdaptersContext } from './contexts/infrastructure/AdaptersContext'
+import { ClientContext } from './contexts/application/ClientContext'
+import { UserContext } from './contexts/application/UserContext'
+import { ProjectContext } from './contexts/application/ProjectContext'
 import { ServiceContextBuilder } from './contexts/ServiceContextBuilder'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -11,10 +14,15 @@ export class Bootstrap {
     const container = new Container()
 
     new ServiceContextBuilder(container, [
-      new ApplicationContext(),
-      new InfrastructureContext(),
+      new PersistenceContext(),
+      new AdaptersContext(),
+      new HttpContext(),
+      new ClientContext(),
+      new UserContext(),
+      new ProjectContext(),
     ]).build()
 
+    container.bind(Application).toSelf()
     const app = container.get(Application)
 
     app.init()

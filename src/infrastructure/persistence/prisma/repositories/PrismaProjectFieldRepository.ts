@@ -1,7 +1,8 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { ProjectField } from '@aggregates/projectField/ProjectField'
 import type { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { projectFieldToDomain } from '../mappers/ProjectFieldMapper'
+import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
@@ -9,6 +10,10 @@ export class PrismaProjectFieldRepository
   extends PrismaRepository
   implements ProjectFieldRepository
 {
+  constructor(@inject(TransactionContext) ctx: TransactionContext) {
+    super(ctx)
+  }
+
   async save(field: ProjectField): Promise<void> {
     await this.prismaClient.projectField.upsert({
       where: { id: field.id },

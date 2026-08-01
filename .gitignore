@@ -6,4 +6,4 @@ environment.ts
 generated
 projectUtils
 # *.md
-*.diff
+*.diff.DS_Store

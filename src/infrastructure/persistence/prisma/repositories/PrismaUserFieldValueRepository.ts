@@ -1,7 +1,8 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { UserFieldValue } from '@aggregates/userFieldValue/UserFieldValue'
 import type { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldValueRepository'
 import { userFieldValueToDomain } from '../mappers/UserFieldValueMapper'
+import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
@@ -9,6 +10,10 @@ export class PrismaUserFieldValueRepository
   extends PrismaRepository
   implements UserFieldValueRepository
 {
+  constructor(@inject(TransactionContext) ctx: TransactionContext) {
+    super(ctx)
+  }
+
   async save(value: UserFieldValue): Promise<void> {
     await this.prismaClient.userFieldValue.upsert({
       where: { userId_fieldId: { userId: value.userId, fieldId: value.fieldId } },
