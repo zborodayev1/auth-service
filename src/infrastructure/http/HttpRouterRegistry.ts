@@ -1,5 +1,5 @@
 import type { Express } from 'express'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { ClientRouter } from '@presentation/http/routes/client'
 import { UserRouter } from '@presentation/http/routes/user'
 import { ErrorHandler } from '@presentation/http/middleware/errorHandler'
@@ -8,10 +8,10 @@ import { ProjectRouter } from '@presentation/http/routes/project'
 @injectable()
 export class HttpRouterRegistry {
   constructor(
-    private readonly clientRouter: ClientRouter,
-    private readonly userRouter: UserRouter,
-    private readonly projectRouter: ProjectRouter,
-    private readonly errorHandler: ErrorHandler,
+    @inject(ClientRouter) private readonly clientRouter: ClientRouter,
+    @inject(UserRouter) private readonly userRouter: UserRouter,
+    @inject(ProjectRouter) private readonly projectRouter: ProjectRouter,
+    @inject(ErrorHandler) private readonly errorHandler: ErrorHandler,
   ) {}
 
   register(app: Express): void {

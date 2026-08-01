@@ -1,21 +1,21 @@
-import type { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
+import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientSchema } from '../validators/client/RegisterClientValidator'
 import { RegisterClientCommand } from '@app/commands/client/RegisterClient/RegisterClientCommand'
 import type { Request, Response } from 'express'
 import { LoginClientSchema } from '../validators/client/LoginClientValidator'
-import type { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
+import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '@app/commands/client/LoginClient/LoginClientCommand'
 import { ChangeClientEmailSchema } from '../validators/client/ChangeClientEmailValidator'
-import type { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
+import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
 import { ChangeClientEmailCommand } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailCommand'
 import { ChangeClientPasswordSchema } from '../validators/client/ChangeClientPasswordValidator'
-import type { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
+import { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { ChangeClientPasswordCommand } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordCommand'
-import type { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
+import { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
 import { LogoutAllClientSessionsCommand } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsCommand'
-import type { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
+import { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
 import { LogoutCurrentClientSessionCommand } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionCommand'
-import type { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
+import { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenCommand'
 import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
 import { inject, injectable } from 'inversify'
@@ -31,15 +31,25 @@ import { RenameClientCommand } from '@app/commands/client/RenameClient/RenameCli
 @injectable()
 export class ClientController {
   constructor(
+    @inject(RegisterClientHandler)
     private readonly registerHandler: RegisterClientHandler,
+    @inject(LoginClientHandler)
     private readonly loginHandler: LoginClientHandler,
+    @inject(ChangeClientEmailHandler)
     private readonly changeEmailHandler: ChangeClientEmailHandler,
+    @inject(ChangeClientPasswordHandler)
     private readonly changePasswordHandler: ChangeClientPasswordHandler,
+    @inject(LogoutAllClientSessionsHandler)
     private readonly logoutAllHandler: LogoutAllClientSessionsHandler,
+    @inject(LogoutCurrentClientSessionHandler)
     private readonly logoutCurrentHandler: LogoutCurrentClientSessionHandler,
+    @inject(RefreshClientAccessTokenHandler)
     private readonly refreshHandler: RefreshClientAccessTokenHandler,
+    @inject(GetClientProfileHandler)
     private readonly getProfileHandler: GetClientProfileHandler,
+    @inject(GetClientProjectsHandler)
     private readonly getProjectsHandler: GetClientProjectsHandler,
+    @inject(RenameClientHandler)
     private readonly changeNameHandler: RenameClientHandler,
 
     @inject(ServerConfig)

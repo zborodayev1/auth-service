@@ -1,13 +1,13 @@
 import { UnitOfWork } from '@ports/UnitOfWork'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { PrismaProvider } from './PrismaProvider'
 import { TransactionContext } from './TransactionContext'
 
 @injectable()
 export class PrismaUnitOfWork implements UnitOfWork {
   constructor(
-    private readonly prisma: PrismaProvider,
-    private readonly ctx: TransactionContext,
+    @inject(PrismaProvider) private readonly prisma: PrismaProvider,
+    @inject(TransactionContext) private readonly ctx: TransactionContext,
   ) {}
 
   execute<T>(fn: () => Promise<T>): Promise<T> {

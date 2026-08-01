@@ -1,4 +1,4 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import type { Request, Response } from 'express'
 
 import { AddProjectFieldHandler } from '@app/commands/project/AddProjectField/AddProjectFieldHandler'
@@ -50,21 +50,37 @@ import { UpdateProjectUserFieldBodySchema, UpdateProjectUserFieldParamSchema } f
 @injectable()
 export class ProjectController {
   constructor(
+    @inject(CreateProjectHandler)
     private readonly createHandler: CreateProjectHandler,
+    @inject(AddProjectFieldHandler)
     private readonly addFieldHandler: AddProjectFieldHandler,
+    @inject(UpdateProjectFieldHandler)
     private readonly updateFieldHandler: UpdateProjectFieldHandler,
+    @inject(DeleteProjectFieldHandler)
     private readonly deleteFieldHandler: DeleteProjectFieldHandler,
+    @inject(RenameProjectHandler)
     private readonly renameProjectHandler: RenameProjectHandler,
+    @inject(DeleteProjectHandler)
     private readonly deleteProjectHandler: DeleteProjectHandler,
+    @inject(RotateApiKeyHandler)
     private readonly rotateApiKeyHandler: RotateApiKeyHandler,
+    @inject(RenameApiKeyHandler)
     private readonly renameApiKeyHandler: RenameApiKeyHandler,
+    @inject(DeleteProjectUserHandler)
     private readonly deleteUserHandler: DeleteProjectUserHandler,
+    @inject(UpdateProjectUserFieldHandler)
     private readonly updateUserFieldHandler: UpdateProjectUserFieldHandler,
+    @inject(GetProjectFieldsHandler)
     private readonly getFieldsHandler: GetProjectFieldsHandler,
+    @inject(GetProjectHandler)
     private readonly getProjectHandler: GetProjectHandler,
+    @inject(GetProjectApiKeyHandler)
     private readonly getApiKeyHandler: GetProjectApiKeyHandler,
+    @inject(GetProjectUsersHandler)
     private readonly getUsersHandler: GetProjectUsersHandler,
+    @inject(GetProjectUserHandler)
     private readonly getUserHandler: GetProjectUserHandler,
+    @inject(GetProjectUserFieldsHandler)
     private readonly getUserFieldsHandler: GetProjectUserFieldsHandler,
   ) {}
 

@@ -1,11 +1,16 @@
 import { ClientSession } from '@aggregates/clientSession/ClientSession'
 import type { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { sessionToDomain } from '../mappers/SessionMapper'
+import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
 export class PrismaSessionRepository extends PrismaRepository implements ClientSessionRepository {
+  constructor(@inject(TransactionContext) ctx: TransactionContext) {
+    super(ctx)
+  }
+
   async save(session: ClientSession): Promise<void> {
     await this.prismaClient.session.upsert({
       where: { id: session.id },
