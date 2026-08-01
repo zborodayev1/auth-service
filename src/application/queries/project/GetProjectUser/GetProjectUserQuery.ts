@@ -1,0 +1,6 @@
+export class GetProjectUserQuery {
+  constructor(
+    public readonly userId: string,
+    public readonly clientId: string,
+  ) {}
+}

@@ -50,4 +50,14 @@ export class PrismaUserFieldValueRepository
       where: { fieldId },
     })
   }
+
+  async deleteByUserId(userId: string): Promise<void> {
+    await this.prismaClient.userFieldValue.deleteMany({ where: { userId } })
+  }
+
+  async deleteByProjectId(projectId: string): Promise<void> {
+    await this.prismaClient.userFieldValue.deleteMany({
+      where: { user: { projectId } },
+    })
+  }
 }

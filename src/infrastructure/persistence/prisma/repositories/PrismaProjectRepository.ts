@@ -4,6 +4,7 @@ import { Project } from '@aggregates/project/Project'
 
 import { projectToDomain } from '../mappers/ProjectMapper'
 import { PrismaRepository } from '../PrismaRepository'
+import { Name } from '@valueObjects/Name'
 
 @injectable()
 export class PrismaProjectRepository extends PrismaRepository implements ProjectRepository {
@@ -49,5 +50,17 @@ export class PrismaProjectRepository extends PrismaRepository implements Project
         update: { revoked: project.apiKey.revoked, hash: project.apiKey.hash },
       })
     })
+  }
+
+  async findByOwnerAndName(ownerId: string, name: Name): Promise<Project | null> {
+    const raw = await this.prismaClient.project.findUnique({
+      where: { ownerId_name: { ownerId, name: name.getValue() } },
+      include: { apiKey: true },
+    })
+    return raw ? projectToDomain(raw) : null
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prismaClient.project.delete({ where: { id } })
   }
 }

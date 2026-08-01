@@ -7,7 +7,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface DeleteProjectFieldResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -30,7 +30,7 @@ export class DeleteProjectFieldHandler {
     }
 
     if (field.projectId !== command.projectId) {
-      throw new NotFoundError('Field not found', 'INVALID_PROJECT_ID', {
+      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
         command: command,
         field: field,
       })
@@ -51,6 +51,6 @@ export class DeleteProjectFieldHandler {
       await this.projectFields.delete(field.id)
     }
 
-    return { message: 'Success deleted project field' }
+    return { success: true }
   }
 }

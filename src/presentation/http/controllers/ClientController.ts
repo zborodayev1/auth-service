@@ -22,6 +22,11 @@ import { inject, injectable } from 'inversify'
 import { ServerConfig } from '@config/server/server'
 import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
 import { GetClientProjectsQuery } from '@app/queries/client/GetClientProjects/GetClientProjectsQuery'
+import { GetClientProfileQuery } from '@app/queries/client/GetClientProfile/GetClientProfileQuery'
+import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/GetClientProfileHandler'
+import { ChangeClientNameSchema } from '../validators/client/ChangeClientNameValidator'
+import { RenameClientHandler } from '@app/commands/client/RenameClient/RenameClientHandler'
+import { RenameClientCommand } from '@app/commands/client/RenameClient/RenameClientCommand'
 
 @injectable()
 export class ClientController {
@@ -33,7 +38,9 @@ export class ClientController {
     private readonly logoutAllHandler: LogoutAllClientSessionsHandler,
     private readonly logoutCurrentHandler: LogoutCurrentClientSessionHandler,
     private readonly refreshHandler: RefreshClientAccessTokenHandler,
+    private readonly getProfileHandler: GetClientProfileHandler,
     private readonly getProjectsHandler: GetClientProjectsHandler,
+    private readonly changeNameHandler: RenameClientHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -148,18 +155,24 @@ export class ClientController {
       new GetClientProjectsQuery(req.auth.clientId),
     )
 
-    res.status(200).json(
-      projects.map((p) => ({
-        id: p.id,
-        name: p.name,
-        createdAt: p.createdAt,
-        apiKey: {
-          id: p.apiKey.id,
-          name: p.apiKey.name,
-          revoked: p.apiKey.revoked,
-          createdAt: p.apiKey.createdAt,
-        },
-      })),
+    res.status(200).json(projects)
+  }
+
+  async getProfile(req: Request, res: Response): Promise<void> {
+    const profile = await this.getProfileHandler.execute(
+      new GetClientProfileQuery(req.auth.clientId),
     )
+
+    res.status(200).json(profile)
+  }
+
+  async changeName(req: Request, res: Response): Promise<void> {
+    const body = ChangeClientNameSchema.parse(req.body)
+
+    const result = await this.changeNameHandler.execute(
+      new RenameClientCommand(req.auth.clientId, body.name),
+    )
+
+    res.status(200).json(result)
   }
 }

@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import { LogoutUserSessionCommand } from './LogoutUserSessionCommand'
 
 interface LogoutUserSessionResult {
-  message: string
+  success: boolean
 }
 
 @injectable()
@@ -26,6 +26,6 @@ export class LogoutUserSessionHandler {
 
     await this.sessions.save(session.revoke())
 
-    return { message: 'Session revoked successfully' }
+    return { success: true }
   }
 }

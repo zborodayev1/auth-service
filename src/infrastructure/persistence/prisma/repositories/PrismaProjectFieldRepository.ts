@@ -51,4 +51,12 @@ export class PrismaProjectFieldRepository
   async delete(id: string): Promise<void> {
     await this.prismaClient.projectField.delete({ where: { id } })
   }
+
+  async countByProjectId(projectId: string): Promise<number> {
+    return await this.prismaClient.projectField.count({ where: { projectId } })
+  }
+
+  async deleteByProjectId(projectId: string): Promise<void> {
+    await this.prismaClient.projectField.deleteMany({ where: { projectId } })
+  }
 }

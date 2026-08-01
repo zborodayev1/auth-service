@@ -23,6 +23,13 @@ export class UserRouter {
 
     router.post('/logout-all', authenticate, c.logoutAll.bind(c))
 
+    router.get('/me', authenticate, c.getProfile.bind(c))
+    router.patch('/me/email', authenticate, c.changeEmail.bind(c))
+    router.patch('/me/password', authenticate, c.changePassword.bind(c))
+    router.delete('/me', authenticate, c.deleteSelf.bind(c))
+
+    router.get('/me/fields', authenticate, c.getFields.bind(c))
+    router.get('/me/fields/:name', authenticate, c.getField.bind(c))
     router.patch('/me/fields/:name', authenticate, c.update.bind(c))
 
     return router

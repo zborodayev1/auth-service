@@ -21,7 +21,7 @@ export class UpdateProjectFieldHandler {
         command: command,
       })
     if (field.projectId !== command.projectId)
-      throw new NotFoundError('Field not found', 'INVALID_PROJECT_ID', {
+      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
         command: command,
         field: field,
       })

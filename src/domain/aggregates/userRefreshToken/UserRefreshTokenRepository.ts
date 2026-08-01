@@ -7,6 +7,8 @@ export interface UserRefreshTokenRepository {
   findBySessionId(sessionId: string): Promise<UserRefreshToken[]>
   revokeAllBySessionId(sessionId: string): Promise<void>
   deleteExpired(): Promise<void>
+  deleteByUserId(userId: string): Promise<void>
+  deleteByProjectId(projectId: string): Promise<void>
 }
 
 export const UserRefreshTokenRepository: unique symbol = Symbol('UserRefreshTokenRepository')

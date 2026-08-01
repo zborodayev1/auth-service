@@ -15,12 +15,13 @@ export class ClientRouter {
     const c = this.controller
 
     router.get('/projects', authenticate, c.getProjects.bind(c))
+    router.get('/me', authenticate, c.getProfile.bind(c))
 
     router.post('/register', c.register.bind(c))
     router.post('/login', c.login.bind(c))
 
+    router.patch('/name', authenticate, c.changeName.bind(c))
     router.patch('/email', authenticate, c.changeEmail.bind(c))
-
     router.patch('/password', authenticate, c.changePassword.bind(c))
 
     router.post('/logout', authenticate, c.logoutCurrent.bind(c))

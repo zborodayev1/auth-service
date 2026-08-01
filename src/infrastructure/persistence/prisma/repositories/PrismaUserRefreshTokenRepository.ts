@@ -56,4 +56,16 @@ export class PrismaUserRefreshTokenRepository
       where: { expiresAt: { lt: new Date() } },
     })
   }
+
+  async deleteByUserId(userId: string): Promise<void> {
+    await this.prismaClient.userRefreshToken.deleteMany({
+      where: { session: { userId } },
+    })
+  }
+
+  async deleteByProjectId(projectId: string): Promise<void> {
+    await this.prismaClient.userRefreshToken.deleteMany({
+      where: { session: { projectId } },
+    })
+  }
 }

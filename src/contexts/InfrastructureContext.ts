@@ -53,6 +53,8 @@ import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { ILogger } from '@ports/logger/ILogger'
 import { PinoLogger } from '@infra/logger/PinoLogger'
 import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
+import { ProjectAccessService } from '@services/project/ProjectAccessService'
+import { UserFieldService } from '@services/user/UserFieldService'
 
 import { TransactionContext } from '@infra/persistence/prisma/TransactionContext'
 import { PrismaUnitOfWork } from '@infra/persistence/prisma/PrismaUnitOfWork'
@@ -112,6 +114,8 @@ export class InfrastructureContext implements ServiceContext {
     container.bind(IdGenerator).to(UuidIdGenerator).inSingletonScope()
     container.bind(ApiKeyService).toSelf().inSingletonScope()
     container.bind(SchemaBuilderService).toSelf().inSingletonScope()
+    container.bind(ProjectAccessService).toSelf().inSingletonScope()
+    container.bind(UserFieldService).toSelf().inSingletonScope()
     container.bind(ILogger).to(PinoLogger).inSingletonScope()
 
     container.bind(TransactionContext).toSelf().inSingletonScope()
