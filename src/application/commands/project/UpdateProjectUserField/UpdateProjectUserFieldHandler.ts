@@ -55,6 +55,8 @@ export class UpdateProjectUserFieldHandler {
 
     await this.userFields.save(fieldValue)
 
+    this.schemaBuilder.invalidate(user.projectId)
+
     return { fieldId: field.id, value: serialized }
   }
 }

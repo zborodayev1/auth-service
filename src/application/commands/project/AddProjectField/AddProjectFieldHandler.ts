@@ -3,6 +3,7 @@ import { AddProjectFieldCommand } from './AddProjectFieldCommand'
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { ProjectFieldFactory } from '@factories/ProjectFieldFactory'
+import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 
 interface AddProjectFieldResult {
   fieldId: string
@@ -15,6 +16,8 @@ export class AddProjectFieldHandler {
 
     @inject(ProjectFieldFactory)
     private readonly projectFieldFactory: ProjectFieldFactory,
+
+    @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
   ) {}
   async execute(command: AddProjectFieldCommand): Promise<AddProjectFieldResult> {
     const exists = await this.projectFields.findByProjectAndName(command.projectId, command.name)
@@ -36,6 +39,8 @@ export class AddProjectFieldHandler {
     })
 
     await this.projectFields.save(projectField)
+
+    this.schemaBuilder.invalidate(command.projectId)
 
     return { fieldId: projectField.id }
   }
