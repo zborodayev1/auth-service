@@ -40,17 +40,29 @@ import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQu
 @injectable()
 export class UserController {
   constructor(
+    @inject(RegisterUserHandler)
     private readonly registerHandler: RegisterUserHandler,
+    @inject(LoginUserHandler)
     private readonly loginHandler: LoginUserHandler,
+    @inject(RefreshUserAccessTokenHandler)
     private readonly refreshHandler: RefreshUserAccessTokenHandler,
+    @inject(LogoutUserSessionHandler)
     private readonly logoutCurrentHandler: LogoutUserSessionHandler,
+    @inject(LogoutAllUserSessionsHandler)
     private readonly logoutAllHandler: LogoutAllUserSessionsHandler,
+    @inject(UpdateUserFieldHandler)
     private readonly updateHandler: UpdateUserFieldHandler,
+    @inject(GetUserProfileHandler)
     private readonly getProfileHandler: GetUserProfileHandler,
+    @inject(ChangeUserEmailHandler)
     private readonly changeEmailHandler: ChangeUserEmailHandler,
+    @inject(ChangeUserPasswordHandler)
     private readonly changePasswordHandler: ChangeUserPasswordHandler,
+    @inject(DeleteUserSelfHandler)
     private readonly deleteSelfHandler: DeleteUserSelfHandler,
+    @inject(GetUserFieldsHandler)
     private readonly getFieldsHandler: GetUserFieldsHandler,
+    @inject(GetUserFieldHandler)
     private readonly getFieldHandler: GetUserFieldHandler,
 
     @inject(ServerConfig)

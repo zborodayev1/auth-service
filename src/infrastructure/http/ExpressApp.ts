@@ -1,14 +1,14 @@
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import helmet from 'helmet'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { HttpRouterRegistry } from './HttpRouterRegistry'
 
 @injectable()
 export class ExpressApp {
   private readonly app: Express
 
-  constructor(private readonly routerRegistry: HttpRouterRegistry) {
+  constructor(@inject(HttpRouterRegistry) private readonly routerRegistry: HttpRouterRegistry) {
     this.app = express()
     this.setup()
   }

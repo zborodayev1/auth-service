@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import { ClientController } from '../controllers/ClientController'
 import { ClientAuthMiddleware } from '../middleware/ClientAuthMiddleware'
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 
 @injectable()
 export class ClientRouter {
   constructor(
-    private readonly controller: ClientController,
-    private readonly auth: ClientAuthMiddleware,
+    @inject(ClientController) private readonly controller: ClientController,
+    @inject(ClientAuthMiddleware) private readonly auth: ClientAuthMiddleware,
   ) {}
   build(): Router {
     const router = Router()

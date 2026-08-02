@@ -1,8 +1,9 @@
-import { injectable } from 'inversify'
+import { injectable, inject } from 'inversify'
 import { UserRefreshToken } from '@aggregates/userRefreshToken/UserRefreshToken'
 import type { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRefreshTokenRepository'
 
 import { userRefreshTokenToDomain } from '../mappers/UserRefreshTokenMapper'
+import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
@@ -10,6 +11,10 @@ export class PrismaUserRefreshTokenRepository
   extends PrismaRepository
   implements UserRefreshTokenRepository
 {
+  constructor(@inject(TransactionContext) ctx: TransactionContext) {
+    super(ctx)
+  }
+
   async save(token: UserRefreshToken): Promise<void> {
     await this.prismaClient.userRefreshToken.upsert({
       where: { id: token.id },
