@@ -1,5 +1,5 @@
 ---
-title: Phase 2.11 — ProjectField Cross-Field Validation Gaps
+title: Phase 2.4 — ProjectField Cross-Field Validation Gaps
 date: 2026-08-03
 status: backlog
 priority: high — silent data corruption and broken schema states

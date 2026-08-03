@@ -1,5 +1,5 @@
 ---
-title: Multi-Tenant User Schema & JWT Split
+title: Phase 0.2 — Multi-Tenant Schema Design (Reference)
 date: 2026-07-18
 status: approved
 ---

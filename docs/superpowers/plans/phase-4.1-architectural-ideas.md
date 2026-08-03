@@ -1,5 +1,5 @@
 ---
-title: Phase 4 — Ideas Under Consideration
+title: Phase 4.1 — Architectural Ideas
 date: 2026-07-31
 status: ideas
 ---

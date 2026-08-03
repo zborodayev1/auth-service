@@ -1,5 +1,5 @@
 ---
-title: Phase 1.5 — Critical Improvements
+title: Phase 0.3 — Historical: Critical Improvements (superseded)
 date: 2026-07-22
 status: planned
 priority: high — implement before production

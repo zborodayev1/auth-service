@@ -1,5 +1,5 @@
 ---
-title: Phase 3.2 — Test Infrastructure
+title: Phase 3.5 — Test Infrastructure
 date: 2026-08-03
 status: backlog
 priority: medium — zero coverage on an auth service is a regression risk

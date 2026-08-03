@@ -1,5 +1,5 @@
 ---
-title: Phase 3.4 — Operational Reliability
+title: Phase 3.3 — Operational Reliability
 date: 2026-08-03
 status: backlog
 priority: medium — not blocking pre-launch, but required before sustained production traffic

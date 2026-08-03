@@ -1,5 +1,5 @@
 ---
-title: Phase 2.5.1 — Soft Delete Correctness Fixes
+title: Phase 2.7 — Soft Delete Correctness Fixes
 date: 2026-08-03
 status: backlog
 priority: high — bugs introduced in phase-2.5, some cause silent data corruption

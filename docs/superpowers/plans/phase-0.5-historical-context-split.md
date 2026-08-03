@@ -1,5 +1,5 @@
 ---
-title: Phase 2.1 — DI Context Split
+title: Phase 0.5 — Historical: DI Context Split (done)
 date: 2026-07-31
 status: planned
 priority: do before Phase 2 grows further — ApplicationContext will hit ~50 bindings after Phase 2

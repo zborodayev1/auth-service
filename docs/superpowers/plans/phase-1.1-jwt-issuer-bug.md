@@ -1,5 +1,5 @@
 ---
-title: Phase 2.8 — JWT Issuer Mismatch (Critical)
+title: Phase 1.1 — JWT Issuer Mismatch (Critical)
 date: 2026-08-03
 status: backlog
 priority: critical — breaks all client-authenticated endpoints

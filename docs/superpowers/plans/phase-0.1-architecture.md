@@ -1,5 +1,5 @@
 ---
-title: DDD/CQRS Auth Service Architecture
+title: Phase 0.1 — Architecture Reference (DDD/CQRS)
 date: 2026-06-30
 status: current
 ---
