@@ -90,6 +90,16 @@ Configured in `tsconfig.json`, resolved at runtime by `tsconfig-paths`, at build
 | `@shared/*` | `src/shared/*` |
 | `@generated/*` | `src/generated/*` |
 
+## Spec Phase Philosophy
+
+Phases are numbered relative to the smallest unrealized phase. The gap between the current smallest unrealized phase and a spec's phase number indicates complexity:
+
+- **+0 to +1** (e.g., 2.7 when smallest is 2.5.1): line-level fixes, single-file changes, no new abstractions. Can be done in one sitting.
+- **+2 to +3** (e.g., 3.x when smallest is 2.5.1): cross-cutting changes, new middleware/services, requires planning. Multiple files, moderate risk.
+- **+4 and above** (e.g., 4.x, 5.x): architectural shifts — new protocols (GraphQL), new infrastructure (Redis, queues), fundamental redesign of a layer. Requires deep design before touching code.
+
+When writing a new spec: if the solution is obvious and bounded → low phase. If you need to think hard about the approach, it touches many files, or it changes how a layer works → higher phase.
+
 ## DDD Decisions
 
 **Aggregate immutability** — all aggregate mutation methods return a new instance, never mutate in place. `void` mutation methods are forbidden.
