@@ -1,5 +1,5 @@
 ---
-title: Phase 2 — Missing Business Logic
+title: Phase 0.4 — Historical: Business Logic Audit (reference)
 date: 2026-07-29
 updated: 2026-07-31
 status: planned

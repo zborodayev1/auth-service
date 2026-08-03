@@ -25,7 +25,7 @@ npx prisma migrate reset               # reset DB (destructive)
 
 ## Architecture
 
-See `docs/superpowers/specs/2026-06-30-ddd-cqrs-architecture.md` for full spec.
+See `docs/plans/phase-0.1-architecture.md` for full spec.
 
 **Layers:**
 - `src/domain/` — aggregates + value objects + repository interfaces (ports)

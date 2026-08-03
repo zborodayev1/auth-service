@@ -1,5 +1,5 @@
 ---
-title: Phase 2.12 — Email Change Missing Session Revocation
+title: Phase 2.6 — Email Change Missing Session Revocation
 date: 2026-08-03
 status: backlog
 priority: medium — security asymmetry, inconsistent with password change behavior

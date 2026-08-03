@@ -1,5 +1,5 @@
 ---
-title: Phase 2.9 — ApiKey Name Not Persisted on Update
+title: Phase 1.2 — ApiKey Name Not Persisted on Update
 date: 2026-08-03
 status: backlog
 priority: high — RenameApiKey is silently broken

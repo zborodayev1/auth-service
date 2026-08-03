@@ -1,5 +1,5 @@
 ---
-title: Phase 3.3 — Security Hardening
+title: Phase 3.4 — Security Hardening
 date: 2026-08-03
 status: backlog
 priority: medium — pre-production hardening

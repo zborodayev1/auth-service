@@ -1,5 +1,5 @@
 ---
-title: Phase 2.5 — System Improvements
+title: Phase 0.6 — Historical: System Improvements (partially superseded)
 date: 2026-07-29
 status: backlog
 ---

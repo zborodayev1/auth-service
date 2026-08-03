@@ -1,5 +1,5 @@
 ---
-title: Phase 2.6 — Authorization Gap + Handler Correctness
+title: Phase 2.5 — Authorization Gap + Handler Correctness
 date: 2026-08-03
 status: backlog
 priority: high — one is a security bug, one causes incorrect behavior
