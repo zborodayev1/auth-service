@@ -9,6 +9,7 @@ export interface UserFieldValueRepository {
   existsByFieldId(fieldId: string): Promise<boolean>
   deleteByUserId(userId: string): Promise<void>
   deleteByProjectId(projectId: string): Promise<void>
+  recoverByFieldId(fieldId: string): Promise<void>
 }
 
 export const UserFieldValueRepository: unique symbol = Symbol('UserFieldValueRepository')

@@ -3,6 +3,7 @@ import http from 'http'
 import { ServerConfig } from './config/server/server'
 import { inject, injectable } from 'inversify'
 import { HttpServerFactory } from '@infra/http/HttpServerFactory'
+import { JobManager } from '@infra/jobs/JobManager'
 import { InternalServerError } from '@shared/errors/InternalServerError'
 
 @injectable()
@@ -15,10 +16,14 @@ export class Application {
 
     @inject(HttpServerFactory)
     private readonly httpServerFactory: HttpServerFactory,
+
+    @inject(JobManager)
+    private readonly jobs: JobManager,
   ) {}
 
   init(): void {
     this.server = this.httpServerFactory.create()
+    this.jobs.start()
   }
 
   async start(): Promise<void> {
@@ -32,6 +37,7 @@ export class Application {
   }
 
   async stop(): Promise<void> {
+    await this.jobs.stop()
     await new Promise<void>((resolve, reject) => {
       this.getHttpServer().close((err) => {
         if (err) reject(err)
