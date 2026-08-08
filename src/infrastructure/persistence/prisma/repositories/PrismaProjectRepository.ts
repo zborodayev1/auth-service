@@ -52,7 +52,12 @@ export class PrismaProjectRepository extends PrismaRepository implements Project
           revoked: project.apiKey.revoked,
           projectId: project.id,
         },
-        update: { revoked: project.apiKey.revoked, hash: project.apiKey.hash },
+        update: {
+          revoked: project.apiKey.revoked,
+          hash: project.apiKey.hash,
+          name: project.apiKey.name,
+          id: project.apiKey.id,
+        },
       })
     })
   }
