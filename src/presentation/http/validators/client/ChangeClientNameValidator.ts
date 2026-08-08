@@ -1,5 +1,5 @@
 import z from 'zod'
 
 export const ChangeClientNameSchema = z.object({
-  name: z.string().min(3).max(64),
+  name: z.string().min(8).max(64),
 })

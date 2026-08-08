@@ -1,7 +1,7 @@
 ---
 title: Phase 1.6 — Project Field Name Has No Minimum Length Validation
 date: 2026-08-03
-status: backlog
+status: done
 priority: high — empty field name persists to DB, breaks schema builder and URL routing
 ---
 

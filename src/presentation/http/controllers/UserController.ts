@@ -149,6 +149,12 @@ export class UserController {
     const result = await this.logoutAllHandler.execute(
       new LogoutAllUserSessionsCommand(req.userAuth.userId),
     )
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+    })
+
     res.status(200).json(result)
   }
 
@@ -156,6 +162,13 @@ export class UserController {
     const result = await this.logoutCurrentHandler.execute(
       new LogoutUserSessionCommand(req.userAuth.sessionId),
     )
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+    })
+
     res.status(200).json(result)
   }
 
@@ -189,6 +202,12 @@ export class UserController {
     const result = await this.deleteSelfHandler.execute(
       new DeleteUserSelfCommand(req.userAuth.userId, body.password),
     )
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+    })
 
     res.status(200).json(result)
   }
