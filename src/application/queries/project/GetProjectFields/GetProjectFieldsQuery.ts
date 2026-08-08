@@ -1,3 +1,6 @@
 export class GetProjectFieldsQuery {
-  constructor(public readonly projectId: string) {}
+  constructor(
+    public readonly projectId: string,
+    public readonly clientId: string,
+  ) {}
 }

@@ -1,7 +1,7 @@
 ---
 title: Phase 2.8 — Project Field Management Missing Ownership Authorization
 date: 2026-08-03
-status: backlog
+status: done
 priority: high — any authenticated client can mutate or read fields on any project
 ---
 

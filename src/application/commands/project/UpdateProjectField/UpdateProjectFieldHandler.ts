@@ -3,6 +3,7 @@ import { inject, injectable } from 'inversify'
 import { UpdateProjectFieldCommand } from './UpdateProjectFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
+import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface UpdateProjectFieldResult {
   fieldId: string
@@ -14,19 +15,18 @@ export class UpdateProjectFieldHandler {
     @inject(ProjectFieldRepository) private readonly projectFields: ProjectFieldRepository,
 
     @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
+
+    @inject(ProjectAccessService) private readonly accessService: ProjectAccessService,
   ) {}
 
   async execute(command: UpdateProjectFieldCommand): Promise<UpdateProjectFieldResult> {
+    await this.accessService.verifyByProjectId(command.clientId, command.projectId)
+
     const field = await this.projectFields.findById(command.fieldId)
 
     if (!field)
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
         command: command,
-      })
-    if (field.projectId !== command.projectId)
-      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
-        command: command,
-        field: field,
       })
 
     const updated = field.update({
