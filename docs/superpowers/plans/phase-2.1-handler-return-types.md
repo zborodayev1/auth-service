@@ -1,7 +1,7 @@
 ---
 title: Phase 2.1 — Standardize Handler Return Types
 date: 2026-08-01
-status: planned
+status: done
 ---
 
 # Phase 2.01 — Standardize Handler Return Types
