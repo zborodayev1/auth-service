@@ -34,25 +34,37 @@ export class PrismaUserFieldValueRepository
   }
 
   async findByUserId(userId: string): Promise<UserFieldValue[]> {
-    const raws = await this.prismaClient.userFieldValue.findMany({ where: { userId } })
+    const raws = await this.prismaClient.userFieldValue.findMany({
+      where: { userId, deletedAt: null },
+    })
     return raws.map(userFieldValueToDomain)
   }
 
   async findByUserAndField(userId: string, fieldId: string): Promise<UserFieldValue | null> {
-    const raw = await this.prismaClient.userFieldValue.findUnique({
-      where: { userId_fieldId: { userId, fieldId } },
+    const raw = await this.prismaClient.userFieldValue.findFirst({
+      where: { userId, fieldId, deletedAt: null },
     })
     return raw ? userFieldValueToDomain(raw) : null
   }
 
   async existsByFieldId(fieldId: string): Promise<boolean> {
-    const count = await this.prismaClient.userFieldValue.count({ where: { fieldId } })
+    const count = await this.prismaClient.userFieldValue.count({
+      where: { fieldId, deletedAt: null },
+    })
     return count > 0
   }
 
+  async recoverByFieldId(fieldId: string): Promise<void> {
+    await this.prismaClient.userFieldValue.updateMany({
+      where: { fieldId, deletedAt: { not: null } },
+      data: { deletedAt: null },
+    })
+  }
+
   async deleteByFieldId(fieldId: string): Promise<void> {
-    await this.prismaClient.userFieldValue.deleteMany({
+    await this.prismaClient.userFieldValue.updateMany({
       where: { fieldId },
+      data: { deletedAt: new Date() },
     })
   }
 

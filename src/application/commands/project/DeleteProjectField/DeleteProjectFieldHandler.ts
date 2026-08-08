@@ -5,6 +5,7 @@ import { DeleteProjectFieldCommand } from './DeleteProjectFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 
 interface DeleteProjectFieldResult {
   success: boolean
@@ -19,6 +20,8 @@ export class DeleteProjectFieldHandler {
     private readonly fieldValues: UserFieldValueRepository,
 
     @inject(ProjectFieldRepository) private readonly projectFields: ProjectFieldRepository,
+
+    @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
   ) {}
 
   async execute(command: DeleteProjectFieldCommand): Promise<DeleteProjectFieldResult> {
@@ -50,6 +53,8 @@ export class DeleteProjectFieldHandler {
     } else {
       await this.projectFields.delete(field.id)
     }
+
+    this.schemaBuilder.invalidate(command.projectId)
 
     return { success: true }
   }

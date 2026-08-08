@@ -124,6 +124,7 @@ model ProjectField {
   enumValues String[]
 
   createdAt DateTime @default(now())
+  deletedAt DateTime?
 
   fieldValues UserFieldValue[]
   @@unique([projectId, name])
@@ -140,6 +141,7 @@ model UserFieldValue {
 
 
   createdAt DateTime @default(now())
+  deletedAt DateTime?
 
   @@unique([userId, fieldId])
 }

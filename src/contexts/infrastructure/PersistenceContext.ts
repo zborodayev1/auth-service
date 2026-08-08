@@ -26,6 +26,9 @@ import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { PrismaProjectRepository } from '@infra/persistence/prisma/repositories/PrismaProjectRepository'
 import { PrismaProjectFieldRepository } from '@infra/persistence/prisma/repositories/PrismaProjectFieldRepository'
+import { IJob } from '@ports/IJob'
+import { JobManager } from '@infra/jobs/JobManager'
+import { SoftDeletePurgeJob } from '@infra/jobs/SoftDeletePurgeJob'
 
 @injectable()
 export class PersistenceContext implements ServiceContext {
@@ -45,5 +48,8 @@ export class PersistenceContext implements ServiceContext {
 
     container.bind(ProjectRepository).to(PrismaProjectRepository).inSingletonScope()
     container.bind(ProjectFieldRepository).to(PrismaProjectFieldRepository).inSingletonScope()
+
+    container.bind(IJob).to(SoftDeletePurgeJob).inSingletonScope()
+    container.bind(JobManager).toSelf().inSingletonScope()
   }
 }

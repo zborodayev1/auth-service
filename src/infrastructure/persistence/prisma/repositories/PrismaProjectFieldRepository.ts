@@ -32,33 +32,43 @@ export class PrismaProjectFieldRepository
         required: field.required,
         defaultValue: field.defaultValue,
         enumValues: field.enumValues,
+        deletedAt: field.deletedAt,
       },
     })
   }
 
   async findById(id: string): Promise<ProjectField | null> {
-    const raw = await this.prismaClient.projectField.findUnique({ where: { id } })
+    const raw = await this.prismaClient.projectField.findFirst({ where: { id, deletedAt: null } })
+    return raw ? projectFieldToDomain(raw) : null
+  }
+
+  async findDeletedById(id: string): Promise<ProjectField | null> {
+    const raw = await this.prismaClient.projectField.findFirst({
+      where: { id, deletedAt: { not: null } },
+    })
     return raw ? projectFieldToDomain(raw) : null
   }
 
   async findByProjectId(projectId: string): Promise<ProjectField[]> {
-    const raws = await this.prismaClient.projectField.findMany({ where: { projectId } })
+    const raws = await this.prismaClient.projectField.findMany({
+      where: { projectId, deletedAt: null },
+    })
     return raws.map(projectFieldToDomain)
   }
 
   async findByProjectAndName(projectId: string, name: string): Promise<ProjectField | null> {
-    const raw = await this.prismaClient.projectField.findUnique({
-      where: { projectId_name: { projectId, name } },
+    const raw = await this.prismaClient.projectField.findFirst({
+      where: { projectId, name, deletedAt: null },
     })
     return raw ? projectFieldToDomain(raw) : null
   }
 
   async delete(id: string): Promise<void> {
-    await this.prismaClient.projectField.delete({ where: { id } })
+    await this.prismaClient.projectField.update({ where: { id }, data: { deletedAt: new Date() } })
   }
 
   async countByProjectId(projectId: string): Promise<number> {
-    return await this.prismaClient.projectField.count({ where: { projectId } })
+    return await this.prismaClient.projectField.count({ where: { projectId, deletedAt: null } })
   }
 
   async deleteByProjectId(projectId: string): Promise<void> {

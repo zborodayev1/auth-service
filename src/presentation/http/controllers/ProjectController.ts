@@ -7,6 +7,8 @@ import { CreateProjectHandler } from '@app/commands/project/CreateProject/Create
 import { CreateProjectCommand } from '@app/commands/project/CreateProject/CreateProjectCommand'
 import { DeleteProjectFieldHandler } from '@app/commands/project/DeleteProjectField/DeleteProjectFieldHandler'
 import { DeleteProjectFieldCommand } from '@app/commands/project/DeleteProjectField/DeleteProjectFieldCommand'
+import { RecoverProjectFieldHandler } from '@app/commands/project/RecoverProjectField/RecoverProjectFieldHandler'
+import { RecoverProjectFieldCommand } from '@app/commands/project/RecoverProjectField/RecoverProjectFieldCommand'
 import { UpdateProjectFieldHandler } from '@app/commands/project/UpdateProjectField/UpdateProjectFieldHandler'
 import { UpdateProjectFieldCommand } from '@app/commands/project/UpdateProjectField/UpdateProjectFieldCommand'
 import { RenameProjectHandler } from '@app/commands/project/RenameProject/RenameProjectHandler'
@@ -58,6 +60,8 @@ export class ProjectController {
     private readonly updateFieldHandler: UpdateProjectFieldHandler,
     @inject(DeleteProjectFieldHandler)
     private readonly deleteFieldHandler: DeleteProjectFieldHandler,
+    @inject(RecoverProjectFieldHandler)
+    private readonly recoverFieldHandler: RecoverProjectFieldHandler,
     @inject(RenameProjectHandler)
     private readonly renameProjectHandler: RenameProjectHandler,
     @inject(DeleteProjectHandler)
@@ -242,6 +246,17 @@ export class ProjectController {
         body.defaultValue ?? null,
         body.enumValues,
       ),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async recoverField(req: Request, res: Response): Promise<void> {
+    const { projectId } = ProjectIdParamSchema.parse(req.params)
+    const { fieldId } = FieldIdParamSchema.parse(req.params)
+
+    const result = await this.recoverFieldHandler.execute(
+      new RecoverProjectFieldCommand(projectId, fieldId),
     )
 
     res.status(200).json(result)

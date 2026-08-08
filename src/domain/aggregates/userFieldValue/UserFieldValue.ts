@@ -7,12 +7,25 @@ export class UserFieldValue extends Entity {
     public readonly fieldId: string,
     public readonly value: string,
     public readonly updatedAt: Date,
+    public readonly deletedAt: Date | null,
   ) {
     super(id)
   }
 
-  static create(params: { id: string; userId: string; fieldId: string; value: string }): UserFieldValue {
-    return new UserFieldValue(params.id, params.userId, params.fieldId, params.value, new Date())
+  static create(params: {
+    id: string
+    userId: string
+    fieldId: string
+    value: string
+  }): UserFieldValue {
+    return new UserFieldValue(
+      params.id,
+      params.userId,
+      params.fieldId,
+      params.value,
+      new Date(),
+      null,
+    )
   }
 
   static reconstruct(
@@ -21,7 +34,8 @@ export class UserFieldValue extends Entity {
     fieldId: string,
     value: string,
     updatedAt: Date,
+    deletedAt: Date | null,
   ): UserFieldValue {
-    return new UserFieldValue(id, userId, fieldId, value, updatedAt)
+    return new UserFieldValue(id, userId, fieldId, value, updatedAt, deletedAt)
   }
 }

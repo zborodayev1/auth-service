@@ -13,6 +13,7 @@ export class ProjectField extends AggregateRoot {
     public readonly enumValues: string[],
 
     public readonly createdAt: Date,
+    public readonly deletedAt: Date | null,
   ) {
     super(id)
   }
@@ -35,6 +36,7 @@ export class ProjectField extends AggregateRoot {
       params.defaultValue,
       params.enumValues,
       new Date(),
+      null,
     )
   }
 
@@ -47,6 +49,7 @@ export class ProjectField extends AggregateRoot {
     defaultValue: string | null,
     enumValues: string[],
     createdAt: Date,
+    deletedAt: Date | null,
   ): ProjectField {
     return new ProjectField(
       id,
@@ -57,6 +60,7 @@ export class ProjectField extends AggregateRoot {
       defaultValue,
       enumValues,
       createdAt,
+      deletedAt,
     )
   }
 
@@ -75,6 +79,21 @@ export class ProjectField extends AggregateRoot {
       params.defaultValue !== undefined ? params.defaultValue : this.defaultValue,
       params.enumValues ?? this.enumValues,
       this.createdAt,
+      this.deletedAt,
+    )
+  }
+
+  recover(): ProjectField {
+    return new ProjectField(
+      this.id,
+      this.projectId,
+      this.name,
+      this.type,
+      this.required,
+      this.defaultValue,
+      this.enumValues,
+      this.createdAt,
+      null,
     )
   }
 }

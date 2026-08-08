@@ -14,5 +14,6 @@ export function projectFieldToDomain(raw: PrismaProjectFieldRow): ProjectField {
     raw.defaultValue,
     raw.enumValues,
     raw.createdAt,
+    raw.deletedAt,
   )
 }

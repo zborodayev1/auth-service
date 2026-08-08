@@ -26,6 +26,7 @@ export class ProjectRouter {
     router.post('/:projectId/fields', authenticate, c.addField.bind(c))
     router.patch('/:projectId/fields/:fieldId', authenticate, c.updateField.bind(c))
     router.delete('/:projectId/fields/:fieldId', authenticate, c.deleteField.bind(c))
+    router.post('/:projectId/fields/:fieldId/recover', authenticate, c.recoverField.bind(c))
 
     // ApiKey
     router.get('/:projectId/key', authenticate, c.getApiKey.bind(c))
