@@ -64,7 +64,7 @@ export class RegisterUserHandler {
     const user = User.create({ id, projectId: command.projectId, email, password })
 
     const fields = await this.projectFields.findByProjectId(command.projectId)
-    const schema = this.schemaBuilder.build(fields)
+    const schema = this.schemaBuilder.buildForProject(command.projectId, fields)
 
     const validated = schema.parse(command.fields)
 

@@ -2,6 +2,7 @@ import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRep
 import { inject, injectable } from 'inversify'
 import { UpdateProjectFieldCommand } from './UpdateProjectFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
+import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 
 interface UpdateProjectFieldResult {
   fieldId: string
@@ -11,6 +12,8 @@ interface UpdateProjectFieldResult {
 export class UpdateProjectFieldHandler {
   constructor(
     @inject(ProjectFieldRepository) private readonly projectFields: ProjectFieldRepository,
+
+    @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
   ) {}
 
   async execute(command: UpdateProjectFieldCommand): Promise<UpdateProjectFieldResult> {
@@ -34,6 +37,8 @@ export class UpdateProjectFieldHandler {
     })
 
     await this.projectFields.save(updated)
+
+    this.schemaBuilder.invalidate(command.projectId)
     return { fieldId: updated.id }
   }
 }

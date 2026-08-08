@@ -5,6 +5,7 @@ import { CreateProjectHandler } from '@app/commands/project/CreateProject/Create
 import { AddProjectFieldHandler } from '@app/commands/project/AddProjectField/AddProjectFieldHandler'
 import { UpdateProjectFieldHandler } from '@app/commands/project/UpdateProjectField/UpdateProjectFieldHandler'
 import { DeleteProjectFieldHandler } from '@app/commands/project/DeleteProjectField/DeleteProjectFieldHandler'
+import { RecoverProjectFieldHandler } from '@app/commands/project/RecoverProjectField/RecoverProjectFieldHandler'
 import { RenameProjectHandler } from '@app/commands/project/RenameProject/RenameProjectHandler'
 import { DeleteProjectHandler } from '@app/commands/project/DeleteProject/DeleteProjectHandler'
 import { RotateApiKeyHandler } from '@app/commands/project/RotateApiKey/RotateApiKeyHandler'
@@ -33,6 +34,7 @@ export class ProjectContext implements ServiceContext {
     container.bind(AddProjectFieldHandler).toSelf()
     container.bind(UpdateProjectFieldHandler).toSelf()
     container.bind(DeleteProjectFieldHandler).toSelf()
+    container.bind(RecoverProjectFieldHandler).toSelf()
     container.bind(RenameProjectHandler).toSelf()
     container.bind(DeleteProjectHandler).toSelf()
     container.bind(RotateApiKeyHandler).toSelf()

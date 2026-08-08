@@ -12,6 +12,8 @@ export interface ProjectFieldDefinition {
 
 @injectable()
 export class SchemaBuilderService {
+  private readonly cache = new Map<string, z.ZodObject<Record<string, z.ZodType>>>()
+
   build(fields: ProjectFieldDefinition[]): z.ZodObject<Record<string, z.ZodType>> {
     const shape: Record<string, z.ZodType> = {}
 
@@ -26,6 +28,22 @@ export class SchemaBuilderService {
     }
 
     return z.object(shape)
+  }
+
+  buildForProject(
+    projectId: string,
+    fields: ProjectFieldDefinition[],
+  ): z.ZodObject<Record<string, z.ZodType>> {
+    const cached = this.cache.get(projectId)
+    if (cached) return cached
+
+    const schema = this.build(fields)
+    this.cache.set(projectId, schema)
+    return schema
+  }
+
+  invalidate(projectId: string): void {
+    this.cache.delete(projectId)
   }
 
   private baseType(field: ProjectFieldDefinition): z.ZodType {

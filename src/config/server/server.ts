@@ -15,6 +15,7 @@ export class ServerConfig {
   readonly dbUrl: string
   readonly logLevel: LogLevel
   readonly environment: Environment
+  readonly softDeleteTtlMs: number
 
   constructor() {
     this.port = this.integer('HTTP_PORT', 8080, 1, 65535)
@@ -32,6 +33,8 @@ export class ServerConfig {
     this.refreshTokenTtlMs = this.duration('REFRESH_TOKEN_TTL_MS', '30d')
 
     this.dbUrl = this.string('DATABASE_URL')
+
+    this.softDeleteTtlMs = this.duration('SOFT_DELETE_TTL', '7d')
 
     this.logLevel = this.enumValue('LOG_LEVEL', logLevels, 'info')
 

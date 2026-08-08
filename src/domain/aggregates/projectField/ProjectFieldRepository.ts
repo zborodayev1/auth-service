@@ -8,6 +8,7 @@ export interface ProjectFieldRepository {
   delete(id: string): Promise<void>
   countByProjectId(projectId: string): Promise<number>
   deleteByProjectId(projectId: string): Promise<void>
+  findDeletedById(id: string): Promise<ProjectField | null>
 }
 
 export const ProjectFieldRepository: unique symbol = Symbol('ProjectFieldRepository')
