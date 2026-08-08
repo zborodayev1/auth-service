@@ -17,7 +17,6 @@ import { GetProjectHandler } from '@app/queries/project/GetProject/GetProjectHan
 import { GetProjectApiKeyHandler } from '@app/queries/project/GetProjectApiKey/GetProjectApiKeyHandler'
 import { GetProjectUsersHandler } from '@app/queries/project/GetProjectUsers/GetProjectUsersHandler'
 import { GetProjectUserHandler } from '@app/queries/project/GetProjectUser/GetProjectUserHandler'
-import { GetProjectUserFieldsHandler } from '@app/queries/project/GetProjectUserFields/GetProjectUserFieldsHandler'
 
 import { ApiKeyService } from '@app/services/ApiKeyService'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
@@ -46,7 +45,6 @@ export class ProjectContext implements ServiceContext {
     container.bind(GetProjectApiKeyHandler).toSelf()
     container.bind(GetProjectUsersHandler).toSelf()
     container.bind(GetProjectUserHandler).toSelf()
-    container.bind(GetProjectUserFieldsHandler).toSelf()
 
     container.bind(ApiKeyService).toSelf().inSingletonScope()
     container.bind(SchemaBuilderService).toSelf().inSingletonScope()

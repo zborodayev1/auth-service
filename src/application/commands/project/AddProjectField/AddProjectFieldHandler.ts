@@ -4,6 +4,7 @@ import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRep
 import { ConflictError } from '@shared/errors/ConflictError'
 import { ProjectFieldFactory } from '@factories/ProjectFieldFactory'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
+import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface AddProjectFieldResult {
   fieldId: string
@@ -18,8 +19,12 @@ export class AddProjectFieldHandler {
     private readonly projectFieldFactory: ProjectFieldFactory,
 
     @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
+
+    @inject(ProjectAccessService) private readonly accessService: ProjectAccessService,
   ) {}
   async execute(command: AddProjectFieldCommand): Promise<AddProjectFieldResult> {
+    await this.accessService.verifyByProjectId(command.clientId, command.projectId)
+
     const exists = await this.projectFields.findByProjectAndName(command.projectId, command.name)
 
     if (exists) {

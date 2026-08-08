@@ -34,8 +34,6 @@ import { GetProjectUsersHandler } from '@app/queries/project/GetProjectUsers/Get
 import { GetProjectUsersQuery } from '@app/queries/project/GetProjectUsers/GetProjectUsersQuery'
 import { GetProjectUserHandler } from '@app/queries/project/GetProjectUser/GetProjectUserHandler'
 import { GetProjectUserQuery } from '@app/queries/project/GetProjectUser/GetProjectUserQuery'
-import { GetProjectUserFieldsHandler } from '@app/queries/project/GetProjectUserFields/GetProjectUserFieldsHandler'
-import { GetProjectUserFieldsQuery } from '@app/queries/project/GetProjectUserFields/GetProjectUserFieldsQuery'
 
 import { CreateProjectSchema } from '../validators/project/CreateProjectValidator'
 import { AddProjectFieldSchema } from '../validators/project/AddProjectFieldValidator'
@@ -47,7 +45,10 @@ import { RenameApiKeySchema } from '../validators/project/RenameApiKeyValidator'
 import { RotateApiKeySchema } from '../validators/project/RotateApiKeyValidator'
 import { UserIdParamSchema } from '../validators/project/UserIdParamValidator'
 import { PaginationQuerySchema } from '../validators/project/PaginationQueryValidator'
-import { UpdateProjectUserFieldBodySchema, UpdateProjectUserFieldParamSchema } from '../validators/project/UpdateProjectUserFieldValidator'
+import {
+  UpdateProjectUserFieldBodySchema,
+  UpdateProjectUserFieldParamSchema,
+} from '../validators/project/UpdateProjectUserFieldValidator'
 
 @injectable()
 export class ProjectController {
@@ -84,8 +85,6 @@ export class ProjectController {
     private readonly getUsersHandler: GetProjectUsersHandler,
     @inject(GetProjectUserHandler)
     private readonly getUserHandler: GetProjectUserHandler,
-    @inject(GetProjectUserFieldsHandler)
-    private readonly getUserFieldsHandler: GetProjectUserFieldsHandler,
   ) {}
 
   async create(req: Request, res: Response): Promise<void> {
@@ -182,16 +181,6 @@ export class ProjectController {
     res.status(200).json(result)
   }
 
-  async getUserFields(req: Request, res: Response): Promise<void> {
-    const { userId } = UserIdParamSchema.parse(req.params)
-
-    const result = await this.getUserFieldsHandler.execute(
-      new GetProjectUserFieldsQuery(userId, req.auth.clientId),
-    )
-
-    res.status(200).json(result)
-  }
-
   async updateUserField(req: Request, res: Response): Promise<void> {
     const { userId, name } = UpdateProjectUserFieldParamSchema.parse(req.params)
     const body = UpdateProjectUserFieldBodySchema.parse(req.body)
@@ -221,6 +210,7 @@ export class ProjectController {
     const { fieldId } = await this.addFieldHandler.execute(
       new AddProjectFieldCommand(
         projectId,
+        req.auth.clientId,
         body.name,
         body.type,
         body.required,
@@ -240,6 +230,7 @@ export class ProjectController {
     const result = await this.updateFieldHandler.execute(
       new UpdateProjectFieldCommand(
         projectId,
+        req.auth.clientId,
         fieldId,
         body.name,
         body.required,
@@ -268,7 +259,7 @@ export class ProjectController {
     const force = req.query['force'] === 'true'
 
     const result = await this.deleteFieldHandler.execute(
-      new DeleteProjectFieldCommand(fieldId, projectId, force),
+      new DeleteProjectFieldCommand(fieldId, projectId, req.auth.clientId, force),
     )
 
     res.status(200).json(result)
@@ -277,7 +268,9 @@ export class ProjectController {
   async getFields(req: Request, res: Response): Promise<void> {
     const { projectId } = ProjectIdParamSchema.parse(req.params)
 
-    const fields = await this.getFieldsHandler.execute(new GetProjectFieldsQuery(projectId))
+    const fields = await this.getFieldsHandler.execute(
+      new GetProjectFieldsQuery(projectId, req.auth.clientId),
+    )
 
     res.status(200).json({ fields })
   }
