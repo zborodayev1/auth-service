@@ -49,6 +49,7 @@ import {
   UpdateProjectUserFieldBodySchema,
   UpdateProjectUserFieldParamSchema,
 } from '../validators/project/UpdateProjectUserFieldValidator'
+import { DeleteProjectFieldQuerySchema } from '../validators/project/DeleteProjectFieldValidator'
 
 @injectable()
 export class ProjectController {
@@ -182,11 +183,11 @@ export class ProjectController {
   }
 
   async updateUserField(req: Request, res: Response): Promise<void> {
-    const { userId, name } = UpdateProjectUserFieldParamSchema.parse(req.params)
+    const { userId, fieldId } = UpdateProjectUserFieldParamSchema.parse(req.params)
     const body = UpdateProjectUserFieldBodySchema.parse(req.body)
 
     const result = await this.updateUserFieldHandler.execute(
-      new UpdateProjectUserFieldCommand(req.auth.clientId, userId, name, body.value),
+      new UpdateProjectUserFieldCommand(req.auth.clientId, userId, fieldId, body.value),
     )
 
     res.status(200).json(result)
@@ -247,7 +248,7 @@ export class ProjectController {
     const { fieldId } = FieldIdParamSchema.parse(req.params)
 
     const result = await this.recoverFieldHandler.execute(
-      new RecoverProjectFieldCommand(projectId, fieldId),
+      new RecoverProjectFieldCommand(projectId, fieldId, req.auth.clientId),
     )
 
     res.status(200).json(result)
@@ -256,7 +257,7 @@ export class ProjectController {
   async deleteField(req: Request, res: Response): Promise<void> {
     const { projectId } = ProjectIdParamSchema.parse(req.params)
     const { fieldId } = FieldIdParamSchema.parse(req.params)
-    const force = req.query['force'] === 'true'
+    const { force } = DeleteProjectFieldQuerySchema.parse(req.query)
 
     const result = await this.deleteFieldHandler.execute(
       new DeleteProjectFieldCommand(fieldId, projectId, req.auth.clientId, force),

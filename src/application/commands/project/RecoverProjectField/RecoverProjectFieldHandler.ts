@@ -5,6 +5,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldValueRepository'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface RecoverProjectFieldResult {
   fieldId: string
@@ -20,19 +21,22 @@ export class RecoverProjectFieldHandler {
     @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
 
     @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
+
+    @inject(ProjectAccessService)
+    private readonly accessService: ProjectAccessService,
   ) {}
 
   async execute(command: RecoverProjectFieldCommand): Promise<RecoverProjectFieldResult> {
-    const field = await this.projectFields.findDeletedById(command.fieldId)
+    await this.accessService.verifyByProjectId(command.clientId, command.projectId)
+
+    const field = await this.projectFields.findDeletedByIdAndProject(
+      command.fieldId,
+      command.projectId,
+    )
 
     if (!field)
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
         command: command,
-      })
-    if (field.projectId !== command.projectId)
-      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
-        command: command,
-        field: field,
       })
 
     const recovered = field.recover()

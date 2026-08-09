@@ -8,6 +8,7 @@ import { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRef
 import { UserSessionRepository } from '@aggregates/userSession/UserSessionRepository'
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
+import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 
 interface DeleteProjectResult {
   success: boolean
@@ -39,6 +40,8 @@ export class DeleteProjectHandler {
 
     @inject(UnitOfWork)
     private readonly unitOfWork: UnitOfWork,
+
+    @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
   ) {}
 
   async execute(command: DeleteProjectCommand): Promise<DeleteProjectResult> {
@@ -52,6 +55,8 @@ export class DeleteProjectHandler {
       await this.projectFields.deleteByProjectId(command.projectId)
       await this.projects.delete(command.projectId)
     })
+
+    this.schemaBuilder.invalidate(command.projectId)
 
     return { success: true }
   }

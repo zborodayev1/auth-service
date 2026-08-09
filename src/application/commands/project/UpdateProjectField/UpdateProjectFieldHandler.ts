@@ -22,7 +22,7 @@ export class UpdateProjectFieldHandler {
   async execute(command: UpdateProjectFieldCommand): Promise<UpdateProjectFieldResult> {
     await this.accessService.verifyByProjectId(command.clientId, command.projectId)
 
-    const field = await this.projectFields.findById(command.fieldId)
+    const field = await this.projectFields.findByIdAndProject(command.fieldId, command.projectId)
 
     if (!field)
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {

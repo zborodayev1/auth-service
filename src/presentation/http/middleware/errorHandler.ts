@@ -4,6 +4,8 @@ import { ILogger } from '@ports/logger/ILogger'
 import { injectable, inject } from 'inversify'
 import { Request } from 'express'
 import { RequestContext } from '@ports/logger/RequestContext'
+import z, { ZodError } from 'zod'
+import { Prisma } from '@generated/prisma/client'
 
 @injectable()
 export class ErrorHandler {
@@ -13,6 +15,29 @@ export class ErrorHandler {
   ) {}
 
   handle: ErrorRequestHandler = (err, req, res, _next) => {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      this.logger.error({
+        message: 'Prisma error',
+        error: err,
+      })
+      if (err.code === 'P2002') {
+        return res.status(409).json({ error: { message: 'Resource already exists' } })
+      }
+      if (err.code === 'P2025') {
+        return res.status(404).json({ error: { message: 'Resource not found' } })
+      }
+      return res.status(500).json({ error: { message: 'Internal server error' } })
+    }
+
+    if (err instanceof ZodError) {
+      return res.status(400).json({
+        error: {
+          message: 'Validation error',
+          fields: z.treeifyError(err),
+        },
+      })
+    }
+
     if (err instanceof AppError) {
       this.logger.warn({
         message: err.message,

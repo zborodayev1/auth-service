@@ -28,10 +28,7 @@ export class UpdateUserFieldHandler {
   ) {}
 
   async execute(command: UpdateUserFieldCommand): Promise<UpdateUserFieldResult> {
-    const field = await this.projectFields.findByProjectAndName(
-      command.projectId,
-      command.fieldName,
-    )
+    const field = await this.projectFields.findByIdAndProject(command.fieldId, command.projectId)
 
     if (!field) {
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
@@ -39,11 +36,9 @@ export class UpdateUserFieldHandler {
       })
     }
 
-    const validated = this.schemaBuilder
-      .build([field])
-      .parse({ [command.fieldName]: command.value })
+    const validated = this.schemaBuilder.build([field]).parse({ [command.fieldId]: command.value })
 
-    const serialized = String(validated[command.fieldName])
+    const serialized = String(validated[command.fieldId])
 
     const fieldValue = this.fieldFactory.create({
       userId: command.userId,

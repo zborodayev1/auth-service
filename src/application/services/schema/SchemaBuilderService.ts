@@ -3,6 +3,7 @@ import { injectable } from 'inversify'
 import z from 'zod'
 
 export interface ProjectFieldDefinition {
+  id: string
   name: string
   type: FieldType
   required: boolean
@@ -24,7 +25,7 @@ export class SchemaBuilderService {
       if (field.defaultValue != null)
         zodType = zodType.default(this.parseDefault(field.type, field.defaultValue)) as z.ZodType
 
-      shape[field.name] = zodType
+      shape[field.id] = zodType
     }
 
     return z.object(shape)

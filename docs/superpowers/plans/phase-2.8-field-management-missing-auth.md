@@ -13,12 +13,12 @@ All four field management operations — Add, Update, Delete, and List — are m
 
 ## Affected operations
 
-| Handler | Command/Query | Has `clientId`? | Calls `ProjectAccessService`? |
-|---------|--------------|-----------------|-------------------------------|
-| `AddProjectFieldHandler` | `AddProjectFieldCommand` | ✗ | ✗ |
-| `UpdateProjectFieldHandler` | `UpdateProjectFieldCommand` | ✗ | ✗ |
-| `DeleteProjectFieldHandler` | `DeleteProjectFieldCommand` | ✗ | ✗ |
-| `GetProjectFieldsHandler` | `GetProjectFieldsQuery` | ✗ | ✗ |
+| Handler                     | Command/Query               | Has `clientId`? | Calls `ProjectAccessService`? |
+| --------------------------- | --------------------------- | --------------- | ----------------------------- |
+| `AddProjectFieldHandler`    | `AddProjectFieldCommand`    | ✗               | ✗                             |
+| `UpdateProjectFieldHandler` | `UpdateProjectFieldCommand` | ✗               | ✗                             |
+| `DeleteProjectFieldHandler` | `DeleteProjectFieldCommand` | ✗               | ✗                             |
+| `GetProjectFieldsHandler`   | `GetProjectFieldsQuery`     | ✗               | ✗                             |
 
 For contrast, all other project operations correctly call `accessService.verifyByProjectId(clientId, projectId)`:
 `GetProjectHandler`, `GetProjectApiKeyHandler`, `RenameProjectHandler`, `DeleteProjectHandler`, `RotateApiKeyHandler`, `RenameApiKeyHandler`, `GetProjectUsersHandler`, `DeleteProjectUserHandler`.

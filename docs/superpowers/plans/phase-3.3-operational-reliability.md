@@ -7,7 +7,17 @@ priority: medium — not blocking pre-launch, but required before sustained prod
 
 # Phase 3.4 — Operational Reliability
 
-Two independent problems that surface under production load. Neither requires architectural overhaul now, but both need a clear resolution path before scaling.
+Three independent problems that surface under production load. Neither requires architectural overhaul now, but all need a clear resolution path before scaling.
+
+---
+
+## 3.4.0 — SchemaBuilderService Cache Not Shared Between Instances
+
+**Problem:** `SchemaBuilderService` stores Zod schemas in process memory (`Map<projectId, ZodObject>`). On multi-instance deploy, `invalidate(projectId)` only clears the cache on the mutating instance. Other instances serve stale schema → `RegisterUser` may accept or reject fields incorrectly.
+
+**Fix:** Redis pub/sub for cache invalidation. When any instance calls `invalidate(projectId)`, it publishes `invalidate:<projectId>`. All instances subscribe and clear their local cache entry.
+
+**Not a problem for single-instance.** Defer until horizontal scaling is needed or Redis is introduced for other reasons (e.g. 3.4.1 distributed lock).
 
 ---
 

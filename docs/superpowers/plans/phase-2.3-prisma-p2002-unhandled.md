@@ -1,7 +1,7 @@
 ---
 title: Phase 2.3 — PrismaClientKnownRequestError P2002 → 500
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — only hits under concurrent requests, but returns 500 instead of 409
 ---
 

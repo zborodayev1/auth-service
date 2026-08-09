@@ -1,7 +1,7 @@
 ---
 title: Phase 2.2 — Correctness Gaps
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — correctness bugs, no architectural changes needed
 ---
 
