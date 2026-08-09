@@ -1,7 +1,7 @@
 ---
 title: Phase 2.8 — Project Field Management Missing Ownership Authorization
 date: 2026-08-03
-status: backlog
+status: done
 priority: high — any authenticated client can mutate or read fields on any project
 ---
 
@@ -13,12 +13,12 @@ All four field management operations — Add, Update, Delete, and List — are m
 
 ## Affected operations
 
-| Handler | Command/Query | Has `clientId`? | Calls `ProjectAccessService`? |
-|---------|--------------|-----------------|-------------------------------|
-| `AddProjectFieldHandler` | `AddProjectFieldCommand` | ✗ | ✗ |
-| `UpdateProjectFieldHandler` | `UpdateProjectFieldCommand` | ✗ | ✗ |
-| `DeleteProjectFieldHandler` | `DeleteProjectFieldCommand` | ✗ | ✗ |
-| `GetProjectFieldsHandler` | `GetProjectFieldsQuery` | ✗ | ✗ |
+| Handler                     | Command/Query               | Has `clientId`? | Calls `ProjectAccessService`? |
+| --------------------------- | --------------------------- | --------------- | ----------------------------- |
+| `AddProjectFieldHandler`    | `AddProjectFieldCommand`    | ✗               | ✗                             |
+| `UpdateProjectFieldHandler` | `UpdateProjectFieldCommand` | ✗               | ✗                             |
+| `DeleteProjectFieldHandler` | `DeleteProjectFieldCommand` | ✗               | ✗                             |
+| `GetProjectFieldsHandler`   | `GetProjectFieldsQuery`     | ✗               | ✗                             |
 
 For contrast, all other project operations correctly call `accessService.verifyByProjectId(clientId, projectId)`:
 `GetProjectHandler`, `GetProjectApiKeyHandler`, `RenameProjectHandler`, `DeleteProjectHandler`, `RotateApiKeyHandler`, `RenameApiKeyHandler`, `GetProjectUsersHandler`, `DeleteProjectUserHandler`.
