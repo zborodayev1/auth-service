@@ -4,6 +4,7 @@ import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldVa
 import { injectable, inject } from 'inversify'
 
 interface FieldsType {
+  id: string
   name: string
   type: FieldType
   value: string | null
@@ -24,6 +25,7 @@ export class UserFieldService {
     const valueByFieldId = new Map(values.map((v) => [v.fieldId, v.value]))
 
     return fields.map((f) => ({
+      id: f.id,
       name: f.name,
       type: f.type,
       value: valueByFieldId.get(f.id) ?? null,

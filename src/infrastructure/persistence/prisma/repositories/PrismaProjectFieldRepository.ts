@@ -37,14 +37,9 @@ export class PrismaProjectFieldRepository
     })
   }
 
-  async findById(id: string): Promise<ProjectField | null> {
-    const raw = await this.prismaClient.projectField.findFirst({ where: { id, deletedAt: null } })
-    return raw ? projectFieldToDomain(raw) : null
-  }
-
-  async findDeletedById(id: string): Promise<ProjectField | null> {
+  async findDeletedByIdAndProject(id: string, projectId: string): Promise<ProjectField | null> {
     const raw = await this.prismaClient.projectField.findFirst({
-      where: { id, deletedAt: { not: null } },
+      where: { id, projectId, deletedAt: { not: null } },
     })
     return raw ? projectFieldToDomain(raw) : null
   }
@@ -59,6 +54,13 @@ export class PrismaProjectFieldRepository
   async findByProjectAndName(projectId: string, name: string): Promise<ProjectField | null> {
     const raw = await this.prismaClient.projectField.findFirst({
       where: { projectId, name, deletedAt: null },
+    })
+    return raw ? projectFieldToDomain(raw) : null
+  }
+
+  async findByIdAndProject(id: string, projectId: string): Promise<ProjectField | null> {
+    const raw = await this.prismaClient.projectField.findFirst({
+      where: { projectId, id, deletedAt: null },
     })
     return raw ? projectFieldToDomain(raw) : null
   }

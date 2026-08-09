@@ -6,6 +6,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { UnitOfWork } from '@ports/UnitOfWork'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
+import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface DeleteProjectFieldResult {
   success: boolean
@@ -22,20 +23,16 @@ export class DeleteProjectFieldHandler {
     @inject(ProjectFieldRepository) private readonly projectFields: ProjectFieldRepository,
 
     @inject(SchemaBuilderService) private readonly schemaBuilder: SchemaBuilderService,
+
+    @inject(ProjectAccessService) private readonly accessService: ProjectAccessService,
   ) {}
 
   async execute(command: DeleteProjectFieldCommand): Promise<DeleteProjectFieldResult> {
-    const field = await this.projectFields.findById(command.fieldId)
+    await this.accessService.verifyByProjectId(command.clientId, command.projectId)
+    const field = await this.projectFields.findByIdAndProject(command.fieldId, command.projectId)
     if (!field) {
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
         command: command,
-      })
-    }
-
-    if (field.projectId !== command.projectId) {
-      throw new NotFoundError('Field not found', 'ACCESS_DENIED', {
-        command: command,
-        field: field,
       })
     }
 

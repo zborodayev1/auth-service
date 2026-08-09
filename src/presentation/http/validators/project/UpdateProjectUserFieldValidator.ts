@@ -6,5 +6,5 @@ export const UpdateProjectUserFieldBodySchema = z.object({
 
 export const UpdateProjectUserFieldParamSchema = z.object({
   userId: z.uuid(),
-  name: z.string().min(1),
+  fieldId: z.uuid(),
 })

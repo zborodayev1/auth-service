@@ -168,7 +168,7 @@ export class UserController {
       new UpdateUserFieldCommand(
         req.userAuth.userId,
         req.userAuth.projectId,
-        params.name,
+        params.id,
         String(body.value),
       ),
     )
@@ -211,7 +211,7 @@ export class UserController {
   async getField(req: Request, res: Response): Promise<void> {
     const params = UpdateUserFieldParamSchema.parse(req.params)
     const result = await this.getFieldHandler.execute(
-      new GetUserFieldQuery(req.userAuth.userId, req.userAuth.projectId, params.name),
+      new GetUserFieldQuery(req.userAuth.userId, req.userAuth.projectId, params.id),
     )
     res.status(200).json(result)
   }

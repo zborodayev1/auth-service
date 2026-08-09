@@ -29,8 +29,8 @@ export class UserRouter {
     router.delete('/me', authenticate, c.deleteSelf.bind(c))
 
     router.get('/me/fields', authenticate, c.getFields.bind(c))
-    router.get('/me/fields/:name', authenticate, c.getField.bind(c))
-    router.patch('/me/fields/:name', authenticate, c.update.bind(c))
+    router.get('/me/fields/:fieldId', authenticate, c.getField.bind(c))
+    router.patch('/me/fields/:fieldId', authenticate, c.update.bind(c))
 
     return router
   }

@@ -36,8 +36,11 @@ export class ProjectRouter {
     // Users (admin)
     router.get('/:projectId/users', authenticate, c.getUsers.bind(c))
     router.get('/:projectId/users/:userId', authenticate, c.getUser.bind(c))
-    router.get('/:projectId/users/:userId/fields', authenticate, c.getUserFields.bind(c))
-    router.patch('/:projectId/users/:userId/fields/:name', authenticate, c.updateUserField.bind(c))
+    router.patch(
+      '/:projectId/users/:userId/fields/:fieldId',
+      authenticate,
+      c.updateUserField.bind(c),
+    )
     router.delete('/:projectId/users/:userId', authenticate, c.deleteUser.bind(c))
 
     return router
