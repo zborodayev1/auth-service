@@ -3,6 +3,7 @@ import type { FieldType } from '@aggregates/projectField/FieldType'
 export class AddProjectFieldCommand {
   constructor(
     public readonly projectId: string,
+    public readonly clientId: string,
 
     public readonly name: string,
     public readonly type: FieldType,

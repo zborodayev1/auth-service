@@ -1,7 +1,7 @@
 ---
 title: Phase 1.3 — Logout Does Not Clear refresh_token Cookie
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — security hygiene, easy fix
 ---
 

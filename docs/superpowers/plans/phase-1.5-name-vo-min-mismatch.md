@@ -1,7 +1,7 @@
 ---
 title: Phase 1.5 — Name VO Minimum Not Mirrored in Zod Validators
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — produces confusing 400 errors, wrong field in error response, poor DX
 ---
 
