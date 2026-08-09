@@ -16,7 +16,7 @@ export class PrismaUserFieldValueRepository
 
   async save(value: UserFieldValue): Promise<void> {
     await this.prismaClient.userFieldValue.upsert({
-      where: { userId_fieldId: { userId: value.userId, fieldId: value.fieldId } },
+      where: { id: value.id },
       create: {
         id: value.id,
         userId: value.userId,
@@ -28,9 +28,7 @@ export class PrismaUserFieldValueRepository
   }
 
   async saveMany(values: UserFieldValue[]): Promise<void> {
-    for (const v of values) {
-      await this.save(v)
-    }
+    await Promise.all(values.map((v) => this.save(v)))
   }
 
   async findByUserId(userId: string): Promise<UserFieldValue[]> {

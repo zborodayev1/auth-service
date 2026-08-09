@@ -127,7 +127,6 @@ model ProjectField {
   deletedAt DateTime?
 
   fieldValues UserFieldValue[]
-  @@unique([projectId, name])
 }
 
 model UserFieldValue {
@@ -143,7 +142,6 @@ model UserFieldValue {
   createdAt DateTime @default(now())
   deletedAt DateTime?
 
-  @@unique([userId, fieldId])
 }
 
 
