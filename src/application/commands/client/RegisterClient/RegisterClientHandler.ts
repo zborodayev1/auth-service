@@ -9,6 +9,7 @@ import { IdGenerator } from '@ports/IdGenerator'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { Name } from '@valueObjects/Name'
 import { ClientAuthService } from '@services/auth/ClientAuthService'
+import { UnitOfWork } from '@ports/UnitOfWork'
 
 interface RegisterClientResult {
   clientId: string
@@ -30,6 +31,8 @@ export class RegisterClientHandler {
 
     @inject(ClientAuthService)
     private readonly authService: ClientAuthService,
+
+    @inject(UnitOfWork) private readonly unitOfWork: UnitOfWork,
   ) {}
 
   async execute(command: RegisterClientCommand): Promise<RegisterClientResult> {
@@ -51,13 +54,17 @@ export class RegisterClientHandler {
 
     const client = Client.create(id, Name.create(command.name), email, password)
 
-    await this.clients.save(client)
+    const tokens = await this.unitOfWork.execute(async () => {
+      await this.clients.save(client)
 
-    const tokens = await this.authService.login({
-      clientId: client.id,
-      userAgent: command.userAgent,
-      ipAddress: command.ipAddress,
-      deviceName: command.deviceName,
+      const t = await this.authService.login({
+        clientId: client.id,
+        userAgent: command.userAgent,
+        ipAddress: command.ipAddress,
+        deviceName: command.deviceName,
+      })
+
+      return t
     })
 
     return { clientId: client.id, ...tokens }

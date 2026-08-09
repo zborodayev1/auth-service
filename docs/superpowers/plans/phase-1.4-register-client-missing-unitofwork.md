@@ -1,7 +1,7 @@
 ---
 title: Phase 1.4 — RegisterClientHandler Missing UnitOfWork Wrap
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — correctness bug, leaves orphaned client records on partial failure
 ---
 

@@ -133,6 +133,12 @@ export class ClientController {
     const result = await this.logoutAllHandler.execute(
       new LogoutAllClientSessionsCommand(req.auth.clientId),
     )
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+    })
+
     res.status(200).json(result)
   }
 
@@ -140,6 +146,13 @@ export class ClientController {
     const result = await this.logoutCurrentHandler.execute(
       new LogoutCurrentClientSessionCommand(req.auth.sessionId, req.auth.clientId),
     )
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+    })
+
     res.status(200).json(result)
   }
 
