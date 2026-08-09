@@ -1,7 +1,7 @@
 ---
 title: Phase 2.6 — Email Change Missing Session Revocation
 date: 2026-08-03
-status: backlog
+status: canceled
 priority: medium — security asymmetry, inconsistent with password change behavior
 ---
 
@@ -13,12 +13,12 @@ Password change revokes all sessions. Email change does not. Both operations req
 
 ## Asymmetry
 
-| Handler | Requires password | Revokes sessions |
-|---------|------------------|-----------------|
-| `ChangeClientPasswordHandler` | ✓ | ✓ `revokeAllByClientId` |
-| `ChangeClientEmailHandler` | ✓ | ✗ |
-| `ChangeUserPasswordHandler` | ✓ | ✓ `revokeAllByUserId` |
-| `ChangeUserEmailHandler` | ✓ | ✗ |
+| Handler                       | Requires password | Revokes sessions        |
+| ----------------------------- | ----------------- | ----------------------- |
+| `ChangeClientPasswordHandler` | ✓                 | ✓ `revokeAllByClientId` |
+| `ChangeClientEmailHandler`    | ✓                 | ✗                       |
+| `ChangeUserPasswordHandler`   | ✓                 | ✓ `revokeAllByUserId`   |
+| `ChangeUserEmailHandler`      | ✓                 | ✗                       |
 
 After email is changed, all sessions created under the old email remain valid and can continue issuing requests. If the account email is used for identity (e.g., future email verification, recovery flows), this creates a window where a session is associated with a now-stale identity.
 
