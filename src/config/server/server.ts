@@ -45,6 +45,10 @@ export class ServerConfig {
     return this.environment === 'production'
   }
 
+  get isTest(): boolean {
+    return this.environment === 'test'
+  }
+
   private string(name: string, defaultValue?: string): string {
     const value = process.env[name]
 

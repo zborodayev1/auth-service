@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { RenameApiKeyCommand } from './RenameApiKeyCommand'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface RenameApiKeyResult {

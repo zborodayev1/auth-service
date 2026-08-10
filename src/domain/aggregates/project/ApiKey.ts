@@ -1,5 +1,5 @@
 import { Identifiable } from '@libs/ddd/Identifiable'
-import type { Name } from '@valueObjects/Name'
+import type { Name } from '@valueObjects/Name/Name'
 
 export class ApiKey extends Identifiable {
   constructor(

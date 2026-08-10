@@ -2,7 +2,7 @@ import type { Prisma } from '@generated/prisma/client'
 import { Project } from '@aggregates/project/Project'
 import { ApiKey } from '@aggregates/project/ApiKey'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 
 type PrismaProjectWithApiKey = Prisma.ProjectGetPayload<{
   include: { apiKey: true }
@@ -22,5 +22,12 @@ export function projectToDomain(raw: PrismaProjectWithApiKey): Project {
     raw.apiKey.createdAt,
   )
 
-  return Project.reconstruct(raw.id, Name.create(raw.name), raw.ownerId, apiKey, raw.jwtSecret, raw.createdAt)
+  return Project.reconstruct(
+    raw.id,
+    Name.create(raw.name),
+    raw.ownerId,
+    apiKey,
+    raw.jwtSecret,
+    raw.createdAt,
+  )
 }

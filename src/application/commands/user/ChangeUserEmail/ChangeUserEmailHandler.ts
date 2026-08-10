@@ -4,7 +4,7 @@ import { PasswordHasher } from '@ports/PasswordHasher'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { Email } from '@valueObjects/Email'
+import { Email } from '@valueObjects/Email/Email'
 import { ConflictError } from '@shared/errors/ConflictError'
 
 interface ChangeUserEmailResult {

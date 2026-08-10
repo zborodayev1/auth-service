@@ -1,5 +1,5 @@
-import type { Email } from '@valueObjects/Email'
-import type { Password } from '@valueObjects/Password'
+import type { Email } from '@valueObjects/Email/Email'
+import type { Password } from '@valueObjects/Password/Password'
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
 
 export class User extends AggregateRoot {

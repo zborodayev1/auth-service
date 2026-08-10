@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { RenameProjectCommand } from './RenameProjectCommand'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { ConflictError } from '@shared/errors/ConflictError'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
 interface RenameProjectResult {

@@ -4,7 +4,7 @@ import { CreateProjectCommand } from './CreateProjectCommand'
 import { Project } from '@aggregates/project/Project'
 import { ApiKeyService } from '@app/services/ApiKeyService'
 import { IdGenerator } from '@ports/IdGenerator'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 import { KeyGenerator } from '@ports/KeyGenerator'
 
 export interface CreateProjectResult {

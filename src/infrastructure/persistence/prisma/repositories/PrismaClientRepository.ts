@@ -1,6 +1,6 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { injectable, inject } from 'inversify'
-import { Email } from '@valueObjects/Email'
+import { Email } from '@valueObjects/Email/Email'
 import { Client } from '@aggregates/client/Client'
 import { clientToDomain } from '../mappers/ClientMapper'
 

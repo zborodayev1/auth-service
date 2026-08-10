@@ -1,7 +1,7 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { injectable, inject } from 'inversify'
 import { ChangeClientPasswordCommand } from './ChangeClientPasswordCommand'
-import { Password } from '@valueObjects/Password'
+import { Password } from '@valueObjects/Password/Password'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
