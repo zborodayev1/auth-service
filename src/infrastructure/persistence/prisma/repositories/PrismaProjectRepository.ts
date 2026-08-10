@@ -70,6 +70,14 @@ export class PrismaProjectRepository extends PrismaRepository implements Project
     return raw ? projectToDomain(raw) : null
   }
 
+  async findByApiKeyHash(hash: string): Promise<Project | null> {
+    const raw = await this.prismaClient.project.findFirst({
+      where: { apiKey: { hash } },
+      include: { apiKey: true },
+    })
+    return raw ? projectToDomain(raw) : null
+  }
+
   async delete(id: string): Promise<void> {
     await this.prismaClient.project.delete({ where: { id } })
   }

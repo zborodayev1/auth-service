@@ -22,6 +22,7 @@ import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
 
 import { UserController } from '@presentation/http/controllers/UserController'
 import { UserAuthMiddleware } from '@presentation/http/middleware/UserAuthMiddleware'
+import { ApiKeyAuthMiddleware } from '@presentation/http/middleware/ApiKeyAuthMiddleware'
 
 @injectable()
 export class UserContext implements ServiceContext {
@@ -47,5 +48,6 @@ export class UserContext implements ServiceContext {
 
     container.bind(UserController).toSelf()
     container.bind(UserAuthMiddleware).toSelf()
+    container.bind(ApiKeyAuthMiddleware).toSelf()
   }
 }

@@ -6,6 +6,7 @@ export interface ProjectRepository {
   findByOwnerId(ownerId: string): Promise<Project[]>
   save(project: Project): Promise<void>
   findByOwnerAndName(ownerId: string, name: Name): Promise<Project | null>
+  findByApiKeyHash(hash: string): Promise<Project | null>
   delete(id: string): Promise<void>
 }
 

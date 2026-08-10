@@ -1,7 +1,7 @@
 ---
 title: Phase 3.1 — ApiKey Authentication Middleware
 date: 2026-08-03
-status: backlog
+status: done
 priority: high — functional gap, user endpoints unprotected
 ---
 
@@ -59,6 +59,7 @@ export class ApiKeyAuthMiddleware {
 ### 2. Repository gap
 
 `ApiKeyRepository` needs:
+
 ```ts
 findByProjectId(projectId: string): Promise<ApiKey | null>
 ```
@@ -71,8 +72,8 @@ Apply middleware only to public endpoints (register/login/refresh). Authenticate
 
 ```ts
 router.post('/register', apiKeyAuth, c.register.bind(c))
-router.post('/login',    apiKeyAuth, c.login.bind(c))
-router.post('/refresh',  apiKeyAuth, c.refresh.bind(c))
+router.post('/login', apiKeyAuth, c.login.bind(c))
+router.post('/refresh', apiKeyAuth, c.refresh.bind(c))
 ```
 
 `logout` and `/me/*` stay behind `UserAuthMiddleware` — the user JWT is sufficient there.
