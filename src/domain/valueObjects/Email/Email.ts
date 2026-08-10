@@ -19,7 +19,6 @@ export class Email extends ValueObject<Email> {
   copy(): Email {
     return new Email(this.value)
   }
-
   override toString(): string {
     return this.value
   }

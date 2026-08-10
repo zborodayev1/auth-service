@@ -40,11 +40,13 @@ export class UpdateUserFieldHandler {
 
     const serialized = String(validated[command.fieldId])
 
-    const fieldValue = this.fieldFactory.create({
-      userId: command.userId,
-      fieldId: field.id,
-      value: serialized,
-    })
+    const existing = await this.userFields.findByUserAndField(command.userId, field.id)
+
+    let params = existing
+      ? { id: existing.id, userId: command.userId, fieldId: field.id, value: serialized }
+      : { userId: command.userId, fieldId: field.id, value: serialized }
+
+    const fieldValue = this.fieldFactory.create(params)
 
     await this.userFields.save(fieldValue)
 

@@ -3,6 +3,7 @@ import { IdGenerator } from '@ports/IdGenerator'
 import { inject, injectable } from 'inversify'
 
 interface UserFieldValueParams {
+  id?: string
   userId: string
   fieldId: string
   value: string
@@ -13,7 +14,7 @@ export class UserFieldValueFactory {
 
   create(params: UserFieldValueParams): UserFieldValue {
     return UserFieldValue.create({
-      id: this.idGenerator.generate(),
+      id: params.id ?? this.idGenerator.generate(),
       userId: params.userId,
       fieldId: params.fieldId,
       value: params.value,

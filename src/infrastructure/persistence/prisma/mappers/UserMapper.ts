@@ -1,6 +1,6 @@
 import { User } from '@aggregates/user/User'
-import { Email } from '@valueObjects/Email'
-import { Password } from '@valueObjects/Password'
+import { Email } from '@valueObjects/Email/Email'
+import { Password } from '@valueObjects/Password/Password'
 import type { Prisma } from '@generated/prisma/client'
 
 type PrismaUserRow = Prisma.UserGetPayload<Record<string, never>>

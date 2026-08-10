@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { RenameClientCommand } from './RenameClientCommand'
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 
 interface RenameClientResult {
   name: string

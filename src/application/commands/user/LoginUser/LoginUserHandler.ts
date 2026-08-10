@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { LoginUserCommand } from './LoginUserCommand'
-import { Email } from '@valueObjects/Email'
+import { Email } from '@valueObjects/Email/Email'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { PasswordHasher } from '@ports/PasswordHasher'

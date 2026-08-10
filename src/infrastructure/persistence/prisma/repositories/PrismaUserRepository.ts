@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify'
 import { User } from '@aggregates/user/User'
 import type { UserRepository } from '@aggregates/user/UserRepository'
-import type { Email } from '@valueObjects/Email'
+import type { Email } from '@valueObjects/Email/Email'
 import { userToDomain } from '../mappers/UserMapper'
 import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'

@@ -1,7 +1,7 @@
 ---
 title: Phase 3.5 — Test Infrastructure
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — zero coverage on an auth service is a regression risk
 ---
 
@@ -15,9 +15,9 @@ Zero test files in the entire codebase. Auth service logic (token rotation, sess
 
 Two layers only. No E2E. No snapshot tests.
 
-| Layer | What | Tool |
-|-------|------|------|
-| Unit | Domain aggregates + value objects | Vitest |
+| Layer       | What                                                       | Tool                           |
+| ----------- | ---------------------------------------------------------- | ------------------------------ |
+| Unit        | Domain aggregates + value objects                          | Vitest                         |
 | Integration | Critical command handlers (login, register, token refresh) | Vitest + real Prisma + test DB |
 
 ---
@@ -31,6 +31,7 @@ pnpm add -D vitest @vitest/coverage-v8
 ```
 
 `vitest.config.ts` at root:
+
 ```ts
 import { defineConfig } from 'vitest/config'
 
@@ -61,6 +62,7 @@ export default defineConfig({
 ```
 
 Add to `package.json`:
+
 ```json
 "test": "vitest run",
 "test:watch": "vitest",
@@ -78,6 +80,7 @@ Separate `DATABASE_URL` for tests. Use `.env.test`. Reset between test suites wi
 Test pure aggregate/VO logic only. No DB, no DI, no mocks.
 
 **Target files:**
+
 - `src/domain/aggregates/client/Client.ts` — `reName`, `changeEmail`, `changePassword`
 - `src/domain/aggregates/user/User.ts` — `changeEmail`, `changePassword`
 - `src/domain/aggregates/project/Project.ts` — `reName`, `reNameApiKey`
@@ -86,6 +89,7 @@ Test pure aggregate/VO logic only. No DB, no DI, no mocks.
 - `src/domain/valueObjects/Name.ts` — rules
 
 **Example pattern:**
+
 ```ts
 // src/domain/aggregates/client/Client.test.ts
 import { describe, it, expect } from 'vitest'
@@ -116,6 +120,7 @@ Test the full command handler stack against a real test DB. Inversify container 
 5. `DeleteProjectHandler` — cascade delete correctness
 
 **Pattern:**
+
 ```ts
 // src/application/commands/client/LoginClient/LoginClientHandler.test.ts
 import { beforeEach, afterAll, describe, it, expect } from 'vitest'
@@ -124,7 +129,7 @@ import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 const prisma = new PrismaProvider()
 
 beforeEach(async () => {
-  await prisma.client.deleteMany()  // truncate relevant tables
+  await prisma.client.deleteMany() // truncate relevant tables
 })
 
 afterAll(async () => {

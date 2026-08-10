@@ -53,6 +53,7 @@ export class DeleteProjectHandler {
       await this.userFields.deleteByProjectId(command.projectId)
       await this.users.deleteByProjectId(command.projectId)
       await this.projectFields.deleteByProjectId(command.projectId)
+      await this.projects.deleteApiKey(command.projectId)
       await this.projects.delete(command.projectId)
     })
 
