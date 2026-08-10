@@ -35,6 +35,10 @@ export class UserAuthMiddleware {
 
     const payload = this.accessTokens.verify(token, project.jwtSecret)
 
+    if (req.projectAuth && req.projectAuth.projectId !== payload.projectId) {
+      throw new UnauthorizedError('Token project mismatch')
+    }
+
     const session = await this.sessions.findById(payload.sessionId)
     if (!session) {
       throw new UnauthorizedError('Session not found')
