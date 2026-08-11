@@ -6,7 +6,7 @@ import { ProjectFieldFactory } from '@factories/ProjectFieldFactory'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
-interface AddProjectFieldResult {
+export interface AddProjectFieldResult {
   fieldId: string
 }
 

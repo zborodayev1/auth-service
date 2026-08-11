@@ -1,12 +1,12 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { LoginUserHandler } from './LoginUserHandler'
 import { LoginUserCommand } from './LoginUserCommand'
 import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/RefreshUserAccessTokenHandler'
 import { RefreshUserAccessTokenCommand } from '../RefreshUserAccessToken/RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED, type UserSeedResult } from '../../../../tests/helpers/userSeed'
+import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
 
 const container = getTestContainer()
 const loginHandler = container.get(LoginUserHandler)
@@ -17,10 +17,6 @@ describe('LoginUserHandler', () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
-
   it('returns accessToken, refreshToken and userId on valid credentials', async () => {
     const { projectId } = await seedUser(container)
 
@@ -29,8 +25,10 @@ describe('LoginUserHandler', () => {
     )
 
     expect(result.userId).toBeTruthy()
-    expect(result.accessToken).toBeTruthy()
-    expect(result.refreshToken).toBeTruthy()
+    expect(typeof result.accessToken).toBe('string')
+    expect(result.accessToken.length).toBeGreaterThan(0)
+    expect(typeof result.refreshToken).toBe('string')
+    expect(result.refreshToken.length).toBeGreaterThan(0)
   })
 
   it('refresh token from login is usable', async () => {
@@ -66,14 +64,19 @@ describe('LoginUserHandler', () => {
   })
 
   it('throws UnauthorizedError for valid user in wrong project', async () => {
-    const seed: UserSeedResult = await seedUser(container)
+    await seedUser(container)
 
     await expect(
       loginHandler.execute(
-        new LoginUserCommand(SEED.user.password, SEED.user.email, '00000000-0000-0000-0000-000000000000', null, null, null),
+        new LoginUserCommand(
+          SEED.user.password,
+          SEED.user.email,
+          '00000000-0000-0000-0000-000000000000',
+          null,
+          null,
+          null,
+        ),
       ),
     ).rejects.toThrow(UnauthorizedError)
-
-    void seed
   })
 })

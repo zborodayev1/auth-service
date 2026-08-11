@@ -1,14 +1,17 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { LogoutAllClientSessionsHandler } from './LogoutAllClientSessionsHandler'
 import { LogoutAllClientSessionsCommand } from './LogoutAllClientSessionsCommand'
 import { RefreshClientAccessTokenHandler } from '../RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '../RefreshClientAccessToken/RefreshClientAccessTokenCommand'
-import { type RegisterClientResult, RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
+import {
+  type RegisterClientResult,
+  RegisterClientHandler,
+} from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 
 const container = getTestContainer()
@@ -33,16 +36,29 @@ describe('LogoutAllClientSessionsHandler', () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
-
   it('returns success', async () => {
     const { clientId } = await seed()
 
     const result = await handler.execute(new LogoutAllClientSessionsCommand(clientId))
 
     expect(result.success).toBe(true)
+  })
+
+  it('does not invalidate sessions of other clients', async () => {
+    const { clientId: clientIdA, refreshToken: tokenA } = await seed()
+    const { refreshToken: tokenB } = await registerHandler.execute(
+      new RegisterClientCommand('Other Client', 'other@example.com', VALID.password, null, null, null),
+    )
+
+    await handler.execute(new LogoutAllClientSessionsCommand(clientIdA))
+
+    await expect(
+      refreshHandler.execute(new RefreshClientAccessTokenCommand(tokenA)),
+    ).rejects.toThrow(UnauthorizedError)
+
+    await expect(
+      refreshHandler.execute(new RefreshClientAccessTokenCommand(tokenB)),
+    ).resolves.toBeTruthy()
   })
 
   it('invalidates all sessions — refresh fails for all tokens', async () => {

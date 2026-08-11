@@ -1,26 +1,27 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { ChangeUserPasswordHandler } from './ChangeUserPasswordHandler'
 import { ChangeUserPasswordCommand } from './ChangeUserPasswordCommand'
 import { LoginUserHandler } from '../LoginUser/LoginUserHandler'
 import { LoginUserCommand } from '../LoginUser/LoginUserCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
+import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
+import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
 
 const container = getTestContainer()
 const handler = container.get(ChangeUserPasswordHandler)
 const loginHandler = container.get(LoginUserHandler)
+const createProject = container.get(CreateProjectHandler)
 
 describe('ChangeUserPasswordHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
 
   it('changes password successfully', async () => {
     const { userId, projectId } = await seedUser(container)
@@ -70,5 +71,18 @@ describe('ChangeUserPasswordHandler', () => {
     await expect(
       handler.execute(new ChangeUserPasswordCommand(userId, projectId, SEED.user.password, SEED.user.password)),
     ).rejects.toThrow(ConflictError)
+  })
+
+  it('throws NotFoundError when projectId does not match user project', async () => {
+    const { userId, clientId } = await seedUser(container)
+    const { projectId: otherProjectId } = await createProject.execute(
+      new CreateProjectCommand('Other Project', clientId),
+    )
+
+    await expect(
+      handler.execute(
+        new ChangeUserPasswordCommand(userId, otherProjectId, SEED.user.password, 'newpassword456'),
+      ),
+    ).rejects.toThrow(NotFoundError)
   })
 })

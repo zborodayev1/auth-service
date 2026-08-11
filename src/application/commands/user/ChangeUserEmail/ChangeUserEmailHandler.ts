@@ -23,7 +23,7 @@ export class ChangeUserEmailHandler {
 
   async execute(command: ChangeUserEmailCommand): Promise<ChangeUserEmailResult> {
     const user = await this.users.findById(command.userId)
-    if (!user)
+    if (!user || user.projectId !== command.projectId)
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: command.userId,
         projectId: command.projectId,

@@ -1,11 +1,11 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { GetClientProfileHandler } from './GetClientProfileHandler'
 import { GetClientProfileQuery } from './GetClientProfileQuery'
 import type { RegisterClientResult } from '../../../commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientHandler } from '../../../commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 
 const container = getTestContainer()
@@ -26,10 +26,6 @@ const seed = (): Promise<RegisterClientResult> =>
 describe('GetClientProfileHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
-  })
-
-  afterAll(async () => {
-    await disconnectTestDb()
   })
 
   it('returns correct profile fields', async () => {

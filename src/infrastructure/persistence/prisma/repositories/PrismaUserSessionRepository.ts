@@ -54,6 +54,13 @@ export class PrismaUserSessionRepository extends PrismaRepository implements Use
     })
   }
 
+  async revokeAllByUserIdAndProject(userId: string, projectId: string): Promise<void> {
+    await this.prismaClient.userSession.updateMany({
+      where: { userId, projectId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    })
+  }
+
   async deleteExpired(): Promise<void> {
     await this.prismaClient.userSession.deleteMany({
       where: { expiresAt: { lt: new Date() } },

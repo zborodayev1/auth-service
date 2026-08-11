@@ -147,7 +147,7 @@ export class UserController {
 
   async logoutAll(req: Request, res: Response): Promise<void> {
     const result = await this.logoutAllHandler.execute(
-      new LogoutAllUserSessionsCommand(req.userAuth.userId),
+      new LogoutAllUserSessionsCommand(req.userAuth.userId, req.userAuth.projectId),
     )
     res.clearCookie('refresh_token', {
       httpOnly: true,
@@ -160,7 +160,7 @@ export class UserController {
 
   async logoutCurrent(req: Request, res: Response): Promise<void> {
     const result = await this.logoutCurrentHandler.execute(
-      new LogoutUserSessionCommand(req.userAuth.sessionId),
+      new LogoutUserSessionCommand(req.userAuth.sessionId, req.userAuth.userId),
     )
 
     res.clearCookie('refresh_token', {
@@ -200,7 +200,7 @@ export class UserController {
     const body = DeleteUserSelfSchema.parse(req.body)
 
     const result = await this.deleteSelfHandler.execute(
-      new DeleteUserSelfCommand(req.userAuth.userId, body.password),
+      new DeleteUserSelfCommand(req.userAuth.userId, body.password, req.userAuth.projectId),
     )
 
     res.clearCookie('refresh_token', {

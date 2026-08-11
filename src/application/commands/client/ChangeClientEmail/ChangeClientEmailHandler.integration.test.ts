@@ -1,16 +1,23 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { ChangeClientEmailHandler } from './ChangeClientEmailHandler'
 import { ChangeClientEmailCommand } from './ChangeClientEmailCommand'
-import { type RegisterClientResult, RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
+import {
+  type RegisterClientResult,
+  RegisterClientHandler,
+} from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
+import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
+import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
+import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 
 const container = getTestContainer()
 const handler = container.get(ChangeClientEmailHandler)
 const registerHandler = container.get(RegisterClientHandler)
+const loginHandler = container.get(LoginClientHandler)
 
 const VALID = {
   name: 'Test Client',
@@ -28,10 +35,6 @@ describe('ChangeClientEmailHandler', () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
-
   it('changes email with valid password', async () => {
     const { clientId } = await seed()
 
@@ -42,12 +45,30 @@ describe('ChangeClientEmailHandler', () => {
     expect(result.email).toBe('new@example.com')
   })
 
+  it('new email persists — login with new email works', async () => {
+    const { clientId } = await seed()
+
+    await handler.execute(new ChangeClientEmailCommand(clientId, 'new@example.com', VALID.password))
+
+    await expect(
+      loginHandler.execute(new LoginClientCommand(VALID.password, 'new@example.com', null, null, null)),
+    ).resolves.toBeTruthy()
+  })
+
   it('throws UnauthorizedError for wrong password', async () => {
     const { clientId } = await seed()
 
     await expect(
       handler.execute(new ChangeClientEmailCommand(clientId, 'new@example.com', 'wrongpassword')),
     ).rejects.toThrow(UnauthorizedError)
+  })
+
+  it('throws NotFoundError for unknown clientId', async () => {
+    await expect(
+      handler.execute(
+        new ChangeClientEmailCommand('00000000-0000-0000-0000-000000000000', 'new@example.com', VALID.password),
+      ),
+    ).rejects.toThrow(NotFoundError)
   })
 
   it('throws ConflictError when new email already taken', async () => {

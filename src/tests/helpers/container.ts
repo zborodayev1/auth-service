@@ -27,9 +27,12 @@ export function getTestContainer(): Container {
   return _container
 }
 
+// _container is reset to null by disconnectTestDb() after each file's afterAll.
+// Next file gets a fresh container with a new Prisma connection.
+// Do NOT enable fileParallelism without replacing this with a per-file factory.
 export async function disconnectTestDb(): Promise<void> {
   if (!_container) return
   const prisma = _container.get(PrismaProvider)
-  await prisma.$disconnect()
   _container = null
+  await prisma.$disconnect()
 }

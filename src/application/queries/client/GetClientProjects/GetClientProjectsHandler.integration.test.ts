@@ -1,11 +1,11 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { GetClientProjectsHandler } from './GetClientProjectsHandler'
 import { GetClientProjectsQuery } from './GetClientProjectsQuery'
 import { RegisterClientHandler } from '../../../commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 import { SEED } from '../../../../tests/helpers/userSeed'
 
@@ -24,9 +24,6 @@ describe('GetClientProjectsHandler', () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
 
   it('returns empty array when client has no projects', async () => {
     const { clientId } = await seedClient()
