@@ -1,24 +1,25 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { GetUserFieldsHandler } from './GetUserFieldsHandler'
 import { GetUserFieldsQuery } from './GetUserFieldsQuery'
 import { UpdateUserFieldHandler } from '../../../commands/user/UpdateUserField/UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from '../../../commands/user/UpdateUserField/UpdateUserFieldCommand'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { NotFoundError } from '@shared/errors/NotFoundError'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, seedUserWithField } from '../../../../tests/helpers/userSeed'
+import { seedUser, seedUserWithField, SEED } from '../../../../tests/helpers/userSeed'
+import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
+import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
 
 const container = getTestContainer()
 const handler = container.get(GetUserFieldsHandler)
 const updateHandler = container.get(UpdateUserFieldHandler)
+const createProject = container.get(CreateProjectHandler)
 
 describe('GetUserFieldsHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
 
   it('returns empty fields when project has no field definitions', async () => {
     const { userId, projectId } = await seedUser(container)
@@ -35,7 +36,7 @@ describe('GetUserFieldsHandler', () => {
 
     expect(result.fields).toHaveLength(1)
     expect(result.fields[0]?.id).toBe(fieldId)
-    expect(result.fields[0]?.name).toBe('bio')
+    expect(result.fields[0]?.name).toBe(SEED.field.name)
     expect(result.fields[0]?.value).toBeNull()
   })
 
@@ -47,5 +48,16 @@ describe('GetUserFieldsHandler', () => {
     const result = await handler.execute(new GetUserFieldsQuery(userId, projectId))
 
     expect(result.fields[0]?.value).toBe('developer')
+  })
+
+  it('throws NotFoundError when userId does not belong to the project', async () => {
+    const { userId, clientId } = await seedUser(container)
+    const { projectId: otherProjectId } = await createProject.execute(
+      new CreateProjectCommand('Other Project', clientId),
+    )
+
+    await expect(
+      handler.execute(new GetUserFieldsQuery(userId, otherProjectId)),
+    ).rejects.toThrow(NotFoundError)
   })
 })

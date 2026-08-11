@@ -12,6 +12,7 @@ export const SEED = {
   client: { name: 'Test Client', email: 'client@example.com', password: 'password123' },
   project: { name: 'Test Project' },
   user: { email: 'user@example.com', password: 'userpassword123' },
+  field: { name: 'bio' },
 }
 
 export interface UserSeedResult {
@@ -51,7 +52,7 @@ export async function seedUserWithField(container: Container): Promise<UserSeedW
     new AddProjectFieldCommand(
       seed.projectId,
       seed.clientId,
-      'bio',
+      SEED.field.name,
       'string',
       false,
       null,

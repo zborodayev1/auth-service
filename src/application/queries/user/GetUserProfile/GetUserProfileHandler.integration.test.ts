@@ -1,8 +1,8 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { GetUserProfileHandler } from './GetUserProfileHandler'
 import { GetUserProfileQuery } from './GetUserProfileQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
 
@@ -14,9 +14,6 @@ describe('GetUserProfileHandler', () => {
     await truncateAll(container)
   })
 
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
 
   it('returns correct profile fields', async () => {
     const { userId, projectId } = await seedUser(container)

@@ -1,4 +1,5 @@
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
+import { UserRepository } from '@aggregates/user/UserRepository'
 import { inject, injectable } from 'inversify'
 import { UpdateUserFieldCommand } from './UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
@@ -16,6 +17,9 @@ export class UpdateUserFieldHandler {
   constructor(
     @inject(ProjectFieldRepository)
     private readonly projectFields: ProjectFieldRepository,
+
+    @inject(UserRepository)
+    private readonly users: UserRepository,
 
     @inject(SchemaBuilderService)
     private readonly schemaBuilder: SchemaBuilderService,
@@ -35,6 +39,13 @@ export class UpdateUserFieldHandler {
         command: command,
       })
     }
+
+    const user = await this.users.findById(command.userId)
+    if (!user || user.projectId !== command.projectId)
+      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+        userId: command.userId,
+        projectId: command.projectId,
+      })
 
     const validated = this.schemaBuilder.build([field]).parse({ [command.fieldId]: command.value })
 

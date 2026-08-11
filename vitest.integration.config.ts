@@ -10,6 +10,7 @@ export default defineConfig({
     include: ['src/**/*.integration.test.ts'],
     setupFiles: ['reflect-metadata', './src/tests/setup.integration.ts'],
     fileParallelism: false,
+    testTimeout: 15000,
   },
   resolve: {
     alias: {

@@ -1,11 +1,11 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { LoginClientHandler } from './LoginClientHandler'
 import { LoginClientCommand } from './LoginClientCommand'
 import type { RegisterClientResult } from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '../../../../tests/helpers/container'
+import { getTestContainer } from '../../../../tests/helpers/container'
 import { truncateAll } from '../../../../tests/helpers/db'
 
 const container = getTestContainer()
@@ -26,10 +26,6 @@ const seed = (): Promise<RegisterClientResult> =>
 describe('LoginClientHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
-  })
-
-  afterAll(async () => {
-    await disconnectTestDb()
   })
 
   it('returns accessToken, refreshToken and clientId on valid credentials', async () => {
