@@ -1,11 +1,11 @@
 ---
-title: Phase 3.5.1 — Test Fixes & Coverage Gaps
+title: Phase 0.23 — Test Fixes & Coverage Gaps
 date: 2026-08-11
 status: done
 priority: medium — one test currently gives false confidence (RotateApiKey), two structural risks under parallelism
 ---
 
-# Phase 3.5.1 — Test Fixes & Coverage Gaps
+# Phase 0.23 — Test Fixes & Coverage Gaps
 
 Post-review of the phase-3.5 test suite. One assertion is semantically broken (always passes, never catches the bug it targets). Two structural risks exist if parallelism changes. Missing coverage on two security-critical paths.
 

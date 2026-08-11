@@ -1,11 +1,11 @@
 ---
-title: Phase 3.5.3 — Test Review Fixes 2
+title: Phase 0.25 — Test Review Fixes 2
 date: 2026-08-12
 status: done
 priority: medium — production logic bug + handler ownership gaps
 ---
 
-# Phase 3.5.3 — Test Review Fixes 2
+# Phase 0.25 — Test Review Fixes 2
 
 **Goal:** Fix issues found in second pass of the integration test suite review: one production logic bug (UpdateProjectField duplicate names), two handler ownership gaps (LogoutUserSession, LogoutAllUserSessions) with corresponding command and test updates, and one error message nit.
 

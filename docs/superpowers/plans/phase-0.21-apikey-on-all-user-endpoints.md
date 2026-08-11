@@ -1,8 +1,11 @@
+---
+title: Phase 0.21 — ApiKey Auth on All User Endpoints
+date: 2026-08-10
 status: done
+priority: high — cross-project JWT attack, incomplete apiKey enforcement
+---
 
-# API Key Auth on All User Endpoints — Implementation Plan
-
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+# Phase 0.21 — ApiKey Auth on All User Endpoints
 
 **Goal:** Require API key on every user endpoint so that revoking a key immediately blocks all access and prevents cross-project JWT attacks.
 
@@ -29,7 +32,7 @@ status: done
 - Consumes: `req.projectAuth: { projectId: string }` set by `ApiKeyAuthMiddleware` (may or may not be present depending on route)
 - Produces: throws `UnauthorizedError('Token project mismatch')` when both are present and projectIds differ
 
-- [ ] **Step 1: Add cross-validation after JWT verify**
+- [x] **Step 1: Add cross-validation after JWT verify**
 
 In `UserAuthMiddleware.ts`, after line 36 (`const payload = this.accessTokens.verify(...)`), add the check before the session lookup:
 
@@ -105,7 +108,7 @@ export class UserAuthMiddleware {
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 ```bash
 pnpm typecheck
@@ -113,7 +116,7 @@ pnpm typecheck
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/presentation/http/middleware/UserAuthMiddleware.ts
@@ -133,7 +136,7 @@ git commit -m "security: validate apiKey project matches userJWT project in User
 - Consumes: `authenticateApiKey` bound in constructor (already injected via `ApiKeyAuthMiddleware`)
 - Produces: all 9 remaining routes now require `apiKeyAuth` as first middleware
 
-- [ ] **Step 1: Add `authenticateApiKey` to logout, logout-all, and all /me/\* routes**
+- [x] **Step 1: Add `authenticateApiKey` to logout, logout-all, and all /me/\* routes**
 
 Replace lines 25–36 in `user.ts`:
 
@@ -152,7 +155,7 @@ router.get('/me/fields/:fieldId', authenticateApiKey, authenticate, c.getField.b
 router.patch('/me/fields/:fieldId', authenticateApiKey, authenticate, c.update.bind(c))
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 ```bash
 pnpm typecheck
@@ -160,7 +163,7 @@ pnpm typecheck
 
 Expected: no errors.
 
-- [ ] **Step 3: Manual smoke test**
+- [x] **Step 3: Manual smoke test**
 
 Start server: `pnpm dev`
 
@@ -179,7 +182,7 @@ Expected: `401 Unauthorized` with `Token project mismatch`.
 Call with matching apiKey + valid userJWT:
 Expected: `200 OK` with profile data.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/presentation/http/routes/user.ts

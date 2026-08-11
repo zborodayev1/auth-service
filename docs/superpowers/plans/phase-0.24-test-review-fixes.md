@@ -1,11 +1,11 @@
 ---
-title: Phase 3.5.2 — Test Review Fixes
+title: Phase 0.24 — Test Review Fixes
 date: 2026-08-12
 status: done
 priority: medium — test correctness and security gaps
 ---
 
-# Phase 3.5.2 — Test Review Fixes
+# Phase 0.24 — Test Review Fixes
 
 **Goal:** Fix all issues found in the phase-3.5 integration test suite code review: config hardening, mechanical cleanup, auth test gaps, missing ownership boundary tests, and handler-level security gaps found during review.
 
