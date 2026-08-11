@@ -1,6 +1,6 @@
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
 import type { ApiKey } from './ApiKey'
-import type { Name } from '@valueObjects/Name'
+import type { Name } from '@valueObjects/Name/Name'
 
 export class Project extends AggregateRoot {
   private constructor(

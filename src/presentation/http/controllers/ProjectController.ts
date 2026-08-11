@@ -194,11 +194,10 @@ export class ProjectController {
   }
 
   async deleteUser(req: Request, res: Response): Promise<void> {
-    const { projectId } = ProjectIdParamSchema.parse(req.params)
     const { userId } = UserIdParamSchema.parse(req.params)
 
     const result = await this.deleteUserHandler.execute(
-      new DeleteProjectUserCommand(req.auth.clientId, projectId, userId),
+      new DeleteProjectUserCommand(req.auth.clientId, userId),
     )
 
     res.status(200).json(result)

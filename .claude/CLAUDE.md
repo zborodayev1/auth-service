@@ -45,19 +45,40 @@ See `docs/plans/phase-0.1-architecture.md` for full spec.
 
 ## HTTP API
 
-All client routes under `/client`:
+### Client routes (`/client`)
 
 | Method | Path | Auth |
 |--------|------|------|
 | POST | /client/register | — |
 | POST | /client/login | — |
 | POST | /client/refresh | — |
-| PATCH | /client/email | ✓ |
-| PATCH | /client/password | ✓ |
-| POST | /client/logout | ✓ |
-| POST | /client/logout-all | ✓ |
+| PATCH | /client/email | clientJWT |
+| PATCH | /client/password | clientJWT |
+| POST | /client/logout | clientJWT |
+| POST | /client/logout-all | clientJWT |
 
 Refresh token delivered via httpOnly cookie.
+
+### User routes (`/projects/:projectId/users`)
+
+All user endpoints require `Authorization: Bearer <apiKey>`. Endpoints marked `+userJWT` additionally require a user access token.
+
+| Method | Path | Auth |
+|--------|------|------|
+| POST | /register | apiKey |
+| POST | /login | apiKey |
+| POST | /refresh | apiKey |
+| POST | /logout | apiKey + userJWT |
+| POST | /logout-all | apiKey + userJWT |
+| GET | /me | apiKey + userJWT |
+| PATCH | /me/email | apiKey + userJWT |
+| PATCH | /me/password | apiKey + userJWT |
+| DELETE | /me | apiKey + userJWT |
+| GET | /me/fields | apiKey + userJWT |
+| GET | /me/fields/:fieldId | apiKey + userJWT |
+| PATCH | /me/fields/:fieldId | apiKey + userJWT |
+
+**Auth flow:** SDK sends apiKey on every request. For pre-auth endpoints (register/login/refresh) apiKey alone suffices. After login the user receives a userJWT — SDK stores it and sends it alongside apiKey on all subsequent calls. Revoking the apiKey immediately blocks all access including active sessions.
 
 ## Environment Variables
 

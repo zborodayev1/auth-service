@@ -4,7 +4,7 @@ import { PasswordHasher } from '@ports/PasswordHasher'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { Email } from '@valueObjects/Email'
+import { Email } from '@valueObjects/Email/Email'
 import { ConflictError } from '@shared/errors/ConflictError'
 
 interface ChangeUserEmailResult {
@@ -23,7 +23,7 @@ export class ChangeUserEmailHandler {
 
   async execute(command: ChangeUserEmailCommand): Promise<ChangeUserEmailResult> {
     const user = await this.users.findById(command.userId)
-    if (!user)
+    if (!user || user.projectId !== command.projectId)
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: command.userId,
         projectId: command.projectId,

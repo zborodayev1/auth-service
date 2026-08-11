@@ -2,7 +2,7 @@ import { ApiKey } from '@aggregates/project/ApiKey'
 import { Hasher } from '@ports/Hasher'
 import { IdGenerator } from '@ports/IdGenerator'
 import { KeyGenerator } from '@ports/KeyGenerator'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 import { timingSafeEqual } from 'crypto'
 import { inject, injectable } from 'inversify'
 

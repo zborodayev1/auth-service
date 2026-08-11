@@ -5,7 +5,7 @@ import { Project } from '@aggregates/project/Project'
 import { projectToDomain } from '../mappers/ProjectMapper'
 import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 
 @injectable()
 export class PrismaProjectRepository extends PrismaRepository implements ProjectRepository {
@@ -68,6 +68,18 @@ export class PrismaProjectRepository extends PrismaRepository implements Project
       include: { apiKey: true },
     })
     return raw ? projectToDomain(raw) : null
+  }
+
+  async findByApiKeyHash(hash: string): Promise<Project | null> {
+    const raw = await this.prismaClient.project.findFirst({
+      where: { apiKey: { hash } },
+      include: { apiKey: true },
+    })
+    return raw ? projectToDomain(raw) : null
+  }
+
+  async deleteApiKey(projectId: string): Promise<void> {
+    await this.prismaClient.apiKey.deleteMany({ where: { projectId } })
   }
 
   async delete(id: string): Promise<void> {

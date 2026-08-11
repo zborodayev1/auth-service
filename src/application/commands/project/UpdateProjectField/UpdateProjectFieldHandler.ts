@@ -1,6 +1,7 @@
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { inject, injectable } from 'inversify'
 import { UpdateProjectFieldCommand } from './UpdateProjectFieldCommand'
+import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
@@ -27,6 +28,13 @@ export class UpdateProjectFieldHandler {
     if (!field)
       throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
         command: command,
+      })
+
+    const duplicate = await this.projectFields.findByProjectAndName(command.projectId, command.name)
+    if (duplicate && duplicate.id !== command.fieldId)
+      throw new ConflictError('Project field already exists', 'FIELD_ALREADY_EXISTS', {
+        command: command,
+        field: duplicate,
       })
 
     const updated = field.update({

@@ -3,7 +3,7 @@ import { ChangeUserPasswordCommand } from './ChangeUserPasswordCommand'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { UnitOfWork } from '@ports/UnitOfWork'
-import { Password } from '@valueObjects/Password'
+import { Password } from '@valueObjects/Password/Password'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
@@ -39,7 +39,7 @@ export class ChangeUserPasswordHandler {
     }
 
     const user = await this.users.findById(command.userId)
-    if (!user)
+    if (!user || user.projectId !== command.projectId)
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: command.userId,
         projectId: command.projectId,

@@ -8,7 +8,6 @@ import { injectable, inject } from 'inversify'
 import type { Request, Response } from 'express'
 import { RegisterUserSchema } from '../validators/user/RegisterUserValidator'
 import { RegisterUserCommand } from '@app/commands/user/RegisterUser/RegisterUserCommand'
-import { ProjectIdParamSchema } from '../validators/project/ProjectIdParamValidator'
 import { LoginUserSchema } from '../validators/user/LoginUserValidator'
 import { LoginUserCommand } from '@app/commands/user/LoginUser/LoginUserCommand'
 import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
@@ -36,6 +35,7 @@ import { GetUserFieldsHandler } from '@app/queries/user/GetUserFields/GetUserFie
 import { GetUserFieldsQuery } from '@app/queries/user/GetUserFields/GetUserFieldsQuery'
 import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
 import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQuery'
+import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 
 @injectable()
 export class UserController {
@@ -72,11 +72,11 @@ export class UserController {
   async register(req: Request, res: Response): Promise<void> {
     const body = RegisterUserSchema.parse(req.body)
 
-    const params = ProjectIdParamSchema.parse(req.params)
+    if (!req.projectAuth) throw new UnauthorizedError('Missing API key')
 
     const { accessToken, refreshToken, userId } = await this.registerHandler.execute(
       new RegisterUserCommand(
-        params.projectId,
+        req.projectAuth.projectId,
         body.email,
         body.password,
         body.fields,
@@ -102,13 +102,13 @@ export class UserController {
   async login(req: Request, res: Response): Promise<void> {
     const body = LoginUserSchema.parse(req.body)
 
-    const params = ProjectIdParamSchema.parse(req.params)
+    if (!req.projectAuth) throw new UnauthorizedError('Missing API key')
 
     const { accessToken, refreshToken, userId } = await this.loginHandler.execute(
       new LoginUserCommand(
         body.password,
         body.email,
-        params.projectId,
+        req.projectAuth.projectId,
         req.headers['user-agent'] ?? null,
         req.ip ?? null,
         body.deviceName ?? null,
@@ -147,7 +147,7 @@ export class UserController {
 
   async logoutAll(req: Request, res: Response): Promise<void> {
     const result = await this.logoutAllHandler.execute(
-      new LogoutAllUserSessionsCommand(req.userAuth.userId),
+      new LogoutAllUserSessionsCommand(req.userAuth.userId, req.userAuth.projectId),
     )
     res.clearCookie('refresh_token', {
       httpOnly: true,
@@ -160,7 +160,7 @@ export class UserController {
 
   async logoutCurrent(req: Request, res: Response): Promise<void> {
     const result = await this.logoutCurrentHandler.execute(
-      new LogoutUserSessionCommand(req.userAuth.sessionId),
+      new LogoutUserSessionCommand(req.userAuth.sessionId, req.userAuth.userId),
     )
 
     res.clearCookie('refresh_token', {
@@ -200,7 +200,7 @@ export class UserController {
     const body = DeleteUserSelfSchema.parse(req.body)
 
     const result = await this.deleteSelfHandler.execute(
-      new DeleteUserSelfCommand(req.userAuth.userId, body.password),
+      new DeleteUserSelfCommand(req.userAuth.userId, body.password, req.userAuth.projectId),
     )
 
     res.clearCookie('refresh_token', {

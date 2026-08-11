@@ -1,4 +1,5 @@
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
+import { UserRepository } from '@aggregates/user/UserRepository'
 import { inject, injectable } from 'inversify'
 import { UpdateUserFieldCommand } from './UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
@@ -16,6 +17,9 @@ export class UpdateUserFieldHandler {
   constructor(
     @inject(ProjectFieldRepository)
     private readonly projectFields: ProjectFieldRepository,
+
+    @inject(UserRepository)
+    private readonly users: UserRepository,
 
     @inject(SchemaBuilderService)
     private readonly schemaBuilder: SchemaBuilderService,
@@ -36,15 +40,24 @@ export class UpdateUserFieldHandler {
       })
     }
 
+    const user = await this.users.findById(command.userId)
+    if (!user || user.projectId !== command.projectId)
+      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+        userId: command.userId,
+        projectId: command.projectId,
+      })
+
     const validated = this.schemaBuilder.build([field]).parse({ [command.fieldId]: command.value })
 
     const serialized = String(validated[command.fieldId])
 
-    const fieldValue = this.fieldFactory.create({
-      userId: command.userId,
-      fieldId: field.id,
-      value: serialized,
-    })
+    const existing = await this.userFields.findByUserAndField(command.userId, field.id)
+
+    let params = existing
+      ? { id: existing.id, userId: command.userId, fieldId: field.id, value: serialized }
+      : { userId: command.userId, fieldId: field.id, value: serialized }
+
+    const fieldValue = this.fieldFactory.create(params)
 
     await this.userFields.save(fieldValue)
 

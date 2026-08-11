@@ -1,17 +1,17 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { injectable, inject } from 'inversify'
 import { RegisterClientCommand } from './RegisterClientCommand'
-import { Email } from '@valueObjects/Email'
-import { Password } from '@valueObjects/Password'
+import { Email } from '@valueObjects/Email/Email'
+import { Password } from '@valueObjects/Password/Password'
 import { Client } from '@aggregates/client/Client'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { IdGenerator } from '@ports/IdGenerator'
 import { ConflictError } from '@shared/errors/ConflictError'
-import { Name } from '@valueObjects/Name'
+import { Name } from '@valueObjects/Name/Name'
 import { ClientAuthService } from '@services/auth/ClientAuthService'
 import { UnitOfWork } from '@ports/UnitOfWork'
 
-interface RegisterClientResult {
+export interface RegisterClientResult {
   clientId: string
   accessToken: string
   refreshToken: string

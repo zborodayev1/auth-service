@@ -1,5 +1,5 @@
 import type { Client } from './Client'
-import type { Email } from '../../valueObjects/Email'
+import type { Email } from '../../valueObjects/Email/Email'
 
 export interface ClientRepository {
   findById(id: string): Promise<Client | null>

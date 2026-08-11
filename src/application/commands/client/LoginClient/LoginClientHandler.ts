@@ -1,5 +1,5 @@
 import { ClientRepository } from '@aggregates/client/ClientRepository'
-import { Email } from '@valueObjects/Email'
+import { Email } from '@valueObjects/Email/Email'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { inject, injectable } from 'inversify'
 import { LoginClientCommand } from './LoginClientCommand'

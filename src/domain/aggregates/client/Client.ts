@@ -1,7 +1,7 @@
 import { AggregateRoot } from '@libs/ddd/AggregateRoot'
-import type { Email } from '../../valueObjects/Email'
-import type { Password } from '../../valueObjects/Password'
-import type { Name } from '@valueObjects/Name'
+import type { Email } from '../../valueObjects/Email/Email'
+import type { Password } from '../../valueObjects/Password/Password'
+import type { Name } from '@valueObjects/Name/Name'
 
 export class Client extends AggregateRoot {
   private constructor(
