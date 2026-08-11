@@ -1,7 +1,7 @@
 ---
 title: Phase 3.5.1 — Test Fixes & Coverage Gaps
 date: 2026-08-11
-status: backlog
+status: done
 priority: medium — one test currently gives false confidence (RotateApiKey), two structural risks under parallelism
 ---
 

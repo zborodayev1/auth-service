@@ -1,6 +1,11 @@
-# Phase 3.5.2 — Test Review Fixes
+---
+title: Phase 3.5.2 — Test Review Fixes
+date: 2026-08-12
+status: done
+priority: medium — test correctness and security gaps
+---
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+# Phase 3.5.2 — Test Review Fixes
 
 **Goal:** Fix all issues found in the phase-3.5 integration test suite code review: config hardening, mechanical cleanup, auth test gaps, missing ownership boundary tests, and handler-level security gaps found during review.
 
@@ -26,7 +31,7 @@
 - Modify: `src/tests/helpers/container.ts`
 - Modify: `src/tests/helpers/db.ts`
 
-- [ ] **Step 1: Add testTimeout to integration config**
+- [x] **Step 1: Add testTimeout to integration config**
 
 Open `vitest.integration.config.ts`. Add `testTimeout: 15000` inside the `test` block:
 
@@ -44,7 +49,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 2: Reset container singleton on disconnect**
+- [x] **Step 2: Reset container singleton on disconnect**
 
 Open `src/tests/helpers/container.ts`. In `disconnectTestDb`, set `_container = null` before disconnect so the next test file gets a fresh container and Prisma connection:
 
@@ -65,7 +70,7 @@ Update the comment above `getTestContainer` to:
 // Do NOT enable fileParallelism without replacing this with a per-file factory.
 ```
 
-- [ ] **Step 3: Add sync warning to truncateAll**
+- [x] **Step 3: Add sync warning to truncateAll**
 
 Open `src/tests/helpers/db.ts`. Add a comment immediately before the `$transaction` call:
 
@@ -77,7 +82,7 @@ Open `src/tests/helpers/db.ts`. Add a comment immediately before the `$transacti
   ])
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -100,7 +105,7 @@ Expected: all tests pass.
 **Interfaces:**
 - Consumes: `seedProject(container)` from `../../../../tests/helpers/projectSeed`
 
-- [ ] **Step 1: Remove redundant test in CreateProjectHandler**
+- [x] **Step 1: Remove redundant test in CreateProjectHandler**
 
 Open `src/application/commands/project/CreateProject/CreateProjectHandler.integration.test.ts`.
 
@@ -122,7 +127,7 @@ it('raw apiKey is a non-empty string', async () => {
 
 Reason: `toBeTruthy()` in the first test already proves it's a non-empty string. This test asserts a strict subset.
 
-- [ ] **Step 2: Deduplicate setupProject in RegisterUserHandler**
+- [x] **Step 2: Deduplicate setupProject in RegisterUserHandler**
 
 Open `src/application/commands/user/RegisterUser/RegisterUserHandler.integration.test.ts`.
 
@@ -155,7 +160,7 @@ The third test (`'allows same email in different projects'`) already uses inline
 const { projectId: projectId1 } = await seedProject(container)
 ```
 
-- [ ] **Step 3: Add UUID format assertion for clientId in RegisterClientHandler**
+- [x] **Step 3: Add UUID format assertion for clientId in RegisterClientHandler**
 
 Open `src/application/commands/client/RegisterClient/RegisterClientHandler.integration.test.ts`.
 
@@ -170,7 +175,7 @@ expect(result.clientId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4
 
 Leave `accessToken` and `refreshToken` as `toBeTruthy()` — they are JWTs, not UUIDs.
 
-- [ ] **Step 4: Add UUID format assertion for projectId in CreateProjectHandler**
+- [x] **Step 4: Add UUID format assertion for projectId in CreateProjectHandler**
 
 Open `src/application/commands/project/CreateProject/CreateProjectHandler.integration.test.ts`.
 
@@ -185,7 +190,7 @@ expect(result.projectId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 
 Leave `apiKey` as `toBeTruthy()` — it is a raw crypto key string, not a UUID.
 
-- [ ] **Step 5: Remove stray double blank lines**
+- [x] **Step 5: Remove stray double blank lines**
 
 In each file below, there is exactly one double blank line before the first `it(...)` inside the `describe` block (after `beforeEach`). Remove the extra blank line, leaving one.
 
@@ -195,7 +200,7 @@ Files to fix:
 - `src/application/commands/user/UpdateUserField/UpdateUserFieldHandler.integration.test.ts`
 - `src/application/commands/user/DeleteUserSelf/DeleteUserSelfHandler.integration.test.ts`
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -217,7 +222,7 @@ Expected: all tests pass.
 - `RefreshClientAccessTokenHandler` / `RefreshClientAccessTokenCommand` — already imported in all three files
 - `RegisterClientCommand(name, email, password, null, null, null)` — 6 args
 
-- [ ] **Step 1: Verify new rotated token is usable**
+- [x] **Step 1: Verify new rotated token is usable**
 
 Open `RefreshClientAccessTokenHandler.integration.test.ts`. Add after the existing `'returns a different refreshToken after rotation'` test:
 
@@ -235,7 +240,7 @@ it('new token from rotation is usable', async () => {
 })
 ```
 
-- [ ] **Step 2: Chained rotation test**
+- [x] **Step 2: Chained rotation test**
 
 In the same file, add after the test above:
 
@@ -257,7 +262,7 @@ it('chained rotation: token2 works, then fails after token3 issued', async () =>
 })
 ```
 
-- [ ] **Step 3: LogoutAll — cross-client isolation**
+- [x] **Step 3: LogoutAll — cross-client isolation**
 
 Open `LogoutAllClientSessionsHandler.integration.test.ts`. The file already has `registerHandler` and `refreshHandler` at module level.
 
@@ -282,7 +287,7 @@ it('does not invalidate sessions of other clients', async () => {
 })
 ```
 
-- [ ] **Step 4: LogoutCurrentSession — other session remains valid**
+- [x] **Step 4: LogoutCurrentSession — other session remains valid**
 
 Open `LogoutCurrentClientSessionHandler.integration.test.ts`. The file already imports `accessTokenService` and `refreshHandler`.
 
@@ -316,7 +321,7 @@ it('other sessions remain valid after single logout', async () => {
 })
 ```
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -347,7 +352,7 @@ Command signatures (verified from existing tests):
 - `DeleteProjectFieldCommand(fieldId, projectId, clientId, force)`
 - `UpdateProjectFieldCommand(projectId, clientId, fieldId, name, required, defaultValue, allowedValues)`
 
-- [ ] **Step 1: DeleteProject — ownership test**
+- [x] **Step 1: DeleteProject — ownership test**
 
 Open `src/application/commands/project/DeleteProject/DeleteProjectHandler.integration.test.ts`.
 
@@ -372,7 +377,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 
 Note: `seedUser` is already imported in this file.
 
-- [ ] **Step 2: RenameProject — ownership test**
+- [x] **Step 2: RenameProject — ownership test**
 
 Open `src/application/commands/project/RenameProject/RenameProjectHandler.integration.test.ts`.
 
@@ -395,7 +400,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 })
 ```
 
-- [ ] **Step 3: AddProjectField — ownership test**
+- [x] **Step 3: AddProjectField — ownership test**
 
 Open `src/application/commands/project/AddProjectField/AddProjectFieldHandler.integration.test.ts`.
 
@@ -416,7 +421,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 })
 ```
 
-- [ ] **Step 4: DeleteProjectField — ownership test**
+- [x] **Step 4: DeleteProjectField — ownership test**
 
 Open `src/application/commands/project/DeleteProjectField/DeleteProjectFieldHandler.integration.test.ts`.
 
@@ -436,7 +441,7 @@ it('throws NotFoundError when clientId does not own the field', async () => {
 })
 ```
 
-- [ ] **Step 5: UpdateProjectField — ownership test**
+- [x] **Step 5: UpdateProjectField — ownership test**
 
 Open `src/application/commands/project/UpdateProjectField/UpdateProjectFieldHandler.integration.test.ts`.
 
@@ -464,7 +469,7 @@ it('throws NotFoundError when clientId does not own the field', async () => {
 })
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -487,7 +492,7 @@ Expected: all tests pass including the 5 new ownership tests.
 
 Both issues are safe in HTTP context (JWT guarantees matching IDs), but handlers are not self-protecting.
 
-- [ ] **Step 1: LogoutCurrentClientSession — add clientId ownership check**
+- [x] **Step 1: LogoutCurrentClientSession — add clientId ownership check**
 
 Open `LogoutCurrentClientSessionHandler.ts`. After the `!session?.isActive()` guard (after L25), add:
 
@@ -500,7 +505,7 @@ if (session.clientId !== command.clientId) {
 }
 ```
 
-- [ ] **Step 2: ChangeUserEmailHandler — combine notFound + project ownership check**
+- [x] **Step 2: ChangeUserEmailHandler — combine notFound + project ownership check**
 
 Open `ChangeUserEmailHandler.ts`. Find the block:
 ```ts
@@ -517,7 +522,7 @@ if (!user || user.projectId !== command.projectId)
   })
 ```
 
-- [ ] **Step 3: ChangeUserPasswordHandler — same pattern**
+- [x] **Step 3: ChangeUserPasswordHandler — same pattern**
 
 Open `ChangeUserPasswordHandler.ts`. Find the block:
 ```ts
@@ -536,7 +541,7 @@ if (!user || user.projectId !== command.projectId)
   })
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -560,7 +565,7 @@ Expected: all existing tests pass (same-project paths unchanged).
 - `seedProject(container)` from projectSeed — returns `{ clientId, projectId }`
 - `seedUser, SEED` from userSeed — `SEED.user.password = 'userpassword123'`
 
-- [ ] **Step 1: LogoutCurrentClientSession — wrong clientId throws UnauthorizedError**
+- [x] **Step 1: LogoutCurrentClientSession — wrong clientId throws UnauthorizedError**
 
 Open `LogoutCurrentClientSessionHandler.integration.test.ts`. Add at end of `describe` block:
 
@@ -577,7 +582,7 @@ it('throws UnauthorizedError when clientId does not own the session', async () =
 })
 ```
 
-- [ ] **Step 2: ChangeUserEmail — cross-project throws NotFoundError**
+- [x] **Step 2: ChangeUserEmail — cross-project throws NotFoundError**
 
 Open `ChangeUserEmailHandler.integration.test.ts`.
 
@@ -602,7 +607,7 @@ it('throws NotFoundError when projectId does not match user project', async () =
 })
 ```
 
-- [ ] **Step 3: ChangeUserPassword — cross-project throws NotFoundError**
+- [x] **Step 3: ChangeUserPassword — cross-project throws NotFoundError**
 
 Open `ChangeUserPasswordHandler.integration.test.ts`.
 
@@ -628,7 +633,7 @@ it('throws NotFoundError when projectId does not match user project', async () =
 })
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -650,7 +655,7 @@ Expected: 3 new tests pass.
 - `RefreshClientAccessTokenHandler` / `RefreshClientAccessTokenCommand`
 - `NotFoundError` from `@shared/errors/NotFoundError`
 
-- [ ] **Step 1: ChangeClientEmail — NotFoundError for unknown clientId**
+- [x] **Step 1: ChangeClientEmail — NotFoundError for unknown clientId**
 
 Open `ChangeClientEmailHandler.integration.test.ts`.
 
@@ -671,7 +676,7 @@ it('throws NotFoundError for unknown clientId', async () => {
 })
 ```
 
-- [ ] **Step 2: ChangeClientPassword — NotFoundError for unknown clientId**
+- [x] **Step 2: ChangeClientPassword — NotFoundError for unknown clientId**
 
 Open `ChangeClientPasswordHandler.integration.test.ts`.
 
@@ -692,7 +697,7 @@ it('throws NotFoundError for unknown clientId', async () => {
 })
 ```
 
-- [ ] **Step 3: ChangeClientPassword — existing refresh token invalid after password change**
+- [x] **Step 3: ChangeClientPassword — existing refresh token invalid after password change**
 
 In the same file, add imports:
 ```ts
@@ -719,7 +724,7 @@ it('existing refresh token becomes invalid after password change', async () => {
 })
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -737,7 +742,7 @@ Expected: 3 new tests pass.
 
 Both handlers use `ProjectAccessService.verifyByProjectId(clientId, projectId)` which throws `NotFoundError` when `clientId` doesn't own the project. Tests exist for success paths but not the denial path.
 
-- [ ] **Step 1: RenameApiKey — ownership denial test**
+- [x] **Step 1: RenameApiKey — ownership denial test**
 
 Open `RenameApiKeyHandler.integration.test.ts`.
 
@@ -760,7 +765,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 })
 ```
 
-- [ ] **Step 2: RecoverProjectField — ownership denial test**
+- [x] **Step 2: RecoverProjectField — ownership denial test**
 
 Open `RecoverProjectFieldHandler.integration.test.ts`. `NotFoundError` is already imported.
 
@@ -782,7 +787,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 })
 ```
 
-- [ ] **Step 3: Run tests**
+- [x] **Step 3: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -808,7 +813,7 @@ Fix pattern for all three: load user by `userId`, verify `user.projectId === com
 
 `GetUserFieldsHandler` already injects `UserRepository` (`this.users`). `UpdateUserFieldHandler` and `GetUserFieldHandler` do not — they need it added.
 
-- [ ] **Step 1: UpdateUserFieldHandler — inject UserRepository + add ownership check**
+- [x] **Step 1: UpdateUserFieldHandler — inject UserRepository + add ownership check**
 
 Open `UpdateUserFieldHandler.ts`.
 
@@ -839,7 +844,7 @@ Add `NotFoundError` import if not present:
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
 
-- [ ] **Step 2: GetUserFieldHandler — inject UserRepository + add ownership check**
+- [x] **Step 2: GetUserFieldHandler — inject UserRepository + add ownership check**
 
 Open `GetUserFieldHandler.ts`.
 
@@ -865,7 +870,7 @@ if (!user || user.projectId !== query.projectId)
   })
 ```
 
-- [ ] **Step 3: GetUserFieldsHandler — add ownership check (UserRepository already injected)**
+- [x] **Step 3: GetUserFieldsHandler — add ownership check (UserRepository already injected)**
 
 Open `GetUserFieldsHandler.ts`. `this.users` is already available.
 
@@ -885,7 +890,7 @@ Add import:
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
 
-- [ ] **Step 4: UpdateUserField — cross-project test**
+- [x] **Step 4: UpdateUserField — cross-project test**
 
 Open `UpdateUserFieldHandler.integration.test.ts`.
 
@@ -913,7 +918,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
 })
 ```
 
-- [ ] **Step 5: GetUserField — cross-project test**
+- [x] **Step 5: GetUserField — cross-project test**
 
 Open `GetUserFieldHandler.integration.test.ts`.
 
@@ -937,7 +942,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
 })
 ```
 
-- [ ] **Step 6: GetUserFields — cross-project test**
+- [x] **Step 6: GetUserFields — cross-project test**
 
 Open `GetUserFieldsHandler.integration.test.ts`.
 
@@ -959,7 +964,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
 })
 ```
 
-- [ ] **Step 7: Run tests**
+- [x] **Step 7: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -973,7 +978,7 @@ Expected: 3 new tests pass, all existing pass.
 
 **File:** `src/tests/helpers/userSeed.ts`
 
-- [ ] **Step 1: Align field name with projectSeed constant**
+- [x] **Step 1: Align field name with projectSeed constant**
 
 Open `src/tests/helpers/userSeed.ts`. On the `AddProjectFieldCommand` call (L50-59), the field name is hardcoded as `'bio'`. In `projectSeed.ts`, the field name constant is `PROJECT_SEED.field.name = 'biography'`.
 
@@ -993,7 +998,7 @@ Option B — rename to `'biography'` everywhere and import `PROJECT_SEED.field.n
 
 **Recommendation:** Option A — add `SEED.field` constant, update test assertions in `GetUserFieldHandler.integration.test.ts:27` and `GetUserFieldsHandler.integration.test.ts:35`.
 
-- [ ] **Step 2: Run tests**
+- [x] **Step 2: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts

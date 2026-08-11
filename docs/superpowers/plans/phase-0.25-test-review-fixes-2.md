@@ -1,6 +1,11 @@
-# Phase 3.5.3 — Test Review Fixes 2
+---
+title: Phase 3.5.3 — Test Review Fixes 2
+date: 2026-08-12
+status: done
+priority: medium — production logic bug + handler ownership gaps
+---
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+# Phase 3.5.3 — Test Review Fixes 2
 
 **Goal:** Fix issues found in second pass of the integration test suite review: one production logic bug (UpdateProjectField duplicate names), two handler ownership gaps (LogoutUserSession, LogoutAllUserSessions) with corresponding command and test updates, and one error message nit.
 
@@ -29,7 +34,7 @@
 
 Command signature: `UpdateProjectFieldCommand(projectId, clientId, fieldId, name, required, defaultValue, enumValues)`
 
-- [ ] **Step 1: Add ConflictError import and duplicate name check**
+- [x] **Step 1: Add ConflictError import and duplicate name check**
 
 Open `UpdateProjectFieldHandler.ts`.
 
@@ -51,7 +56,7 @@ if (duplicate && duplicate.id !== command.fieldId)
 
 Note the `duplicate.id !== command.fieldId` guard — renaming a field to its own current name must be a no-op, not a conflict.
 
-- [ ] **Step 2: Add ConflictError test**
+- [x] **Step 2: Add ConflictError test**
 
 Open `UpdateProjectFieldHandler.integration.test.ts`.
 
@@ -97,7 +102,7 @@ it('allows renaming a field to its own current name', async () => {
 
 Note: `PROJECT_SEED.field.name = 'biography'` — the self-rename test uses the seed name.
 
-- [ ] **Step 3: Run tests**
+- [x] **Step 3: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -116,7 +121,7 @@ Expected: all existing tests pass + 2 new ones.
 
 **Context:** `LogoutUserSessionCommand` only carries `sessionId`. The handler finds the session and checks `isActive()` but never verifies `session.userId === command.userId`. Exact same gap that existed in `LogoutCurrentClientSessionHandler` (fixed in Task 5 of phase-3.5.2). `UserSession` aggregate has a public readonly `userId: string` field.
 
-- [ ] **Step 1: Add userId to LogoutUserSessionCommand**
+- [x] **Step 1: Add userId to LogoutUserSessionCommand**
 
 Open `LogoutUserSessionCommand.ts`. Replace:
 
@@ -137,7 +142,7 @@ export class LogoutUserSessionCommand {
 }
 ```
 
-- [ ] **Step 2: Add ownership check to handler**
+- [x] **Step 2: Add ownership check to handler**
 
 Open `LogoutUserSessionHandler.ts`. After the `!session?.isActive()` guard, add:
 
@@ -150,7 +155,7 @@ if (session.userId !== command.userId) {
 }
 ```
 
-- [ ] **Step 3: Update all existing test calls to pass userId**
+- [x] **Step 3: Update all existing test calls to pass userId**
 
 Open `LogoutUserSessionHandler.integration.test.ts`.
 
@@ -177,7 +182,7 @@ handler.execute(new LogoutUserSessionCommand(sessionId, userId))
 // second call: handler.execute(new LogoutUserSessionCommand(sessionId, userId))
 ```
 
-- [ ] **Step 4: Add ownership test**
+- [x] **Step 4: Add ownership test**
 
 Add at end of `describe` block:
 
@@ -194,7 +199,7 @@ it('throws UnauthorizedError when userId does not own the session', async () => 
 })
 ```
 
-- [ ] **Step 5: Fix any other callers of LogoutUserSessionCommand**
+- [x] **Step 5: Fix any other callers of LogoutUserSessionCommand**
 
 Search the codebase for other uses:
 ```bash
@@ -203,7 +208,7 @@ grep -rn "LogoutUserSessionCommand" src/
 
 Update all found callers to pass the second `userId` argument.
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -222,7 +227,7 @@ Expected: all existing tests pass + 1 new one.
 
 **Context:** `LogoutAllUserSessionsCommand` only carries `userId`. Handler calls `revokeAllByUserId` without verifying the user belongs to the caller's project. Need to add `projectId` to command and verify `user.projectId === command.projectId` before revoking. `UserRepository` not yet injected in this handler — needs adding.
 
-- [ ] **Step 1: Add projectId to LogoutAllUserSessionsCommand**
+- [x] **Step 1: Add projectId to LogoutAllUserSessionsCommand**
 
 Open `LogoutAllUserSessionsCommand.ts`. Replace:
 
@@ -243,7 +248,7 @@ export class LogoutAllUserSessionsCommand {
 }
 ```
 
-- [ ] **Step 2: Inject UserRepository and add ownership check**
+- [x] **Step 2: Inject UserRepository and add ownership check**
 
 Open `LogoutAllUserSessionsHandler.ts`.
 
@@ -270,7 +275,7 @@ if (!user || user.projectId !== command.projectId)
   })
 ```
 
-- [ ] **Step 3: Update existing test calls to pass projectId**
+- [x] **Step 3: Update existing test calls to pass projectId**
 
 Open `LogoutAllUserSessionsHandler.integration.test.ts`.
 
@@ -291,7 +296,7 @@ handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))
 
 Remove the double-blank line before first `it` (nit — already present in file L22-23).
 
-- [ ] **Step 4: Add project isolation test**
+- [x] **Step 4: Add project isolation test**
 
 Add imports if not present:
 ```ts
@@ -340,7 +345,7 @@ it('does not invalidate sessions of users in other projects', async () => {
 })
 ```
 
-- [ ] **Step 5: Fix any other callers of LogoutAllUserSessionsCommand**
+- [x] **Step 5: Fix any other callers of LogoutAllUserSessionsCommand**
 
 ```bash
 grep -rn "LogoutAllUserSessionsCommand" src/
@@ -348,7 +353,7 @@ grep -rn "LogoutAllUserSessionsCommand" src/
 
 Update all callers to pass `projectId` as second argument.
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
@@ -363,7 +368,7 @@ Expected: all existing tests pass + 2 new ones.
 **File:**
 - Modify: `src/application/queries/user/GetUserField/GetUserFieldHandler.ts`
 
-- [ ] **Step 1: Fix title-case error message**
+- [x] **Step 1: Fix title-case error message**
 
 Open `GetUserFieldHandler.ts` L32. Replace:
 
@@ -377,7 +382,7 @@ with:
 if (!field) throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', { query: query })
 ```
 
-- [ ] **Step 2: Run tests**
+- [x] **Step 2: Run tests**
 
 ```bash
 pnpm vitest run --config vitest.integration.config.ts
