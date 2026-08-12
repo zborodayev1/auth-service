@@ -17,7 +17,7 @@ export class LogoutCurrentClientSessionHandler {
   async execute(command: LogoutCurrentClientSessionCommand): Promise<LogoutCurrentSessionResult> {
     const session = await this.sessions.findById(command.sessionId)
 
-    if (!session || session.clientId !== command.clientId) {
+    if (session?.clientId !== command.clientId) {
       throw new UnauthorizedError('Invalid or expired session', 'EXPIRED_SESSION', {
         command: command,
       })

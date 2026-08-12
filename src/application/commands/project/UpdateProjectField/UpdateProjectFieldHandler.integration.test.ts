@@ -80,7 +80,15 @@ describe('UpdateProjectFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new UpdateProjectFieldCommand(projectId, clientId, fieldId, PROJECT_SEED.field.name, false, null, []),
+        new UpdateProjectFieldCommand(
+          projectId,
+          clientId,
+          fieldId,
+          PROJECT_SEED.field.name,
+          false,
+          null,
+          [],
+        ),
       ),
     ).resolves.toBeTruthy()
   })

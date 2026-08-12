@@ -35,7 +35,9 @@ describe('CreateProjectHandler', () => {
       new CreateProjectCommand(PROJECT_SEED.project.name, clientId),
     )
 
-    expect(result.projectId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+    expect(result.projectId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    )
     expect(result.apiKey).toBeTruthy()
   })
 })

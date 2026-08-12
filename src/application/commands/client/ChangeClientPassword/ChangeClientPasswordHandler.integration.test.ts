@@ -89,7 +89,11 @@ describe('ChangeClientPasswordHandler', () => {
   it('throws NotFoundError for unknown clientId', async () => {
     await expect(
       handler.execute(
-        new ChangeClientPasswordCommand('00000000-0000-0000-0000-000000000000', VALID.password, 'newpassword456'),
+        new ChangeClientPasswordCommand(
+          '00000000-0000-0000-0000-000000000000',
+          VALID.password,
+          'newpassword456',
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })
@@ -97,7 +101,9 @@ describe('ChangeClientPasswordHandler', () => {
   it('existing refresh token becomes invalid after password change', async () => {
     const { clientId, refreshToken } = await seed()
 
-    await handler.execute(new ChangeClientPasswordCommand(clientId, VALID.password, 'newpassword456'))
+    await handler.execute(
+      new ChangeClientPasswordCommand(clientId, VALID.password, 'newpassword456'),
+    )
 
     await expect(
       refreshHandler.execute(new RefreshClientAccessTokenCommand(refreshToken)),

@@ -5,7 +5,7 @@ export interface ClientSessionRepository {
 
   findById(id: string): Promise<ClientSession | null>
 
-  findByClientId(clientId: string): Promise<ClientSession[]>
+  findAllActiveByClientId(clientId: string): Promise<ClientSession[]>
 
   revokeAllByClientId(clientId: string): Promise<void>
 

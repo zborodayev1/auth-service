@@ -5,7 +5,7 @@ status: backlog
 priority: medium — dead code + unclear intent; must resolve before 3.4.1
 ---
 
-# Phase 3.4.4 — Cleanup Job Half-Built
+# Phase 3.3.4 — Cleanup Job Half-Built
 
 `node-cron` was added to `dependencies` (commit `f44710c`) and `deleteExpired()` was added to all four token/session repository interfaces and implementations. But no scheduler was created. The cleanup infrastructure is half-built and never runs.
 
@@ -17,12 +17,12 @@ priority: medium — dead code + unclear intent; must resolve before 3.4.1
 
 All four define it in the domain port and have a concrete implementation:
 
-| Port | Implementation | What it deletes |
-|------|---------------|-----------------|
-| `UserSessionRepository` | `PrismaUserSessionRepository` | `WHERE expiresAt < NOW()` |
-| `UserRefreshTokenRepository` | `PrismaUserRefreshTokenRepository` | presumably expired tokens |
-| `ClientSessionRepository` | `PrismaSessionRepository` | `WHERE expiresAt < NOW()` |
-| `ClientRefreshTokenRepository` | `PrismaRefreshTokenRepository` | presumably expired tokens |
+| Port                           | Implementation                     | What it deletes           |
+| ------------------------------ | ---------------------------------- | ------------------------- |
+| `UserSessionRepository`        | `PrismaUserSessionRepository`      | `WHERE expiresAt < NOW()` |
+| `UserRefreshTokenRepository`   | `PrismaUserRefreshTokenRepository` | presumably expired tokens |
+| `ClientSessionRepository`      | `PrismaSessionRepository`          | `WHERE expiresAt < NOW()` |
+| `ClientRefreshTokenRepository` | `PrismaRefreshTokenRepository`     | presumably expired tokens |
 
 None of these are called anywhere in the application.
 
@@ -44,7 +44,7 @@ Installed in `dependencies`, typed in `devDependencies` (`@types/node-cron`). Ze
 
 ## Decision required
 
-### Path A — Complete the cron job (Option B from 3.4.1)
+### Path A — Complete the cron job (Option B from 3.3.1)
 
 Wire `node-cron` to call `deleteExpired()` on all four repos periodically (e.g., hourly).
 

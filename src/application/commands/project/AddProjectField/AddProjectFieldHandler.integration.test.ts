@@ -54,9 +54,9 @@ describe('AddProjectFieldHandler', () => {
   it('throws NotFoundError when clientId does not own the project', async () => {
     const { projectId } = await seedProject(container)
 
-    await expect(
-      addField('00000000-0000-0000-0000-000000000000', projectId),
-    ).rejects.toThrow(NotFoundError)
+    await expect(addField('00000000-0000-0000-0000-000000000000', projectId)).rejects.toThrow(
+      NotFoundError,
+    )
   })
 
   it('allows different field names in same project', async () => {

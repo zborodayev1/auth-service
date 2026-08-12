@@ -34,7 +34,9 @@ describe('RegisterClientHandler', () => {
   it('returns clientId, accessToken, refreshToken', async () => {
     const result = await register()
 
-    expect(result.clientId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+    expect(result.clientId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    )
     expect(result.accessToken).toBeTruthy()
     expect(result.refreshToken).toBeTruthy()
   })

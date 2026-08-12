@@ -25,10 +25,14 @@ export class LogoutUserSessionHandler {
     }
 
     if (session.userId !== command.userId) {
-      throw new UnauthorizedError('Session does not belong to this user', 'SESSION_OWNERSHIP_VIOLATION', {
-        sessionId: command.sessionId,
-        commandUserId: command.userId,
-      })
+      throw new UnauthorizedError(
+        'Session does not belong to this user',
+        'SESSION_OWNERSHIP_VIOLATION',
+        {
+          sessionId: command.sessionId,
+          commandUserId: command.userId,
+        },
+      )
     }
 
     await this.sessions.save(session.revoke())

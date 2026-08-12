@@ -24,19 +24,28 @@ export interface UserSeedResult {
 }
 
 export async function seedUser(container: Container): Promise<UserSeedResult> {
-  const { clientId } = await container.get(RegisterClientHandler).execute(
-    new RegisterClientCommand(
-      SEED.client.name, SEED.client.email, SEED.client.password, null, null, null,
-    ),
-  )
+  const { clientId } = await container
+    .get(RegisterClientHandler)
+    .execute(
+      new RegisterClientCommand(
+        SEED.client.name,
+        SEED.client.email,
+        SEED.client.password,
+        null,
+        null,
+        null,
+      ),
+    )
 
-  const { projectId } = await container.get(CreateProjectHandler).execute(
-    new CreateProjectCommand(SEED.project.name, clientId),
-  )
+  const { projectId } = await container
+    .get(CreateProjectHandler)
+    .execute(new CreateProjectCommand(SEED.project.name, clientId))
 
-  const { userId, accessToken, refreshToken } = await container.get(RegisterUserHandler).execute(
-    new RegisterUserCommand(projectId, SEED.user.email, SEED.user.password, {}, null, null, null),
-  )
+  const { userId, accessToken, refreshToken } = await container
+    .get(RegisterUserHandler)
+    .execute(
+      new RegisterUserCommand(projectId, SEED.user.email, SEED.user.password, {}, null, null, null),
+    )
 
   return { clientId, projectId, userId, accessToken, refreshToken }
 }
@@ -48,17 +57,19 @@ export interface UserSeedWithFieldResult extends UserSeedResult {
 export async function seedUserWithField(container: Container): Promise<UserSeedWithFieldResult> {
   const seed = await seedUser(container)
 
-  const { fieldId } = await container.get(AddProjectFieldHandler).execute(
-    new AddProjectFieldCommand(
-      seed.projectId,
-      seed.clientId,
-      SEED.field.name,
-      'string',
-      false,
-      null,
-      [],
-    ),
-  )
+  const { fieldId } = await container
+    .get(AddProjectFieldHandler)
+    .execute(
+      new AddProjectFieldCommand(
+        seed.projectId,
+        seed.clientId,
+        SEED.field.name,
+        'string',
+        false,
+        null,
+        [],
+      ),
+    )
 
   return { ...seed, fieldId }
 }

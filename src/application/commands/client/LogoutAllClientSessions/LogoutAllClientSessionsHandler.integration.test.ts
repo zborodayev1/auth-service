@@ -47,7 +47,14 @@ describe('LogoutAllClientSessionsHandler', () => {
   it('does not invalidate sessions of other clients', async () => {
     const { clientId: clientIdA, refreshToken: tokenA } = await seed()
     const { refreshToken: tokenB } = await registerHandler.execute(
-      new RegisterClientCommand('Other Client', 'other@example.com', VALID.password, null, null, null),
+      new RegisterClientCommand(
+        'Other Client',
+        'other@example.com',
+        VALID.password,
+        null,
+        null,
+        null,
+      ),
     )
 
     await handler.execute(new LogoutAllClientSessionsCommand(clientIdA))

@@ -22,25 +22,44 @@ export interface ProjectSeedWithFieldResult extends ProjectSeedResult {
 }
 
 export async function seedProject(container: Container): Promise<ProjectSeedResult> {
-  const { clientId } = await container.get(RegisterClientHandler).execute(
-    new RegisterClientCommand(
-      PROJECT_SEED.client.name, PROJECT_SEED.client.email, PROJECT_SEED.client.password, null, null, null,
-    ),
-  )
+  const { clientId } = await container
+    .get(RegisterClientHandler)
+    .execute(
+      new RegisterClientCommand(
+        PROJECT_SEED.client.name,
+        PROJECT_SEED.client.email,
+        PROJECT_SEED.client.password,
+        null,
+        null,
+        null,
+      ),
+    )
 
-  const { projectId } = await container.get(CreateProjectHandler).execute(
-    new CreateProjectCommand(PROJECT_SEED.project.name, clientId),
-  )
+  const { projectId } = await container
+    .get(CreateProjectHandler)
+    .execute(new CreateProjectCommand(PROJECT_SEED.project.name, clientId))
 
   return { clientId, projectId }
 }
 
-export async function seedProjectWithField(container: Container): Promise<ProjectSeedWithFieldResult> {
+export async function seedProjectWithField(
+  container: Container,
+): Promise<ProjectSeedWithFieldResult> {
   const { clientId, projectId } = await seedProject(container)
 
-  const { fieldId } = await container.get(AddProjectFieldHandler).execute(
-    new AddProjectFieldCommand(projectId, clientId, PROJECT_SEED.field.name, PROJECT_SEED.field.type, false, null, []),
-  )
+  const { fieldId } = await container
+    .get(AddProjectFieldHandler)
+    .execute(
+      new AddProjectFieldCommand(
+        projectId,
+        clientId,
+        PROJECT_SEED.field.name,
+        PROJECT_SEED.field.type,
+        false,
+        null,
+        [],
+      ),
+    )
 
   return { clientId, projectId, fieldId }
 }

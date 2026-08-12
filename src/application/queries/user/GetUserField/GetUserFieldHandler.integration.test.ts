@@ -23,7 +23,6 @@ describe('GetUserFieldHandler', () => {
     await truncateAll(container)
   })
 
-
   it('returns field with null value when not yet set', async () => {
     const { userId, projectId, fieldId } = await seedUserWithField(container)
 

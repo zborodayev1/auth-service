@@ -24,7 +24,9 @@ describe('DeleteUserSelfHandler', () => {
   it('deletes user successfully', async () => {
     const { userId, projectId } = await seedUser(container)
 
-    const result = await handler.execute(new DeleteUserSelfCommand(userId, SEED.user.password, projectId))
+    const result = await handler.execute(
+      new DeleteUserSelfCommand(userId, SEED.user.password, projectId),
+    )
 
     expect(result.success).toBe(true)
   })

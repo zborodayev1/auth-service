@@ -47,7 +47,12 @@ describe('UpdateUserFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new UpdateUserFieldCommand(userId, projectId, '00000000-0000-0000-0000-000000000000', 'value'),
+        new UpdateUserFieldCommand(
+          userId,
+          projectId,
+          '00000000-0000-0000-0000-000000000000',
+          'value',
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })

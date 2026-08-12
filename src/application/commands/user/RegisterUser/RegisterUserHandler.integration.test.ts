@@ -42,7 +42,15 @@ describe('RegisterUserHandler', () => {
 
     await expect(
       handler.execute(
-        new RegisterUserCommand(projectId, SEED.user.email, SEED.user.password, {}, null, null, null),
+        new RegisterUserCommand(
+          projectId,
+          SEED.user.email,
+          SEED.user.password,
+          {},
+          null,
+          null,
+          null,
+        ),
       ),
     ).rejects.toThrow(ConflictError)
   })
@@ -51,19 +59,42 @@ describe('RegisterUserHandler', () => {
     const { projectId: projectId1 } = await seedProject(container)
 
     const { clientId: clientId2 } = await registerClient.execute(
-      new RegisterClientCommand('Other Client', 'other@example.com', SEED.client.password, null, null, null),
+      new RegisterClientCommand(
+        'Other Client',
+        'other@example.com',
+        SEED.client.password,
+        null,
+        null,
+        null,
+      ),
     )
     const { projectId: projectId2 } = await createProject.execute(
       new CreateProjectCommand('Other Project', clientId2),
     )
 
     await handler.execute(
-      new RegisterUserCommand(projectId1, SEED.user.email, SEED.user.password, {}, null, null, null),
+      new RegisterUserCommand(
+        projectId1,
+        SEED.user.email,
+        SEED.user.password,
+        {},
+        null,
+        null,
+        null,
+      ),
     )
 
     await expect(
       handler.execute(
-        new RegisterUserCommand(projectId2, SEED.user.email, SEED.user.password, {}, null, null, null),
+        new RegisterUserCommand(
+          projectId2,
+          SEED.user.email,
+          SEED.user.password,
+          {},
+          null,
+          null,
+          null,
+        ),
       ),
     ).resolves.toBeTruthy()
   })

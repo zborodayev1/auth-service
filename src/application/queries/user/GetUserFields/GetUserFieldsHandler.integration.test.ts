@@ -20,7 +20,6 @@ describe('GetUserFieldsHandler', () => {
     await truncateAll(container)
   })
 
-
   it('returns empty fields when project has no field definitions', async () => {
     const { userId, projectId } = await seedUser(container)
 
@@ -56,8 +55,8 @@ describe('GetUserFieldsHandler', () => {
       new CreateProjectCommand('Other Project', clientId),
     )
 
-    await expect(
-      handler.execute(new GetUserFieldsQuery(userId, otherProjectId)),
-    ).rejects.toThrow(NotFoundError)
+    await expect(handler.execute(new GetUserFieldsQuery(userId, otherProjectId))).rejects.toThrow(
+      NotFoundError,
+    )
   })
 })

@@ -5,11 +5,12 @@ status: backlog
 priority: low — functional gap, not a bug
 ---
 
-# Phase 3.5 — Session Management API
+# Phase 3.2 — Session Management API
 
 `ClientSession` and `UserSession` already store `deviceName`, `ipAddress`, `userAgent`, `createdAt` — clearly intended for display. No endpoints expose this data. No way to selectively revoke a non-current session.
 
 Current state:
+
 - `POST /clients/logout` — revokes current session only (from JWT `sessionId`)
 - `POST /clients/logout-all` — revokes all sessions
 - No middle ground: can't list sessions, can't revoke one specific other session

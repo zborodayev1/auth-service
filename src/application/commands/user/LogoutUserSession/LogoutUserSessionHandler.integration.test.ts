@@ -21,7 +21,6 @@ describe('LogoutUserSessionHandler', () => {
     await truncateAll(container)
   })
 
-
   it('revokes session successfully', async () => {
     const { accessToken, userId } = await seedUser(container)
     const sessionId = getSessionId(accessToken)
@@ -48,9 +47,9 @@ describe('LogoutUserSessionHandler', () => {
 
     await handler.execute(new LogoutUserSessionCommand(sessionId, userId))
 
-    await expect(
-      handler.execute(new LogoutUserSessionCommand(sessionId, userId)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(handler.execute(new LogoutUserSessionCommand(sessionId, userId))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 
   it('throws UnauthorizedError when userId does not own the session', async () => {

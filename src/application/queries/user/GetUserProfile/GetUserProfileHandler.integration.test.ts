@@ -14,7 +14,6 @@ describe('GetUserProfileHandler', () => {
     await truncateAll(container)
   })
 
-
   it('returns correct profile fields', async () => {
     const { userId, projectId } = await seedUser(container)
 

@@ -27,7 +27,6 @@ describe('LogoutAllUserSessionsHandler', () => {
     await truncateAll(container)
   })
 
-
   it('returns success', async () => {
     const { userId, projectId } = await seedUser(container)
 
@@ -45,13 +44,13 @@ describe('LogoutAllUserSessionsHandler', () => {
 
     await handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))
 
-    await expect(
-      refreshHandler.execute(new RefreshUserAccessTokenCommand(token1)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(refreshHandler.execute(new RefreshUserAccessTokenCommand(token1))).rejects.toThrow(
+      UnauthorizedError,
+    )
 
-    await expect(
-      refreshHandler.execute(new RefreshUserAccessTokenCommand(token2)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(refreshHandler.execute(new RefreshUserAccessTokenCommand(token2))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 
   it('throws NotFoundError when userId does not belong to projectId', async () => {
@@ -72,7 +71,15 @@ describe('LogoutAllUserSessionsHandler', () => {
       new CreateProjectCommand('Other Project', clientId),
     )
     const { refreshToken: otherToken } = await registerUser.execute(
-      new RegisterUserCommand(otherProjectId, 'other@example.com', SEED.user.password, {}, null, null, null),
+      new RegisterUserCommand(
+        otherProjectId,
+        'other@example.com',
+        SEED.user.password,
+        {},
+        null,
+        null,
+        null,
+      ),
     )
 
     await handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))

@@ -10,7 +10,7 @@ import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { PrismaClientRepository } from '@infra/persistence/prisma/repositories/PrismaClientRepository'
-import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/PrismaSessionRepository'
+import { PrismaClientSessionRepository } from '@infra/persistence/prisma/repositories/PrismaClientSessionRepository'
 import { PrismaRefreshTokenRepository } from '@infra/persistence/prisma/repositories/PrismaRefreshTokenRepository'
 
 import { UserRepository } from '@aggregates/user/UserRepository'
@@ -38,12 +38,15 @@ export class PersistenceContext implements ServiceContext {
     container.bind(UnitOfWork).to(PrismaUnitOfWork).inSingletonScope()
 
     container.bind(ClientRepository).to(PrismaClientRepository).inSingletonScope()
-    container.bind(ClientSessionRepository).to(PrismaSessionRepository).inSingletonScope()
+    container.bind(ClientSessionRepository).to(PrismaClientSessionRepository).inSingletonScope()
     container.bind(ClientRefreshTokenRepository).to(PrismaRefreshTokenRepository).inSingletonScope()
 
     container.bind(UserRepository).to(PrismaUserRepository).inSingletonScope()
     container.bind(UserSessionRepository).to(PrismaUserSessionRepository).inSingletonScope()
-    container.bind(UserRefreshTokenRepository).to(PrismaUserRefreshTokenRepository).inSingletonScope()
+    container
+      .bind(UserRefreshTokenRepository)
+      .to(PrismaUserRefreshTokenRepository)
+      .inSingletonScope()
     container.bind(UserFieldValueRepository).to(PrismaUserFieldValueRepository).inSingletonScope()
 
     container.bind(ProjectRepository).to(PrismaProjectRepository).inSingletonScope()

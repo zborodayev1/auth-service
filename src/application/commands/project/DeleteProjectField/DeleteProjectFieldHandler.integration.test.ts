@@ -96,7 +96,12 @@ describe('DeleteProjectFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new DeleteProjectFieldCommand(fieldId, projectId, '00000000-0000-0000-0000-000000000000', false),
+        new DeleteProjectFieldCommand(
+          fieldId,
+          projectId,
+          '00000000-0000-0000-0000-000000000000',
+          false,
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })
