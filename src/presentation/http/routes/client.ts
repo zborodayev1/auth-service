@@ -28,6 +28,9 @@ export class ClientRouter {
 
     router.post('/logout-all', authenticate, c.logoutAll.bind(c))
 
+    router.get('/sessions', authenticate, c.getSessions.bind(c))
+    router.delete('/sessions/:sessionId', authenticate, c.revokeSession.bind(c))
+
     router.post('/refresh', c.refresh.bind(c))
 
     return router

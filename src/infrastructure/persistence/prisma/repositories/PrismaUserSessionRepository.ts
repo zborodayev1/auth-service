@@ -39,12 +39,19 @@ export class PrismaUserSessionRepository extends PrismaRepository implements Use
     return raw ? userSessionToDomain(raw) : null
   }
 
-  async findByUserId(userId: string): Promise<UserSession[]> {
+  async findAllActiveByUserId(userId: string): Promise<UserSession[]> {
     const raws = await this.prismaClient.userSession.findMany({
-      where: { userId },
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
     })
     return raws.map(userSessionToDomain)
+  }
+
+  async findByIdAndUserId(id: string, userId: string): Promise<UserSession | null> {
+    const raw = await this.prismaClient.userSession.findFirst({
+      where: { id, userId },
+    })
+    return raw ? userSessionToDomain(raw) : null
   }
 
   async revokeAllByUserId(userId: string): Promise<void> {

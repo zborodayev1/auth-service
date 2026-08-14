@@ -35,6 +35,14 @@ export class UserRouter {
     router.get('/me/fields/:fieldId', authenticateApiKey, authenticate, c.getField.bind(c))
     router.patch('/me/fields/:fieldId', authenticateApiKey, authenticate, c.update.bind(c))
 
+    router.get('/me/sessions', authenticateApiKey, authenticate, c.getSessions.bind(c))
+    router.delete(
+      '/me/sessions/:sessionId',
+      authenticateApiKey,
+      authenticate,
+      c.revokeSession.bind(c),
+    )
+
     return router
   }
 }
