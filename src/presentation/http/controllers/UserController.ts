@@ -36,6 +36,11 @@ import { GetUserFieldsQuery } from '@app/queries/user/GetUserFields/GetUserField
 import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
 import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQuery'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { GetUserSessionsHandler } from '@app/queries/user/GetUserSessions/GetUserSessionsHandler'
+import { GetUserSessionsQuery } from '@app/queries/user/GetUserSessions/GetUserSessionsQuery'
+import { RevokeUserSessionHandler } from '@app/commands/user/RevokeUserSession/RevokeUserSessionHandler'
+import { RevokeUserSessionCommand } from '@app/commands/user/RevokeUserSession/RevokeUserSessionCommand'
+import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
 
 @injectable()
 export class UserController {
@@ -64,6 +69,10 @@ export class UserController {
     private readonly getFieldsHandler: GetUserFieldsHandler,
     @inject(GetUserFieldHandler)
     private readonly getFieldHandler: GetUserFieldHandler,
+    @inject(GetUserSessionsHandler)
+    private readonly getSessionsHandler: GetUserSessionsHandler,
+    @inject(RevokeUserSessionHandler)
+    private readonly revokeSessionHandler: RevokeUserSessionHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -252,6 +261,24 @@ export class UserController {
         body.newEmail,
         body.password,
       ),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async getSessions(req: Request, res: Response): Promise<void> {
+    const sessions = await this.getSessionsHandler.execute(
+      new GetUserSessionsQuery(req.userAuth.userId, req.userAuth.sessionId),
+    )
+
+    res.status(200).json(sessions)
+  }
+
+  async revokeSession(req: Request, res: Response): Promise<void> {
+    const { sessionId } = SessionIdParamSchema.parse(req.params)
+
+    const result = await this.revokeSessionHandler.execute(
+      new RevokeUserSessionCommand(sessionId, req.userAuth.userId, req.userAuth.sessionId),
     )
 
     res.status(200).json(result)

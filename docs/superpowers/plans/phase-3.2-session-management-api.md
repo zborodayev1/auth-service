@@ -1,7 +1,7 @@
 ---
 title: Phase 3.2 — Session Management API
 date: 2026-08-03
-status: backlog
+status: done
 priority: low — functional gap, not a bug
 ---
 

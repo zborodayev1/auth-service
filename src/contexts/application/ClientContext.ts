@@ -11,6 +11,8 @@ import { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshCli
 import { RenameClientHandler } from '@app/commands/client/RenameClient/RenameClientHandler'
 import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/GetClientProfileHandler'
 import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
+import { GetClientSessionsHandler } from '@app/queries/client/GetClientSessions/GetClientSessionsHandler'
+import { RevokeClientSessionHandler } from '@app/commands/client/RevokeClientSession/RevokeClientSessionHandler'
 
 import { ClientAuthService } from '@services/auth/ClientAuthService'
 import { ClientRefreshTokenService } from '@services/refresh-token/ClientRefreshTokenService'
@@ -33,6 +35,8 @@ export class ClientContext implements ServiceContext {
     container.bind(RenameClientHandler).toSelf()
     container.bind(GetClientProfileHandler).toSelf()
     container.bind(GetClientProjectsHandler).toSelf()
+    container.bind(GetClientSessionsHandler).toSelf()
+    container.bind(RevokeClientSessionHandler).toSelf()
 
     container.bind(ClientAuthService).toSelf().inSingletonScope()
     container.bind(ClientRefreshTokenService).toSelf().inSingletonScope()
