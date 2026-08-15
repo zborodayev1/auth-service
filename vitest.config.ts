@@ -30,6 +30,7 @@ export default defineConfig({
       '@services': r('src/application/services'),
       '@generated': r('src/generated'),
       '@entities': r('src/domain/entities'),
+      '@tests': r('src/tests'),
     },
   },
 })

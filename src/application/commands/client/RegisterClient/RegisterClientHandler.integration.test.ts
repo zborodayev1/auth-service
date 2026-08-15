@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { type RegisterClientResult, RegisterClientHandler } from './RegisterClientHandler'
 import { RegisterClientCommand } from './RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(RegisterClientHandler)

@@ -6,10 +6,10 @@ import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectC
 import { RegisterClientHandler } from '../../client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../client/RegisterClient/RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { SEED } from '../../../../tests/helpers/userSeed'
-import { seedProject } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { SEED } from '@tests/helpers/userSeed'
+import { seedProject } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
 const handler = container.get(RegisterUserHandler)

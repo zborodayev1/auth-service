@@ -5,8 +5,8 @@ import type { RegisterClientResult } from '../RegisterClient/RegisterClientHandl
 import { RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const loginHandler = container.get(LoginClientHandler)

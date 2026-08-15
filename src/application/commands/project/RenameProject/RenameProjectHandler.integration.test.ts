@@ -5,9 +5,9 @@ import { GetProjectHandler } from '../../../queries/project/GetProject/GetProjec
 import { GetProjectQuery } from '../../../queries/project/GetProject/GetProjectQuery'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProject, PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { CreateProjectHandler } from '../CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../CreateProject/CreateProjectCommand'
 

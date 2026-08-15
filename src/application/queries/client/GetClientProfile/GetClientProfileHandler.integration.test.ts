@@ -5,8 +5,8 @@ import type { RegisterClientResult } from '../../../commands/client/RegisterClie
 import { RegisterClientHandler } from '../../../commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(GetClientProfileHandler)

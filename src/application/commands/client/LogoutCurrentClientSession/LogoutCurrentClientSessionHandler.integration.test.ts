@@ -11,8 +11,8 @@ import type { ClientAccessTokenService as IClientAccessTokenService } from '@por
 import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(LogoutCurrentClientSessionHandler)

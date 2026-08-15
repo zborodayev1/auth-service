@@ -7,9 +7,9 @@ import { LoginUserHandler } from '../../user/LoginUser/LoginUserHandler'
 import { LoginUserCommand } from '../../user/LoginUser/LoginUserCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(DeleteProjectHandler)
