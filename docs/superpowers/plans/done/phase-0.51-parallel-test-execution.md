@@ -1,7 +1,7 @@
 ---
 title: Phase 0.51 — Parallel Test Execution
 date: 2026-08-16
-status: planning
+status: done
 priority: high — 1 worker per file, all parallel → total time ≈ slowest single file (~1-3s); current 40s suite becomes ~2-3s
 ---
 
@@ -33,12 +33,14 @@ One line, easy to flip — but meaningless without fixing A and B first.
 Each worker gets its own isolated PostgreSQL schema (`test_<worker_pid>`). Workers never touch each other's tables.
 
 **How it works:**
+
 - PostgreSQL schemas are namespaces within a single DB
 - `CREATE SCHEMA test_abc123` creates a fully isolated set of tables
 - Prisma targets a schema via `DATABASE_URL?schema=test_abc123`
 - `DROP SCHEMA test_abc123 CASCADE` removes everything after the file finishes
 
 **Worker setup flow:**
+
 ```
 beforeAll (per file):
   1. Generate unique schema name: test_<uuid>
@@ -52,6 +54,7 @@ afterAll (per file):
 ```
 
 **Schema helper:**
+
 ```ts
 // src/tests/helpers/schema.ts
 import { randomUUID } from 'crypto'
@@ -62,6 +65,7 @@ export function generateTestSchema(): string {
 ```
 
 **`PrismaProvider` test mode:**
+
 ```ts
 constructor() {
   const base = process.env['DATABASE_URL']!
@@ -76,6 +80,7 @@ constructor() {
 ```
 
 **Running migrations on the schema:**
+
 ```ts
 // prisma migrate deploy targets the schema via DATABASE_URL
 process.env['DATABASE_URL'] = `${base}?schema=${schema}`
@@ -85,6 +90,7 @@ execSync('npx prisma migrate deploy', { stdio: 'inherit' })
 Or use `prisma.$executeRawUnsafe` to replay migration SQL directly — faster than spawning a child process per worker.
 
 **Global setup file** (runs once before all workers start):
+
 ```ts
 // src/tests/setup.parallel.ts
 // Nothing needed globally — each worker manages its own schema.
@@ -114,10 +120,10 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/auth_test?connection_
 // vitest.integration.config.ts
 export default defineConfig({
   test: {
-    fileParallelism: true,     // ← 1 worker per file, all parallel
+    fileParallelism: true, // ← 1 worker per file, all parallel
     // Remove maxConcurrency limit — let all 46 files run simultaneously
     // Connection pool handles backpressure via pool_timeout
-    setupFiles: ['reflect-metadata'],  // remove setup.integration.ts (had global afterAll)
+    setupFiles: ['reflect-metadata'], // remove setup.integration.ts (had global afterAll)
     // ...
   },
 })
@@ -126,13 +132,20 @@ export default defineConfig({
 Remove `fileParallelism: false`. Remove the global `setup.integration.ts` (its `afterAll(disconnectTestDb)` doesn't make sense per-worker — each file handles its own cleanup).
 
 Each test file gets:
+
 ```ts
 // Pattern every test file follows:
 import { setupTestSchema, teardownTestSchema } from '@tests/helpers/schema'
 
-beforeAll(async () => { await setupTestSchema() })
-afterAll(async () => { await teardownTestSchema() })
-beforeEach(async () => { await truncateAll(container) })
+beforeAll(async () => {
+  await setupTestSchema()
+})
+afterAll(async () => {
+  await teardownTestSchema()
+})
+beforeEach(async () => {
+  await truncateAll(container)
+})
 ```
 
 Or consolidate into a single `useTestDb()` helper that registers all three hooks.
@@ -158,6 +171,7 @@ Combine with Phase 0.52 (transaction rollback) to replace `truncateAll` entirely
 Applying migrations to 46 schemas on every run adds overhead. Mitigation options:
 
 **Option A — Template schema:** Create one `test_template` schema with migrations applied once. Each worker clones it:
+
 ```sql
 CREATE SCHEMA test_<uuid> LIKE test_template  -- PostgreSQL doesn't support this directly
 -- Alternative: pg_dump + pg_restore per schema (slow)
@@ -173,12 +187,12 @@ CREATE SCHEMA test_<uuid> LIKE test_template  -- PostgreSQL doesn't support this
 
 ## Expected gains
 
-| Configuration | Wall time |
-|---|---|
-| Current (sequential, bcrypt=12) | ~40s |
-| Sequential + bcrypt=4 | ~8-12s |
+| Configuration                                       | Wall time |
+| --------------------------------------------------- | --------- |
+| Current (sequential, bcrypt=12)                     | ~40s      |
+| Sequential + bcrypt=4                               | ~8-12s    |
 | **1 worker per file + bcrypt=4 + schema isolation** | **~2-3s** |
-| 1 worker per file + bcrypt=4 + transaction rollback | ~1-2s |
+| 1 worker per file + bcrypt=4 + transaction rollback | ~1-2s     |
 
 The 1-worker-per-file model is the target. Every new test file added costs zero additional wall time (as long as it's not slower than the current slowest file).
 

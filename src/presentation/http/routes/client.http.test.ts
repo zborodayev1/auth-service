@@ -1,6 +1,6 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import request from 'supertest'
-import { getTestApp, getHttpTestContainer, disconnectHttpTestDb } from '@tests/helpers/httpContainer'
+import { getTestApp, getHttpTestContainer } from '@tests/helpers/httpContainer'
 import { truncateAll } from '@tests/helpers/db'
 
 const app = getTestApp()
@@ -25,10 +25,6 @@ async function registerAndLogin(): Promise<{ accessToken: string; cookies: strin
 describe('Client HTTP routes', () => {
   beforeEach(async () => {
     await truncateAll(container)
-  })
-
-  afterAll(async () => {
-    await disconnectHttpTestDb()
   })
 
   describe('POST /clients/register', () => {

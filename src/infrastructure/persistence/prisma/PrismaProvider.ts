@@ -10,12 +10,11 @@ export class PrismaProvider extends PrismaClient {
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
   ) {
-    super({
-      adapter: new PrismaPg(
-        new Pool({
-          connectionString: serverConfig.dbUrl,
-        }),
-      ),
+    const schema = process.env['TEST_SCHEMA']
+    const pool = new Pool({
+      connectionString: serverConfig.dbUrl,
+      max: schema ? 1 : 10,
     })
+    super({ adapter: new PrismaPg(pool, schema ? { schema } : undefined) })
   }
 }
