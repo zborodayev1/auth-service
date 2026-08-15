@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.integration.test.ts'],
+    include: ['src/**/*.integration.test.ts', 'src/**/*.http.test.ts'],
     setupFiles: ['reflect-metadata', './src/tests/setup.integration.ts'],
     fileParallelism: false,
     testTimeout: 15000,
@@ -27,6 +27,7 @@ export default defineConfig({
       '@generated': r('src/generated'),
       '@entities': r('src/domain/entities'),
       '@presentation': r('src/presentation'),
+      '@tests': r('src/tests'),
     },
   },
 })
