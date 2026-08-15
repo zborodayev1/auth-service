@@ -1,11 +1,11 @@
 ---
-title: Phase 3.3.5 — Improve Tests: SchemaBuilderService + Redis Cache
+title: Phase 0.29 — Improve Tests: SchemaBuilderService + Redis Cache
 date: 2026-08-15
 status: done
 priority: medium — no tests on schema logic or Redis wiring
 ---
 
-# Phase 3.3.5 — Improve Tests
+# Phase 0.29 — Improve Tests
 
 Two areas with zero test coverage added in 3.3.2:
 
