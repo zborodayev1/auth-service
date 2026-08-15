@@ -18,14 +18,14 @@ Open source authentication service built with Node.js and TypeScript. Free forev
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js |
-| Language | TypeScript 6 |
-| Framework | Express 5 |
-| Auth | JSON Web Token |
-| Hashing | bcrypt |
-| Config | dotenv |
+| Layer     | Technology     |
+| --------- | -------------- |
+| Runtime   | Node.js        |
+| Language  | TypeScript 6   |
+| Framework | Express 5      |
+| Auth      | JSON Web Token |
+| Hashing   | bcrypt         |
+| Config    | dotenv         |
 
 ---
 
