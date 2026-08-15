@@ -4,9 +4,9 @@ import { GetUserFieldsQuery } from './GetUserFieldsQuery'
 import { UpdateUserFieldHandler } from '../../../commands/user/UpdateUserField/UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from '../../../commands/user/UpdateUserField/UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, seedUserWithField, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, seedUserWithField, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
 
@@ -19,7 +19,6 @@ describe('GetUserFieldsHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('returns empty fields when project has no field definitions', async () => {
     const { userId, projectId } = await seedUser(container)
@@ -56,8 +55,8 @@ describe('GetUserFieldsHandler', () => {
       new CreateProjectCommand('Other Project', clientId),
     )
 
-    await expect(
-      handler.execute(new GetUserFieldsQuery(userId, otherProjectId)),
-    ).rejects.toThrow(NotFoundError)
+    await expect(handler.execute(new GetUserFieldsQuery(userId, otherProjectId))).rejects.toThrow(
+      NotFoundError,
+    )
   })
 })

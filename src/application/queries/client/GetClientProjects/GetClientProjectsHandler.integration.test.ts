@@ -5,9 +5,9 @@ import { RegisterClientHandler } from '../../../commands/client/RegisterClient/R
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(GetClientProjectsHandler)
@@ -16,14 +16,20 @@ const createProject = container.get(CreateProjectHandler)
 
 const seedClient = (): Promise<{ clientId: string }> =>
   registerClient.execute(
-    new RegisterClientCommand(SEED.client.name, SEED.client.email, SEED.client.password, null, null, null),
+    new RegisterClientCommand(
+      SEED.client.name,
+      SEED.client.email,
+      SEED.client.password,
+      null,
+      null,
+      null,
+    ),
   )
 
 describe('GetClientProjectsHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('returns empty array when client has no projects', async () => {
     const { clientId } = await seedClient()
@@ -59,7 +65,14 @@ describe('GetClientProjectsHandler', () => {
   it('only returns projects owned by the querying client', async () => {
     const { clientId } = await seedClient()
     const { clientId: otherId } = await registerClient.execute(
-      new RegisterClientCommand('Other Client', 'other@example.com', SEED.client.password, null, null, null),
+      new RegisterClientCommand(
+        'Other Client',
+        'other@example.com',
+        SEED.client.password,
+        null,
+        null,
+        null,
+      ),
     )
 
     await createProject.execute(new CreateProjectCommand(SEED.project.name, clientId))

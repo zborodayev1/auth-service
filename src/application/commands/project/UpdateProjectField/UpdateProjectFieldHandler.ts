@@ -46,7 +46,7 @@ export class UpdateProjectFieldHandler {
 
     await this.projectFields.save(updated)
 
-    this.schemaBuilder.invalidate(command.projectId)
+    await this.schemaBuilder.invalidate(command.projectId)
     return { fieldId: updated.id }
   }
 }

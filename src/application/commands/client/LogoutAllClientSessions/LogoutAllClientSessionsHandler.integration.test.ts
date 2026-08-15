@@ -11,8 +11,8 @@ import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(LogoutAllClientSessionsHandler)
@@ -47,7 +47,14 @@ describe('LogoutAllClientSessionsHandler', () => {
   it('does not invalidate sessions of other clients', async () => {
     const { clientId: clientIdA, refreshToken: tokenA } = await seed()
     const { refreshToken: tokenB } = await registerHandler.execute(
-      new RegisterClientCommand('Other Client', 'other@example.com', VALID.password, null, null, null),
+      new RegisterClientCommand(
+        'Other Client',
+        'other@example.com',
+        VALID.password,
+        null,
+        null,
+        null,
+      ),
     )
 
     await handler.execute(new LogoutAllClientSessionsCommand(clientIdA))

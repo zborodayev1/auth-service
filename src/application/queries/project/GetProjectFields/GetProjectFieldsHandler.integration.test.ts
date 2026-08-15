@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GetProjectFieldsHandler } from './GetProjectFieldsHandler'
 import { GetProjectFieldsQuery } from './GetProjectFieldsQuery'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 import {
   seedProject,
   seedProjectWithField,
   PROJECT_SEED,
-} from '../../../../tests/helpers/projectSeed'
+} from '@tests/helpers/projectSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 
 const container = getTestContainer()

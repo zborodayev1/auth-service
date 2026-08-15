@@ -51,7 +51,7 @@ export class DeleteProjectFieldHandler {
       await this.projectFields.delete(field.id)
     }
 
-    this.schemaBuilder.invalidate(command.projectId)
+    await this.schemaBuilder.invalidate(command.projectId)
 
     return { success: true }
   }

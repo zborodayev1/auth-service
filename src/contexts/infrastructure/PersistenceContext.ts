@@ -10,7 +10,7 @@ import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { PrismaClientRepository } from '@infra/persistence/prisma/repositories/PrismaClientRepository'
-import { PrismaSessionRepository } from '@infra/persistence/prisma/repositories/PrismaSessionRepository'
+import { PrismaClientSessionRepository } from '@infra/persistence/prisma/repositories/PrismaClientSessionRepository'
 import { PrismaRefreshTokenRepository } from '@infra/persistence/prisma/repositories/PrismaRefreshTokenRepository'
 
 import { UserRepository } from '@aggregates/user/UserRepository'
@@ -29,6 +29,11 @@ import { PrismaProjectFieldRepository } from '@infra/persistence/prisma/reposito
 import { IJob } from '@ports/IJob'
 import { JobManager } from '@infra/jobs/JobManager'
 import { SoftDeletePurgeJob } from '@infra/jobs/SoftDeletePurgeJob'
+import { CleanupJob } from '@infra/jobs/CleanupJob'
+import { ISchemaCache } from '@ports/ISchemaCache'
+import { RedisProvider } from '@infra/redis/RedisProvider'
+import { RedisSchemaCache } from '@infra/redis/RedisSchemaCache'
+import { SchemaInvalidationListener } from '@infra/redis/SchemaInvalidationListener'
 
 @injectable()
 export class PersistenceContext implements ServiceContext {
@@ -38,18 +43,26 @@ export class PersistenceContext implements ServiceContext {
     container.bind(UnitOfWork).to(PrismaUnitOfWork).inSingletonScope()
 
     container.bind(ClientRepository).to(PrismaClientRepository).inSingletonScope()
-    container.bind(ClientSessionRepository).to(PrismaSessionRepository).inSingletonScope()
+    container.bind(ClientSessionRepository).to(PrismaClientSessionRepository).inSingletonScope()
     container.bind(ClientRefreshTokenRepository).to(PrismaRefreshTokenRepository).inSingletonScope()
 
     container.bind(UserRepository).to(PrismaUserRepository).inSingletonScope()
     container.bind(UserSessionRepository).to(PrismaUserSessionRepository).inSingletonScope()
-    container.bind(UserRefreshTokenRepository).to(PrismaUserRefreshTokenRepository).inSingletonScope()
+    container
+      .bind(UserRefreshTokenRepository)
+      .to(PrismaUserRefreshTokenRepository)
+      .inSingletonScope()
     container.bind(UserFieldValueRepository).to(PrismaUserFieldValueRepository).inSingletonScope()
 
     container.bind(ProjectRepository).to(PrismaProjectRepository).inSingletonScope()
     container.bind(ProjectFieldRepository).to(PrismaProjectFieldRepository).inSingletonScope()
 
+    container.bind(RedisProvider).toSelf().inSingletonScope()
+    container.bind(ISchemaCache).to(RedisSchemaCache).inSingletonScope()
+
     container.bind(IJob).to(SoftDeletePurgeJob).inSingletonScope()
+    container.bind(IJob).to(CleanupJob).inSingletonScope()
+    container.bind(IJob).to(SchemaInvalidationListener).inSingletonScope()
     container.bind(JobManager).toSelf().inSingletonScope()
   }
 }

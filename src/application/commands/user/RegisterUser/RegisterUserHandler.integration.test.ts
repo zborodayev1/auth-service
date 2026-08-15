@@ -6,10 +6,10 @@ import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectC
 import { RegisterClientHandler } from '../../client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../client/RegisterClient/RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { SEED } from '../../../../tests/helpers/userSeed'
-import { seedProject } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { SEED } from '@tests/helpers/userSeed'
+import { seedProject } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
 const handler = container.get(RegisterUserHandler)
@@ -42,7 +42,15 @@ describe('RegisterUserHandler', () => {
 
     await expect(
       handler.execute(
-        new RegisterUserCommand(projectId, SEED.user.email, SEED.user.password, {}, null, null, null),
+        new RegisterUserCommand(
+          projectId,
+          SEED.user.email,
+          SEED.user.password,
+          {},
+          null,
+          null,
+          null,
+        ),
       ),
     ).rejects.toThrow(ConflictError)
   })
@@ -51,19 +59,42 @@ describe('RegisterUserHandler', () => {
     const { projectId: projectId1 } = await seedProject(container)
 
     const { clientId: clientId2 } = await registerClient.execute(
-      new RegisterClientCommand('Other Client', 'other@example.com', SEED.client.password, null, null, null),
+      new RegisterClientCommand(
+        'Other Client',
+        'other@example.com',
+        SEED.client.password,
+        null,
+        null,
+        null,
+      ),
     )
     const { projectId: projectId2 } = await createProject.execute(
       new CreateProjectCommand('Other Project', clientId2),
     )
 
     await handler.execute(
-      new RegisterUserCommand(projectId1, SEED.user.email, SEED.user.password, {}, null, null, null),
+      new RegisterUserCommand(
+        projectId1,
+        SEED.user.email,
+        SEED.user.password,
+        {},
+        null,
+        null,
+        null,
+      ),
     )
 
     await expect(
       handler.execute(
-        new RegisterUserCommand(projectId2, SEED.user.email, SEED.user.password, {}, null, null, null),
+        new RegisterUserCommand(
+          projectId2,
+          SEED.user.email,
+          SEED.user.password,
+          {},
+          null,
+          null,
+          null,
+        ),
       ),
     ).resolves.toBeTruthy()
   })

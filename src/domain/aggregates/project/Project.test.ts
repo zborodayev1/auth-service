@@ -7,13 +7,7 @@ const makeApiKey = (): ApiKey =>
   ApiKey.reconstruct('apikey-id', Name.create('myapikeyname'), 'somehash', false, new Date())
 
 const makeProject = (): Project =>
-  Project.create(
-    'project-id',
-    Name.create('myprojectname'),
-    'owner-id',
-    makeApiKey(),
-    'jwt-secret',
-  )
+  Project.create('project-id', Name.create('myprojectname'), 'owner-id', makeApiKey(), 'jwt-secret')
 
 describe('Project', () => {
   describe('create()', () => {

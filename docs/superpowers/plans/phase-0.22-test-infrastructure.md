@@ -1,11 +1,11 @@
 ---
-title: Phase 3.5 — Test Infrastructure
+title: Phase 0.22 — Test Infrastructure
 date: 2026-08-03
 status: done
 priority: medium — zero coverage on an auth service is a regression risk
 ---
 
-# Phase 3.2 — Test Infrastructure
+# Phase 0.22 — Test Infrastructure
 
 Zero test files in the entire codebase. Auth service logic (token rotation, session management, field validation) mutates security-critical state — regressions are invisible without tests.
 

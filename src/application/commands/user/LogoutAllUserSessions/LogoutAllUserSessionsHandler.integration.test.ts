@@ -7,9 +7,9 @@ import { LoginUserHandler } from '../LoginUser/LoginUserHandler'
 import { LoginUserCommand } from '../LoginUser/LoginUserCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
 import { RegisterUserHandler } from '../RegisterUser/RegisterUserHandler'
@@ -26,7 +26,6 @@ describe('LogoutAllUserSessionsHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('returns success', async () => {
     const { userId, projectId } = await seedUser(container)
@@ -45,13 +44,13 @@ describe('LogoutAllUserSessionsHandler', () => {
 
     await handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))
 
-    await expect(
-      refreshHandler.execute(new RefreshUserAccessTokenCommand(token1)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(refreshHandler.execute(new RefreshUserAccessTokenCommand(token1))).rejects.toThrow(
+      UnauthorizedError,
+    )
 
-    await expect(
-      refreshHandler.execute(new RefreshUserAccessTokenCommand(token2)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(refreshHandler.execute(new RefreshUserAccessTokenCommand(token2))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 
   it('throws NotFoundError when userId does not belong to projectId', async () => {
@@ -72,7 +71,15 @@ describe('LogoutAllUserSessionsHandler', () => {
       new CreateProjectCommand('Other Project', clientId),
     )
     const { refreshToken: otherToken } = await registerUser.execute(
-      new RegisterUserCommand(otherProjectId, 'other@example.com', SEED.user.password, {}, null, null, null),
+      new RegisterUserCommand(
+        otherProjectId,
+        'other@example.com',
+        SEED.user.password,
+        {},
+        null,
+        null,
+        null,
+      ),
     )
 
     await handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))

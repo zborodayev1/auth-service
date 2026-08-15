@@ -1,17 +1,17 @@
 ---
 title: Phase 3.3 — Operational Reliability
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — not blocking pre-launch, but required before sustained production traffic
 ---
 
-# Phase 3.4 — Operational Reliability
+# Phase 3.3 — Operational Reliability
 
 Three independent problems that surface under production load. Neither requires architectural overhaul now, but all need a clear resolution path before scaling.
 
 ---
 
-## 3.4.0 — SchemaBuilderService Cache Not Shared Between Instances
+## 3.3.0 — SchemaBuilderService Cache Not Shared Between Instances
 
 **Problem:** `SchemaBuilderService` stores Zod schemas in process memory (`Map<projectId, ZodObject>`). On multi-instance deploy, `invalidate(projectId)` only clears the cache on the mutating instance. Other instances serve stale schema → `RegisterUser` may accept or reject fields incorrectly.
 
@@ -21,16 +21,16 @@ Three independent problems that surface under production load. Neither requires 
 
 ---
 
-## 3.4.1 — Token & Session Cleanup
+## 3.3.1 — Token & Session Cleanup
 
 **Problem:** expired/revoked rows accumulate indefinitely in four tables:
 
-| Table | Dead rows accumulate when |
-|-------|--------------------------|
-| `Session` | `expiresAt` passed or `revokedAt` set |
-| `RefreshToken` | `usedAt` set (token rotated) or `revokedAt` set or `expiresAt` passed |
-| `UserSession` | `expiresAt` passed or `revokedAt` set |
-| `UserRefreshToken` | `usedAt` set or `revokedAt` set or `expiresAt` passed |
+| Table              | Dead rows accumulate when                                             |
+| ------------------ | --------------------------------------------------------------------- |
+| `Session`          | `expiresAt` passed or `revokedAt` set                                 |
+| `RefreshToken`     | `usedAt` set (token rotated) or `revokedAt` set or `expiresAt` passed |
+| `UserSession`      | `expiresAt` passed or `revokedAt` set                                 |
+| `UserRefreshToken` | `usedAt` set or `revokedAt` set or `expiresAt` passed                 |
 
 These tables are on the hot path of every auth request. As they grow, index scans slow down even when queries filter to active rows.
 
@@ -86,7 +86,7 @@ deleteExpiredByUserId(userId: string): Promise<void>
 
 ---
 
-## 3.4.2 — Schema Cache Invalidation Across Instances
+## 3.3.2 — Schema Cache Invalidation Across Instances
 
 **Problem:** `SchemaBuilderService` holds a `Map<projectId, ZodSchema>` in process memory. Cache is invalidated via `schemaBuilder.invalidate(projectId)` — but this only affects the calling process. On 2+ instances:
 
@@ -124,6 +124,7 @@ Tradeoff: inconsistency window is bounded. For a field being required with no de
 **Option A in the short term. Option B when Redis is already in the stack.**
 
 The cache was added (commit `9678727`) specifically as an optimization. Removing it reverts to the correct behavior. Add it back only as a Redis-backed cache when:
+
 1. Redis is present (rate limiting at scale, or session store)
 2. Registration volume creates measurable DB pressure
 
@@ -146,11 +147,12 @@ Remove `private readonly cache` and `invalidate()`. Remove all `schemaBuilder.in
 
 ---
 
-## 3.4.3 — No Graceful Shutdown
+## 3.3.3 — No Graceful Shutdown
 
 **Problem:** No `process.on('SIGTERM')` or `process.on('SIGINT')` handlers anywhere. `Application.stop()` exists but is never called.
 
 On SIGTERM (Docker stop, k8s pod eviction, PM2 restart):
+
 - HTTP server keeps accepting new requests until process is killed
 - In-flight requests are aborted mid-response
 - `pg.Pool` connections are never closed → PostgreSQL sees abrupt disconnects, must wait for TCP timeout to reclaim connections
@@ -163,7 +165,7 @@ const application = Bootstrap.bootstrap()
 await application.start()
 
 const shutdown = async () => {
-  await application.stop()   // closes http.Server
+  await application.stop() // closes http.Server
   await prisma.$disconnect() // closes pg Pool
   process.exit(0)
 }

@@ -75,7 +75,15 @@ describe('ProjectField', () => {
   describe('recover()', () => {
     it('returns new instance with deletedAt null', () => {
       const field = ProjectField.reconstruct(
-        'field-id', 'project-id', 'bio', 'string', false, null, [], new Date(), new Date(),
+        'field-id',
+        'project-id',
+        'bio',
+        'string',
+        false,
+        null,
+        [],
+        new Date(),
+        new Date(),
       )
       const recovered = field.recover()
 
@@ -85,7 +93,15 @@ describe('ProjectField', () => {
     it('does not mutate original', () => {
       const deletedAt = new Date()
       const field = ProjectField.reconstruct(
-        'field-id', 'project-id', 'bio', 'string', false, null, [], new Date(), deletedAt,
+        'field-id',
+        'project-id',
+        'bio',
+        'string',
+        false,
+        null,
+        [],
+        new Date(),
+        deletedAt,
       )
       field.recover()
 
@@ -94,7 +110,15 @@ describe('ProjectField', () => {
 
     it('returns different instance', () => {
       const field = ProjectField.reconstruct(
-        'field-id', 'project-id', 'bio', 'string', false, null, [], new Date(), new Date(),
+        'field-id',
+        'project-id',
+        'bio',
+        'string',
+        false,
+        null,
+        [],
+        new Date(),
+        new Date(),
       )
       expect(field.recover()).not.toBe(field)
     })

@@ -4,9 +4,9 @@ import { GetUserFieldQuery } from './GetUserFieldQuery'
 import { UpdateUserFieldHandler } from '../../../commands/user/UpdateUserField/UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from '../../../commands/user/UpdateUserField/UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, seedUserWithField, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, seedUserWithField, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
 import { AddProjectFieldHandler } from '../../../commands/project/AddProjectField/AddProjectFieldHandler'
@@ -22,7 +22,6 @@ describe('GetUserFieldHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('returns field with null value when not yet set', async () => {
     const { userId, projectId, fieldId } = await seedUserWithField(container)

@@ -3,9 +3,9 @@ import { RefreshUserAccessTokenHandler } from './RefreshUserAccessTokenHandler'
 import { RefreshUserAccessTokenCommand } from './RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(RefreshUserAccessTokenHandler)
@@ -38,9 +38,9 @@ describe('RefreshUserAccessTokenHandler', () => {
 
     await handler.execute(new RefreshUserAccessTokenCommand(refreshToken))
 
-    await expect(
-      handler.execute(new RefreshUserAccessTokenCommand(refreshToken)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(handler.execute(new RefreshUserAccessTokenCommand(refreshToken))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 
   it('throws UnauthorizedError for invalid token', async () => {
@@ -54,8 +54,8 @@ describe('RefreshUserAccessTokenHandler', () => {
 
     await prisma.userRefreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
 
-    await expect(
-      handler.execute(new RefreshUserAccessTokenCommand(refreshToken)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(handler.execute(new RefreshUserAccessTokenCommand(refreshToken))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 })

@@ -6,9 +6,9 @@ import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFiel
 import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields/GetProjectFieldsQuery'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProject, PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
 const handler = container.get(AddProjectFieldHandler)
@@ -54,9 +54,9 @@ describe('AddProjectFieldHandler', () => {
   it('throws NotFoundError when clientId does not own the project', async () => {
     const { projectId } = await seedProject(container)
 
-    await expect(
-      addField('00000000-0000-0000-0000-000000000000', projectId),
-    ).rejects.toThrow(NotFoundError)
+    await expect(addField('00000000-0000-0000-0000-000000000000', projectId)).rejects.toThrow(
+      NotFoundError,
+    )
   })
 
   it('allows different field names in same project', async () => {

@@ -3,6 +3,7 @@ import pino, { type Logger, type LoggerOptions } from 'pino'
 import { ServerConfig } from '@config/server/server'
 import { ErrorLogData, LogData } from '@ports/logger/LogData'
 import { ILogger } from '@ports/logger/ILogger'
+import { requestStore } from './RequestStore'
 
 @injectable()
 export class PinoLogger implements ILogger {
@@ -31,31 +32,22 @@ export class PinoLogger implements ILogger {
     this.logger = pino(options)
   }
 
-  info(data: LogData): void {
-    this.logger.info(data.context ?? {}, data.message)
+  private ctx(extra?: Record<string, unknown>): Record<string, unknown> {
+    const requestId = requestStore.getStore()?.requestId
+    return { ...extra, ...(requestId ? { requestId } : {}) }
   }
-
+  info(data: LogData): void {
+    this.logger.info(this.ctx(data.context), data.message)
+  }
   warn(data: ErrorLogData): void {
-    this.logger.warn(
-      {
-        ...data.context,
-        err: data.error,
-      },
-      data.message,
-    )
+    this.logger.warn(this.ctx({ ...data.context, err: data.error }), data.message)
   }
 
   debug(data: LogData): void {
-    this.logger.debug(data.context ?? {}, data.message)
+    this.logger.debug(this.ctx(data.context), data.message)
   }
 
   error(data: ErrorLogData): void {
-    this.logger.error(
-      {
-        ...data.context,
-        err: data.error,
-      },
-      data.message,
-    )
+    this.logger.error(this.ctx({ ...data.context, err: data.error }), data.message)
   }
 }

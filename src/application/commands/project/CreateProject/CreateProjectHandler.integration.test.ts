@@ -3,9 +3,9 @@ import { CreateProjectHandler } from './CreateProjectHandler'
 import { CreateProjectCommand } from './CreateProjectCommand'
 import { RegisterClientHandler } from '../../client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../client/RegisterClient/RegisterClientCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { PROJECT_SEED } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
 const handler = container.get(CreateProjectHandler)
@@ -35,7 +35,9 @@ describe('CreateProjectHandler', () => {
       new CreateProjectCommand(PROJECT_SEED.project.name, clientId),
     )
 
-    expect(result.projectId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+    expect(result.projectId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    )
     expect(result.apiKey).toBeTruthy()
   })
 })

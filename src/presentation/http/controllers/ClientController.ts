@@ -27,6 +27,11 @@ import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/Ge
 import { ChangeClientNameSchema } from '../validators/client/ChangeClientNameValidator'
 import { RenameClientHandler } from '@app/commands/client/RenameClient/RenameClientHandler'
 import { RenameClientCommand } from '@app/commands/client/RenameClient/RenameClientCommand'
+import { GetClientSessionsHandler } from '@app/queries/client/GetClientSessions/GetClientSessionsHandler'
+import { GetClientSessionsQuery } from '@app/queries/client/GetClientSessions/GetClientSessionsQuery'
+import { RevokeClientSessionHandler } from '@app/commands/client/RevokeClientSession/RevokeClientSessionHandler'
+import { RevokeClientSessionCommand } from '@app/commands/client/RevokeClientSession/RevokeClientSessionCommand'
+import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
 
 @injectable()
 export class ClientController {
@@ -51,6 +56,10 @@ export class ClientController {
     private readonly getProjectsHandler: GetClientProjectsHandler,
     @inject(RenameClientHandler)
     private readonly changeNameHandler: RenameClientHandler,
+    @inject(GetClientSessionsHandler)
+    private readonly getSessionsHandler: GetClientSessionsHandler,
+    @inject(RevokeClientSessionHandler)
+    private readonly revokeSessionHandler: RevokeClientSessionHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -194,6 +203,24 @@ export class ClientController {
 
     const result = await this.changeNameHandler.execute(
       new RenameClientCommand(req.auth.clientId, body.name),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async getSessions(req: Request, res: Response): Promise<void> {
+    const sessions = await this.getSessionsHandler.execute(
+      new GetClientSessionsQuery(req.auth.clientId, req.auth.sessionId),
+    )
+
+    res.status(200).json(sessions)
+  }
+
+  async revokeSession(req: Request, res: Response): Promise<void> {
+    const { sessionId } = SessionIdParamSchema.parse(req.params)
+
+    const result = await this.revokeSessionHandler.execute(
+      new RevokeClientSessionCommand(sessionId, req.auth.clientId, req.auth.sessionId),
     )
 
     res.status(200).json(result)

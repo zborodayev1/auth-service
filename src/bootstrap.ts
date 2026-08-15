@@ -35,6 +35,14 @@ export const bootstrap = async (): Promise<void> => {
   try {
     const application = Bootstrap.bootstrap()
     await application.start()
+
+    const shutdown = async (): Promise<void> => {
+      await application.stop()
+      process.exit(0)
+    }
+
+    process.on('SIGTERM', () => void shutdown())
+    process.on('SIGINT', () => void shutdown())
   } catch (err) {
     console.error(err)
     process.exit(1)

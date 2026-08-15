@@ -35,7 +35,7 @@ export class DeleteUserSelfHandler {
 
   async execute(command: DeleteUserSelfCommand): Promise<DeleteUserSelfResult> {
     const user = await this.users.findById(command.userId)
-    if (!user || user.projectId !== command.projectId) {
+    if (user?.projectId !== command.projectId) {
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: command.userId,
         projectId: command.projectId,

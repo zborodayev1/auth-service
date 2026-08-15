@@ -1,17 +1,17 @@
 ---
-title: Phase 3.4 — Security Hardening
+title: Phase 3.4 — System impovments
 date: 2026-08-03
 status: backlog
 priority: medium — pre-production hardening
 ---
 
-# Phase 3.3 — Security Hardening
+# Phase 3.4 — impovments
 
-Three independent improvements that reduce attack surface and improve observability. None require architectural changes.
+Five independent improvements that reduce attack surface, improve observability, and clean up test imports. None require architectural changes.
 
 ---
 
-## 3.3.1 — Rate Limiting on Auth Endpoints
+## 3.4.1 — Rate Limiting on Auth Endpoints
 
 **Problem:** `/login`, `/refresh`, `/register` have no throttling. Auth endpoints are primary brute-force targets.
 
@@ -26,8 +26,8 @@ pnpm add express-rate-limit
 import rateLimit from 'express-rate-limit'
 
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 min
-  max: 20,                    // 20 attempts per window per IP
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 20, // 20 attempts per window per IP
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many attempts, try later' },
@@ -38,11 +38,11 @@ Apply to login + refresh only (register can be more lenient or share the same li
 
 ```ts
 // UserRouter
-router.post('/login',   authRateLimiter, c.login.bind(c))
+router.post('/login', authRateLimiter, c.login.bind(c))
 router.post('/refresh', authRateLimiter, c.refresh.bind(c))
 
 // ClientRouter
-router.post('/login',   authRateLimiter, c.login.bind(c))
+router.post('/login', authRateLimiter, c.login.bind(c))
 router.post('/refresh', authRateLimiter, c.refresh.bind(c))
 ```
 
@@ -50,7 +50,7 @@ router.post('/refresh', authRateLimiter, c.refresh.bind(c))
 
 ---
 
-## 3.3.2 — Health Check Endpoint
+## 3.4.2 — Health Check Endpoint
 
 **Problem:** No `/health` endpoint. Docker, k8s, and uptime monitors can't verify service liveness.
 
@@ -64,6 +64,7 @@ app.get('/health', (_req, res) => {
 ```
 
 Optional readiness check (pings DB):
+
 ```ts
 app.get('/health/ready', async (_req, res) => {
   await prisma.$queryRaw`SELECT 1`
@@ -73,7 +74,7 @@ app.get('/health/ready', async (_req, res) => {
 
 ---
 
-## 3.3.3 — Request Correlation IDs
+## 3.4.3 — Request Correlation IDs
 
 **Problem:** Pino is wired but logs have no per-request ID. Cross-request debugging is blind.
 
@@ -93,6 +94,7 @@ export function correlationId(req: Request, res: Response, next: NextFunction): 
 ```
 
 Extend Express `Request` type:
+
 ```ts
 // src/types/express.d.ts
 declare namespace Express {
@@ -108,7 +110,7 @@ Mount first in `ExpressApp` (before routes).
 
 ---
 
-## 3.3.4 — `JWT_SECRET` minimum length not enforced
+## 3.4.4 — `JWT_SECRET` minimum length not enforced
 
 **Problem:** `ServerConfig` checks `JWT_SECRET` is set but not that it's long enough. `JWT_SECRET=x` passes startup validation. HS256 with a short secret is brute-forceable.
 
@@ -124,9 +126,46 @@ if (this.jwtSecret.length < 32) {
 
 ---
 
+---
+
+## 3.4.5 — `@test/*` Path Alias for Test Helpers
+
+**Problem:** Test files import helpers via deep relative paths (`../../../../tests/helpers/container`). Every moved file breaks imports. No alias exists for `src/tests/`.
+
+**Scope:** two files — `tsconfig.json` + `vitest.config.ts`. No source files touched.
+
+**tsconfig.json** — add to `paths`:
+
+```json
+"@test/*": ["./src/tests/*"]
+```
+
+**vitest.config.ts** — add to `resolve.alias`:
+
+```ts
+'@test': r('src/tests'),
+```
+
+After both changes, update all existing test imports:
+
+```ts
+// before
+import { getTestContainer } from '../../../../tests/helpers/container'
+import { truncateAll } from '../../../../tests/helpers/db'
+
+// after
+import { getTestContainer } from '@test/helpers/container'
+import { truncateAll } from '@test/helpers/db'
+```
+
+**Note:** `tsconfig.json` is for type-checking only (build uses tsup which reads vitest alias at test time). Both must be updated so IDE + vitest agree.
+
+---
+
 ## Priority Order
 
-1. Rate limiting — lowest effort, direct security win
-2. Health check — trivial, needed before any deploy
-3. `JWT_SECRET` length check — one line, zero risk
-4. Correlation IDs — more wiring but essential for production debugging
+1. Rate limiting — lowest effort, direct security win ✅
+2. `@test/*` alias — pure config, unblocks cleaner test imports
+3. Health check — trivial, needed before any deploy
+4. `JWT_SECRET` length check — one line, zero risk
+5. Correlation IDs — more wiring but essential for production debugging

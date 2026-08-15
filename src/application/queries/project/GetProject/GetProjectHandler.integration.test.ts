@@ -3,9 +3,9 @@ import { GetProjectHandler } from './GetProjectHandler'
 import { GetProjectQuery } from './GetProjectQuery'
 import { AddProjectFieldHandler } from '../../../commands/project/AddProjectField/AddProjectFieldHandler'
 import { AddProjectFieldCommand } from '../../../commands/project/AddProjectField/AddProjectFieldCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProject, PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 
 const container = getTestContainer()

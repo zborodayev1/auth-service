@@ -7,9 +7,9 @@ import { UpdateUserFieldHandler } from '../../user/UpdateUserField/UpdateUserFie
 import { UpdateUserFieldCommand } from '../../user/UpdateUserField/UpdateUserFieldCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProjectWithField } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProjectWithField } from '@tests/helpers/projectSeed'
 import { RegisterUserHandler } from '../../user/RegisterUser/RegisterUserHandler'
 import { RegisterUserCommand } from '../../user/RegisterUser/RegisterUserCommand'
 
@@ -96,7 +96,12 @@ describe('DeleteProjectFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new DeleteProjectFieldCommand(fieldId, projectId, '00000000-0000-0000-0000-000000000000', false),
+        new DeleteProjectFieldCommand(
+          fieldId,
+          projectId,
+          '00000000-0000-0000-0000-000000000000',
+          false,
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })

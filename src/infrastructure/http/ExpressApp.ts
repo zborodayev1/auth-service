@@ -3,6 +3,7 @@ import express, { Express } from 'express'
 import helmet from 'helmet'
 import { injectable, inject } from 'inversify'
 import { HttpRouterRegistry } from './HttpRouterRegistry'
+import { correlationId } from '@presentation/http/middleware/correlationId'
 
 @injectable()
 export class ExpressApp {
@@ -14,6 +15,7 @@ export class ExpressApp {
   }
 
   private setup(): void {
+    this.app.use(correlationId)
     this.app.use(express.json())
     this.app.use(helmet())
     this.app.use(cookieParser())

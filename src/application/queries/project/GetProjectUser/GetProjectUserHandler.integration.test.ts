@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { GetProjectUserHandler } from './GetProjectUserHandler'
 import { GetProjectUserQuery } from './GetProjectUserQuery'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 
 const container = getTestContainer()

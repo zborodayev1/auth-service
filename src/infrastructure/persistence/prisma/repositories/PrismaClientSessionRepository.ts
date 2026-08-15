@@ -6,7 +6,10 @@ import { TransactionContext } from '../TransactionContext'
 import { PrismaRepository } from '../PrismaRepository'
 
 @injectable()
-export class PrismaSessionRepository extends PrismaRepository implements ClientSessionRepository {
+export class PrismaClientSessionRepository
+  extends PrismaRepository
+  implements ClientSessionRepository
+{
   constructor(@inject(TransactionContext) ctx: TransactionContext) {
     super(ctx)
   }
@@ -44,15 +47,26 @@ export class PrismaSessionRepository extends PrismaRepository implements ClientS
     return raw ? sessionToDomain(raw) : null
   }
 
-  async findByClientId(clientId: string): Promise<ClientSession[]> {
+  async findAllActiveByClientId(clientId: string): Promise<ClientSession[]> {
     const raws = await this.prismaClient.session.findMany({
-      where: { clientId },
+      where: {
+        clientId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
       orderBy: {
         createdAt: 'desc',
       },
     })
 
     return raws.map(sessionToDomain)
+  }
+
+  async findByIdAndClientId(id: string, clientId: string): Promise<ClientSession | null> {
+    const raw = await this.prismaClient.session.findFirst({
+      where: { id, clientId },
+    })
+    return raw ? sessionToDomain(raw) : null
   }
 
   async revokeAllByClientId(clientId: string): Promise<void> {
@@ -70,9 +84,7 @@ export class PrismaSessionRepository extends PrismaRepository implements ClientS
   async deleteExpired(): Promise<void> {
     await this.prismaClient.session.deleteMany({
       where: {
-        expiresAt: {
-          lt: new Date(),
-        },
+        OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
       },
     })
   }

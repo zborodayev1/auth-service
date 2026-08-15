@@ -5,9 +5,9 @@ import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/Refresh
 import { RefreshUserAccessTokenCommand } from '../RefreshUserAccessToken/RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import jwt from 'jsonwebtoken'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(LogoutUserSessionHandler)
@@ -20,7 +20,6 @@ describe('LogoutUserSessionHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('revokes session successfully', async () => {
     const { accessToken, userId } = await seedUser(container)
@@ -48,9 +47,9 @@ describe('LogoutUserSessionHandler', () => {
 
     await handler.execute(new LogoutUserSessionCommand(sessionId, userId))
 
-    await expect(
-      handler.execute(new LogoutUserSessionCommand(sessionId, userId)),
-    ).rejects.toThrow(UnauthorizedError)
+    await expect(handler.execute(new LogoutUserSessionCommand(sessionId, userId))).rejects.toThrow(
+      UnauthorizedError,
+    )
   })
 
   it('throws UnauthorizedError when userId does not own the session', async () => {

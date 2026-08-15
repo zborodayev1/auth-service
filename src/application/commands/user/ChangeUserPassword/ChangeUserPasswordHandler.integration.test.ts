@@ -6,9 +6,9 @@ import { LoginUserCommand } from '../LoginUser/LoginUserCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
 
@@ -21,7 +21,6 @@ describe('ChangeUserPasswordHandler', () => {
   beforeEach(async () => {
     await truncateAll(container)
   })
-
 
   it('changes password successfully', async () => {
     const { userId, projectId } = await seedUser(container)
@@ -41,7 +40,9 @@ describe('ChangeUserPasswordHandler', () => {
     )
 
     await expect(
-      loginHandler.execute(new LoginUserCommand('newpassword456', SEED.user.email, projectId, null, null, null)),
+      loginHandler.execute(
+        new LoginUserCommand('newpassword456', SEED.user.email, projectId, null, null, null),
+      ),
     ).resolves.toBeTruthy()
   })
 
@@ -53,7 +54,9 @@ describe('ChangeUserPasswordHandler', () => {
     )
 
     await expect(
-      loginHandler.execute(new LoginUserCommand(SEED.user.password, SEED.user.email, projectId, null, null, null)),
+      loginHandler.execute(
+        new LoginUserCommand(SEED.user.password, SEED.user.email, projectId, null, null, null),
+      ),
     ).rejects.toThrow(UnauthorizedError)
   })
 
@@ -61,7 +64,9 @@ describe('ChangeUserPasswordHandler', () => {
     const { userId, projectId } = await seedUser(container)
 
     await expect(
-      handler.execute(new ChangeUserPasswordCommand(userId, projectId, 'wrongpassword', 'newpassword456')),
+      handler.execute(
+        new ChangeUserPasswordCommand(userId, projectId, 'wrongpassword', 'newpassword456'),
+      ),
     ).rejects.toThrow(UnauthorizedError)
   })
 
@@ -69,7 +74,9 @@ describe('ChangeUserPasswordHandler', () => {
     const { userId, projectId } = await seedUser(container)
 
     await expect(
-      handler.execute(new ChangeUserPasswordCommand(userId, projectId, SEED.user.password, SEED.user.password)),
+      handler.execute(
+        new ChangeUserPasswordCommand(userId, projectId, SEED.user.password, SEED.user.password),
+      ),
     ).rejects.toThrow(ConflictError)
   })
 

@@ -9,8 +9,8 @@ import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 
@@ -51,7 +51,9 @@ describe('ChangeClientEmailHandler', () => {
     await handler.execute(new ChangeClientEmailCommand(clientId, 'new@example.com', VALID.password))
 
     await expect(
-      loginHandler.execute(new LoginClientCommand(VALID.password, 'new@example.com', null, null, null)),
+      loginHandler.execute(
+        new LoginClientCommand(VALID.password, 'new@example.com', null, null, null),
+      ),
     ).resolves.toBeTruthy()
   })
 
@@ -66,7 +68,11 @@ describe('ChangeClientEmailHandler', () => {
   it('throws NotFoundError for unknown clientId', async () => {
     await expect(
       handler.execute(
-        new ChangeClientEmailCommand('00000000-0000-0000-0000-000000000000', 'new@example.com', VALID.password),
+        new ChangeClientEmailCommand(
+          '00000000-0000-0000-0000-000000000000',
+          'new@example.com',
+          VALID.password,
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })

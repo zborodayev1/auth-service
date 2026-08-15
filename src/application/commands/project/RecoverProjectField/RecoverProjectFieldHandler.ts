@@ -47,7 +47,7 @@ export class RecoverProjectFieldHandler {
       await this.userFieldValues.recoverByFieldId(field.id)
     })
 
-    this.schemaBuilder.invalidate(command.projectId)
+    await this.schemaBuilder.invalidate(command.projectId)
 
     return { fieldId: recovered.id }
   }

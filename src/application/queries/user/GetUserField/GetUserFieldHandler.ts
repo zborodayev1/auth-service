@@ -36,7 +36,7 @@ export class GetUserFieldHandler {
     if (!field) throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', { query: query })
 
     const user = await this.users.findById(query.userId)
-    if (!user || user.projectId !== query.projectId)
+    if (user?.projectId !== query.projectId)
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: query.userId,
         projectId: query.projectId,

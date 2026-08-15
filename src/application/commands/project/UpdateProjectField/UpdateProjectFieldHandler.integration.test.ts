@@ -5,9 +5,9 @@ import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFiel
 import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields/GetProjectFieldsQuery'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProjectWithField, PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProjectWithField, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { AddProjectFieldHandler } from '../AddProjectField/AddProjectFieldHandler'
 import { AddProjectFieldCommand } from '../AddProjectField/AddProjectFieldCommand'
 
@@ -80,7 +80,15 @@ describe('UpdateProjectFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new UpdateProjectFieldCommand(projectId, clientId, fieldId, PROJECT_SEED.field.name, false, null, []),
+        new UpdateProjectFieldCommand(
+          projectId,
+          clientId,
+          fieldId,
+          PROJECT_SEED.field.name,
+          false,
+          null,
+          [],
+        ),
       ),
     ).resolves.toBeTruthy()
   })

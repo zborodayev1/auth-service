@@ -9,6 +9,7 @@ import { ClientRouter } from '@presentation/http/routes/client'
 import { UserRouter } from '@presentation/http/routes/user'
 import { ProjectRouter } from '@presentation/http/routes/project'
 import { ErrorHandler } from '@presentation/http/middleware/errorHandler'
+import { HealthRouter } from '@presentation/http/routes/health'
 
 @injectable()
 export class HttpContext implements ServiceContext {
@@ -20,6 +21,7 @@ export class HttpContext implements ServiceContext {
     container.bind(ClientRouter).toSelf().inSingletonScope()
     container.bind(UserRouter).toSelf().inSingletonScope()
     container.bind(ProjectRouter).toSelf().inSingletonScope()
+    container.bind(HealthRouter).toSelf().inSingletonScope()
     container.bind(ErrorHandler).toSelf().inSingletonScope()
   }
 }

@@ -13,6 +13,8 @@ import { DeleteUserSelfHandler } from '@app/commands/user/DeleteUserSelf/DeleteU
 import { GetUserProfileHandler } from '@app/queries/user/GetUserProfile/GetUserProfileHandler'
 import { GetUserFieldsHandler } from '@app/queries/user/GetUserFields/GetUserFieldsHandler'
 import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
+import { GetUserSessionsHandler } from '@app/queries/user/GetUserSessions/GetUserSessionsHandler'
+import { RevokeUserSessionHandler } from '@app/commands/user/RevokeUserSession/RevokeUserSessionHandler'
 
 import { UserAuthService } from '@services/auth/UserAuthService'
 import { UserRefreshTokenService } from '@services/refresh-token/UserRefreshTokenService'
@@ -39,6 +41,8 @@ export class UserContext implements ServiceContext {
     container.bind(GetUserProfileHandler).toSelf()
     container.bind(GetUserFieldsHandler).toSelf()
     container.bind(GetUserFieldHandler).toSelf()
+    container.bind(GetUserSessionsHandler).toSelf()
+    container.bind(RevokeUserSessionHandler).toSelf()
 
     container.bind(UserAuthService).toSelf().inSingletonScope()
     container.bind(UserRefreshTokenService).toSelf().inSingletonScope()

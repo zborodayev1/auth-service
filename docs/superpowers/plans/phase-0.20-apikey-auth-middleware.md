@@ -1,5 +1,5 @@
 ---
-title: Phase 3.1 — ApiKey Authentication Middleware
+title: Phase 0.20 — ApiKey Authentication Middleware
 date: 2026-08-03
 status: done
 priority: high — functional gap, user endpoints unprotected

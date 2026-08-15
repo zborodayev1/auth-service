@@ -8,6 +8,7 @@ declare global {
       auth: ClientAccessTokenPayload
       userAuth: UserAccessTokenPayload
       projectAuth?: ProjectApiKeyPayload
+      requestId: string
     }
   }
 }

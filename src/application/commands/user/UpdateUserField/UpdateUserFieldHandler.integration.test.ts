@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { UpdateUserFieldHandler } from './UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from './UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, seedUserWithField } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, seedUserWithField } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
 import { AddProjectFieldHandler } from '../../project/AddProjectField/AddProjectFieldHandler'
@@ -47,7 +47,12 @@ describe('UpdateUserFieldHandler', () => {
 
     await expect(
       handler.execute(
-        new UpdateUserFieldCommand(userId, projectId, '00000000-0000-0000-0000-000000000000', 'value'),
+        new UpdateUserFieldCommand(
+          userId,
+          projectId,
+          '00000000-0000-0000-0000-000000000000',
+          'value',
+        ),
       ),
     ).rejects.toThrow(NotFoundError)
   })
