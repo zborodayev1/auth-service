@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { LogoutCurrentClientSessionHandler } from './LogoutCurrentClientSessionHandler'
 import { LogoutCurrentClientSessionCommand } from './LogoutCurrentClientSessionCommand'
 import { RefreshClientAccessTokenHandler } from '../RefreshClientAccessToken/RefreshClientAccessTokenHandler'
@@ -12,7 +12,7 @@ import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(LogoutCurrentClientSessionHandler)
@@ -33,9 +33,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('LogoutCurrentClientSessionHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('revokes session successfully', async () => {
     const { accessToken, clientId } = await seed()

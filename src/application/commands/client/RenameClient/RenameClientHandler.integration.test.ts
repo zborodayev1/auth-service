@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RenameClientHandler } from './RenameClientHandler'
 import { RenameClientCommand } from './RenameClientCommand'
 import {
@@ -10,7 +10,7 @@ import { GetClientProfileHandler } from '../../../queries/client/GetClientProfil
 import { GetClientProfileQuery } from '../../../queries/client/GetClientProfile/GetClientProfileQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(RenameClientHandler)
@@ -29,9 +29,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('RenameClientHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('renames client successfully', async () => {
     const { clientId } = await seed()

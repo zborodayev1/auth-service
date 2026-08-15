@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RenameApiKeyHandler } from './RenameApiKeyHandler'
 import { RenameApiKeyCommand } from './RenameApiKeyCommand'
 import { GetProjectApiKeyHandler } from '../../../queries/project/GetProjectApiKey/GetProjectApiKeyHandler'
 import { GetProjectApiKeyQuery } from '../../../queries/project/GetProjectApiKey/GetProjectApiKeyQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProject } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
@@ -13,9 +13,7 @@ const handler = container.get(RenameApiKeyHandler)
 const getApiKey = container.get(GetProjectApiKeyHandler)
 
 describe('RenameApiKeyHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('renames api key successfully', async () => {
     const { clientId, projectId } = await seedProject(container)

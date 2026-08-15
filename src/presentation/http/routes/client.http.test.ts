@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import request from 'supertest'
 import { getTestApp, getHttpTestContainer } from '@tests/helpers/httpContainer'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const app = getTestApp()
 const container = getHttpTestContainer()
@@ -23,9 +23,7 @@ async function registerAndLogin(): Promise<{ accessToken: string; cookies: strin
 }
 
 describe('Client HTTP routes', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   describe('POST /clients/register', () => {
     it('returns 201 with accessToken and clientId on valid body', async () => {

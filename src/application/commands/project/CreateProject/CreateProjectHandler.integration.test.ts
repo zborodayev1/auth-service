@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { CreateProjectHandler } from './CreateProjectHandler'
 import { CreateProjectCommand } from './CreateProjectCommand'
 import { RegisterClientHandler } from '../../client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../../client/RegisterClient/RegisterClientCommand'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { PROJECT_SEED } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
@@ -24,9 +24,7 @@ const seedClient = (): Promise<{ clientId: string }> =>
   )
 
 describe('CreateProjectHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns projectId and raw apiKey', async () => {
     const { clientId } = await seedClient()

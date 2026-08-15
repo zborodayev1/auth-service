@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetProjectFieldsHandler } from './GetProjectFieldsHandler'
 import { GetProjectFieldsQuery } from './GetProjectFieldsQuery'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import {
   seedProject,
   seedProjectWithField,
@@ -14,9 +14,7 @@ const container = getTestContainer()
 const handler = container.get(GetProjectFieldsHandler)
 
 describe('GetProjectFieldsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns empty array when no fields defined', async () => {
     const { clientId, projectId } = await seedProject(container)

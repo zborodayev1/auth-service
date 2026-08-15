@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RevokeClientSessionHandler } from './RevokeClientSessionHandler'
 import { RevokeClientSessionCommand } from './RevokeClientSessionCommand'
 import { type RegisterClientResult, RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
@@ -12,7 +12,7 @@ import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ValidationError } from '@shared/errors/ValidationError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(RevokeClientSessionHandler)
@@ -36,9 +36,7 @@ const login = (): ReturnType<typeof loginHandler.execute> =>
   loginHandler.execute(new LoginClientCommand(VALID.password, VALID.email, null, null, null))
 
 describe('RevokeClientSessionHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('revokes target session successfully', async () => {
     const { accessToken: at1, clientId } = await seed()

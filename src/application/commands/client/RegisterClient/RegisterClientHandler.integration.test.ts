@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { type RegisterClientResult, RegisterClientHandler } from './RegisterClientHandler'
 import { RegisterClientCommand } from './RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(RegisterClientHandler)
@@ -27,9 +27,7 @@ const register = (overrides?: Partial<typeof VALID>): Promise<RegisterClientResu
   )
 
 describe('RegisterClientHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns clientId, accessToken, refreshToken', async () => {
     const result = await register()

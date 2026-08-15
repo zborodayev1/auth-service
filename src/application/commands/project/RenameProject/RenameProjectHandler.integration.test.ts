@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RenameProjectHandler } from './RenameProjectHandler'
 import { RenameProjectCommand } from './RenameProjectCommand'
 import { GetProjectHandler } from '../../../queries/project/GetProject/GetProjectHandler'
@@ -6,7 +6,7 @@ import { GetProjectQuery } from '../../../queries/project/GetProject/GetProjectQ
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { CreateProjectHandler } from '../CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../CreateProject/CreateProjectCommand'
@@ -17,9 +17,7 @@ const getProject = container.get(GetProjectHandler)
 const createProject = container.get(CreateProjectHandler)
 
 describe('RenameProjectHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('renames project successfully', async () => {
     const { clientId, projectId } = await seedProject(container)

@@ -1,7 +1,7 @@
 ---
 title: Phase 0.52 — Transaction Rollback Test Isolation
 date: 2026-08-16
-status: planning
+status: done
 priority: medium — replaces truncateAll (DELETE ~10 tables × N tests) with instant rollback; eliminates data leak risk between tests in the same file
 ---
 
@@ -64,6 +64,7 @@ export function getActiveTransaction(): PrismaTransaction | null {
 ```
 
 **Modified `PrismaProvider`** (test mode only):
+
 ```ts
 // Override $transaction behavior in tests to use the ambient tx
 get prismaClient(): PrismaClient | PrismaTransaction {
@@ -75,6 +76,7 @@ get prismaClient(): PrismaClient | PrismaTransaction {
 ```
 
 **Test setup:**
+
 ```ts
 // src/tests/helpers/db.ts
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
@@ -86,20 +88,22 @@ export function useTransactionIsolation(container: Container): void {
   beforeEach(async () => {
     // Start a transaction that will be rolled back
     await new Promise<void>((resolve) => {
-      prisma.client.$transaction(async (tx) => {
-        setActiveTransaction(tx)
-        resolve()
-        // Hold the transaction open until afterEach signals rollback
-        await new Promise((_, reject) => {
-          afterEachReject = reject
+      prisma.client
+        .$transaction(async (tx) => {
+          setActiveTransaction(tx)
+          resolve()
+          // Hold the transaction open until afterEach signals rollback
+          await new Promise((_, reject) => {
+            afterEachReject = reject
+          })
         })
-      }).catch(() => {})  // expected rollback
+        .catch(() => {}) // expected rollback
     })
   })
 
   afterEach(() => {
     clearActiveTransaction()
-    afterEachReject?.(new Error('rollback'))  // triggers ROLLBACK
+    afterEachReject?.(new Error('rollback')) // triggers ROLLBACK
   })
 }
 ```
@@ -133,6 +137,7 @@ export async function rollbackTestTransaction(): Promise<void> {
 ```
 
 Then wire Prisma to use this `pg.Client` via `@prisma/adapter-pg`:
+
 ```ts
 import { PrismaPg } from '@prisma/adapter-pg'
 
@@ -141,6 +146,7 @@ const prisma = new PrismaClient({ adapter })
 ```
 
 In tests:
+
 ```ts
 beforeEach(async () => {
   await beginTestTransaction()
@@ -161,12 +167,14 @@ afterEach(async () => {
 Given the complexity above, a pragmatic middle ground:
 
 **Replace `DELETE` with `TRUNCATE ... RESTART IDENTITY CASCADE`:**
+
 ```ts
 // Faster than DELETE, same result
 await prisma.$executeRaw`TRUNCATE TABLE "Client", "Session", "RefreshToken", ... RESTART IDENTITY CASCADE`
 ```
 
 `TRUNCATE` is:
+
 - Non-logged (no WAL overhead per row)
 - Acquires `ACCESS EXCLUSIVE` lock once
 - ~10-50x faster than `DELETE` on large tables
@@ -185,6 +193,7 @@ For true transaction rollback isolation, the recommended architecture is:
 4. Container gets a fresh Prisma client per test (not singleton for tests)
 
 This requires:
+
 - `PrismaProvider` to accept an optional external `pg.Client`
 - `getTestContainer()` to rebuild the Prisma binding per test (or use `rebind`)
 - `disconnectTestDb` moved to per-file `afterAll`
@@ -195,12 +204,12 @@ This requires:
 
 ## Trade-offs vs truncateAll
 
-| | truncateAll (current) | TRUNCATE (quick fix) | Transaction rollback |
-|--|--|--|--|
-| Speed | Slow | Fast | Fastest |
-| Complexity | Low | Low | High |
-| Risk | None | None | Medium |
-| Parallel-safe | Yes (with schema isolation) | Yes | Requires per-test connection |
+|               | truncateAll (current)       | TRUNCATE (quick fix) | Transaction rollback         |
+| ------------- | --------------------------- | -------------------- | ---------------------------- |
+| Speed         | Slow                        | Fast                 | Fastest                      |
+| Complexity    | Low                         | Low                  | High                         |
+| Risk          | None                        | None                 | Medium                       |
+| Parallel-safe | Yes (with schema isolation) | Yes                  | Requires per-test connection |
 
 ---
 

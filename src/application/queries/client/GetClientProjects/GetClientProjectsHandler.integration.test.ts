@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetClientProjectsHandler } from './GetClientProjectsHandler'
 import { GetClientProjectsQuery } from './GetClientProjectsQuery'
 import { RegisterClientHandler } from '../../../commands/client/RegisterClient/RegisterClientHandler'
@@ -6,7 +6,7 @@ import { RegisterClientCommand } from '../../../commands/client/RegisterClient/R
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -27,9 +27,7 @@ const seedClient = (): Promise<{ clientId: string }> =>
   )
 
 describe('GetClientProjectsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns empty array when client has no projects', async () => {
     const { clientId } = await seedClient()

@@ -1,18 +1,16 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RefreshClientAccessTokenHandler } from './RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from './RefreshClientAccessTokenCommand'
 import type { RegisterClientResult } from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientHandler } from '../RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation, getDbClient } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const refreshHandler = container.get(RefreshClientAccessTokenHandler)
 const registerHandler = container.get(RegisterClientHandler)
-const prisma = container.get(PrismaProvider)
 
 const VALID = {
   name: 'Test Client',
@@ -26,9 +24,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('RefreshClientAccessTokenHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns new accessToken and refreshToken', async () => {
     const { refreshToken } = await seed()
@@ -97,7 +93,7 @@ describe('RefreshClientAccessTokenHandler', () => {
   it('throws UnauthorizedError for expired refresh token', async () => {
     const { refreshToken } = await seed()
 
-    await prisma.refreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
+    await getDbClient(container).refreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
 
     await expect(
       refreshHandler.execute(new RefreshClientAccessTokenCommand(refreshToken)),

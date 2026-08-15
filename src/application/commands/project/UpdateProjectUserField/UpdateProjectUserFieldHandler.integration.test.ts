@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { UpdateProjectUserFieldHandler } from './UpdateProjectUserFieldHandler'
 import { UpdateProjectUserFieldCommand } from './UpdateProjectUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser } from '@tests/helpers/userSeed'
 import { seedProject } from '@tests/helpers/projectSeed'
 import { RegisterUserHandler } from '../../user/RegisterUser/RegisterUserHandler'
@@ -17,9 +17,7 @@ const registerUser = container.get(RegisterUserHandler)
 const addField = container.get(AddProjectFieldHandler)
 
 describe('UpdateProjectUserFieldHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('updates user field value as client admin', async () => {
     const { clientId, projectId } = await seedProject(container)

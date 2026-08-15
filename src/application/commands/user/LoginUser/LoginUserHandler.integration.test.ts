@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { LoginUserHandler } from './LoginUserHandler'
 import { LoginUserCommand } from './LoginUserCommand'
 import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/RefreshUserAccessTokenHandler'
 import { RefreshUserAccessTokenCommand } from '../RefreshUserAccessToken/RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -13,9 +13,7 @@ const loginHandler = container.get(LoginUserHandler)
 const refreshHandler = container.get(RefreshUserAccessTokenHandler)
 
 describe('LoginUserHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns accessToken, refreshToken and userId on valid credentials', async () => {
     const { projectId } = await seedUser(container)

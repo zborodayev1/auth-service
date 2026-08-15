@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { UpdateProjectFieldHandler } from './UpdateProjectFieldHandler'
 import { UpdateProjectFieldCommand } from './UpdateProjectFieldCommand'
 import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFields/GetProjectFieldsHandler'
@@ -6,7 +6,7 @@ import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProjectWithField, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { AddProjectFieldHandler } from '../AddProjectField/AddProjectFieldHandler'
 import { AddProjectFieldCommand } from '../AddProjectField/AddProjectFieldCommand'
@@ -17,9 +17,7 @@ const getFields = container.get(GetProjectFieldsHandler)
 const addField = container.get(AddProjectFieldHandler)
 
 describe('UpdateProjectFieldHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('updates field name and persists', async () => {
     const { clientId, projectId, fieldId } = await seedProjectWithField(container)

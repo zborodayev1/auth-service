@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RegisterUserHandler } from './RegisterUserHandler'
 import { RegisterUserCommand } from './RegisterUserCommand'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
@@ -7,7 +7,7 @@ import { RegisterClientHandler } from '../../client/RegisterClient/RegisterClien
 import { RegisterClientCommand } from '../../client/RegisterClient/RegisterClientCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { SEED } from '@tests/helpers/userSeed'
 import { seedProject } from '@tests/helpers/projectSeed'
 
@@ -17,9 +17,7 @@ const registerClient = container.get(RegisterClientHandler)
 const createProject = container.get(CreateProjectHandler)
 
 describe('RegisterUserHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns userId, accessToken, refreshToken', async () => {
     const { projectId } = await seedProject(container)

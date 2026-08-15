@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import request from 'supertest'
 import { getTestApp, getHttpTestContainer } from '@tests/helpers/httpContainer'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '@app/commands/client/RegisterClient/RegisterClientCommand'
 import { CreateProjectHandler } from '@app/commands/project/CreateProject/CreateProjectHandler'
@@ -34,9 +34,7 @@ async function setupProject(): Promise<{ clientId: string; projectId: string; ap
 }
 
 describe('User HTTP routes', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   describe('POST /projects/:id/users/register', () => {
     it('returns 201 with valid apiKey', async () => {

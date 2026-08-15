@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ChangeUserPasswordHandler } from './ChangeUserPasswordHandler'
 import { ChangeUserPasswordCommand } from './ChangeUserPasswordCommand'
 import { LoginUserHandler } from '../LoginUser/LoginUserHandler'
@@ -7,7 +7,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
@@ -18,9 +18,7 @@ const loginHandler = container.get(LoginUserHandler)
 const createProject = container.get(CreateProjectHandler)
 
 describe('ChangeUserPasswordHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('changes password successfully', async () => {
     const { userId, projectId } = await seedUser(container)

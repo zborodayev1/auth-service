@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { LogoutAllClientSessionsHandler } from './LogoutAllClientSessionsHandler'
 import { LogoutAllClientSessionsCommand } from './LogoutAllClientSessionsCommand'
 import { RefreshClientAccessTokenHandler } from '../RefreshClientAccessToken/RefreshClientAccessTokenHandler'
@@ -12,7 +12,7 @@ import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(LogoutAllClientSessionsHandler)
@@ -32,9 +32,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('LogoutAllClientSessionsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns success', async () => {
     const { clientId } = await seed()
