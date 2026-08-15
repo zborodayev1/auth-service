@@ -29,6 +29,11 @@ import { PrismaProjectFieldRepository } from '@infra/persistence/prisma/reposito
 import { IJob } from '@ports/IJob'
 import { JobManager } from '@infra/jobs/JobManager'
 import { SoftDeletePurgeJob } from '@infra/jobs/SoftDeletePurgeJob'
+import { CleanupJob } from '@infra/jobs/CleanupJob'
+import { ISchemaCache } from '@ports/ISchemaCache'
+import { RedisProvider } from '@infra/redis/RedisProvider'
+import { RedisSchemaCache } from '@infra/redis/RedisSchemaCache'
+import { SchemaInvalidationListener } from '@infra/redis/SchemaInvalidationListener'
 
 @injectable()
 export class PersistenceContext implements ServiceContext {
@@ -52,7 +57,12 @@ export class PersistenceContext implements ServiceContext {
     container.bind(ProjectRepository).to(PrismaProjectRepository).inSingletonScope()
     container.bind(ProjectFieldRepository).to(PrismaProjectFieldRepository).inSingletonScope()
 
+    container.bind(RedisProvider).toSelf().inSingletonScope()
+    container.bind(ISchemaCache).to(RedisSchemaCache).inSingletonScope()
+
     container.bind(IJob).to(SoftDeletePurgeJob).inSingletonScope()
+    container.bind(IJob).to(CleanupJob).inSingletonScope()
+    container.bind(IJob).to(SchemaInvalidationListener).inSingletonScope()
     container.bind(JobManager).toSelf().inSingletonScope()
   }
 }

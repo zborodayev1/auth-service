@@ -1,5 +1,6 @@
 import type { FieldType } from '@aggregates/projectField/FieldType'
-import { injectable } from 'inversify'
+import { ISchemaCache } from '@ports/ISchemaCache'
+import { inject, injectable } from 'inversify'
 import z from 'zod'
 
 export interface ProjectFieldDefinition {
@@ -13,7 +14,10 @@ export interface ProjectFieldDefinition {
 
 @injectable()
 export class SchemaBuilderService {
-  private readonly cache = new Map<string, z.ZodObject<Record<string, z.ZodType>>>()
+  constructor(
+    @inject(ISchemaCache)
+    private readonly cache: ISchemaCache,
+  ) {}
 
   build(fields: ProjectFieldDefinition[]): z.ZodObject<Record<string, z.ZodType>> {
     const shape: Record<string, z.ZodType> = {}
@@ -43,8 +47,8 @@ export class SchemaBuilderService {
     return schema
   }
 
-  invalidate(projectId: string): void {
-    this.cache.delete(projectId)
+  async invalidate(projectId: string): Promise<void> {
+    await this.cache.invalidate(projectId)
   }
 
   private baseType(field: ProjectFieldDefinition): z.ZodType {

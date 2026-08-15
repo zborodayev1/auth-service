@@ -1,7 +1,7 @@
 ---
 title: Phase 3.3.4 — Cleanup Job Half-Built: node-cron Installed, deleteExpired() Never Called
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — dead code + unclear intent; must resolve before 3.4.1
 ---
 

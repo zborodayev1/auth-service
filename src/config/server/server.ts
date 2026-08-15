@@ -13,6 +13,7 @@ export class ServerConfig {
   readonly refreshTokenTtlMs: number
   readonly cookieMaxAge: number
   readonly dbUrl: string
+  readonly redisUrl: string
   readonly logLevel: LogLevel
   readonly environment: Environment
   readonly softDeleteTtlMs: number
@@ -33,6 +34,8 @@ export class ServerConfig {
     this.refreshTokenTtlMs = this.duration('REFRESH_TOKEN_TTL_MS', '30d')
 
     this.dbUrl = this.string('DATABASE_URL')
+
+    this.redisUrl = this.string('REDIS_URL', 'redis://localhost:6379')
 
     this.softDeleteTtlMs = this.duration('SOFT_DELETE_TTL', '7d')
 

@@ -70,7 +70,9 @@ export class PrismaUserSessionRepository extends PrismaRepository implements Use
 
   async deleteExpired(): Promise<void> {
     await this.prismaClient.userSession.deleteMany({
-      where: { expiresAt: { lt: new Date() } },
+      where: {
+        OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
+      },
     })
   }
 

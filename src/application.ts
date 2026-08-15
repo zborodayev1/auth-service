@@ -4,6 +4,8 @@ import { ServerConfig } from './config/server/server'
 import { inject, injectable } from 'inversify'
 import { HttpServerFactory } from '@infra/http/HttpServerFactory'
 import { JobManager } from '@infra/jobs/JobManager'
+import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
+import { RedisProvider } from '@infra/redis/RedisProvider'
 import { InternalServerError } from '@shared/errors/InternalServerError'
 
 @injectable()
@@ -19,15 +21,22 @@ export class Application {
 
     @inject(JobManager)
     private readonly jobs: JobManager,
+
+    @inject(PrismaProvider)
+    private readonly prisma: PrismaProvider,
+
+    @inject(RedisProvider)
+    private readonly redis: RedisProvider,
   ) {}
 
   init(): void {
     this.server = this.httpServerFactory.create()
-    this.jobs.start()
   }
 
   async start(): Promise<void> {
     const { port } = this.config
+
+    await this.jobs.start()
 
     await new Promise<void>((resolve) => {
       this.getHttpServer().listen(port, resolve)
@@ -44,6 +53,8 @@ export class Application {
         else resolve()
       })
     })
+    await this.prisma.$disconnect()
+    await this.redis.disconnect()
   }
   private getHttpServer(): http.Server {
     if (!this.server) {
