@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { RotateApiKeyCommand } from './RotateApiKeyCommand'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
-import { ApiKeyService } from '@services/ApiKeyService'
+import { ApiKeyService } from '@services/apiKey/ApiKeyService'
 import { Name } from '@valueObjects/Name/Name'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 

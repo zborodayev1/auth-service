@@ -18,7 +18,7 @@ import { GetProjectApiKeyHandler } from '@app/queries/project/GetProjectApiKey/G
 import { GetProjectUsersHandler } from '@app/queries/project/GetProjectUsers/GetProjectUsersHandler'
 import { GetProjectUserHandler } from '@app/queries/project/GetProjectUser/GetProjectUserHandler'
 
-import { ApiKeyService } from '@app/services/ApiKeyService'
+import { ApiKeyService } from '@services/apiKey/ApiKeyService'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 import { UserFieldService } from '@services/user/UserFieldService'
