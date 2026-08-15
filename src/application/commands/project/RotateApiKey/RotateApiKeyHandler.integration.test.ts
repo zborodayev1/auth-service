@@ -3,9 +3,9 @@ import { RotateApiKeyHandler } from './RotateApiKeyHandler'
 import { RotateApiKeyCommand } from './RotateApiKeyCommand'
 import { GetProjectApiKeyHandler } from '../../../queries/project/GetProjectApiKey/GetProjectApiKeyHandler'
 import { GetProjectApiKeyQuery } from '../../../queries/project/GetProjectApiKey/GetProjectApiKeyQuery'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProject } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProject } from '@tests/helpers/projectSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 
 const container = getTestContainer()

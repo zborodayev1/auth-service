@@ -13,8 +13,8 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { RefreshClientAccessTokenHandler } from '../RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '../RefreshClientAccessToken/RefreshClientAccessTokenCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(ChangeClientPasswordHandler)

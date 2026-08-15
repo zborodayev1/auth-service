@@ -6,9 +6,9 @@ import { DeleteProjectFieldCommand } from '../DeleteProjectField/DeleteProjectFi
 import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFields/GetProjectFieldsHandler'
 import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields/GetProjectFieldsQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProjectWithField } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProjectWithField } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
 const handler = container.get(RecoverProjectFieldHandler)

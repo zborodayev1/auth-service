@@ -23,7 +23,7 @@ export class ServerConfig {
 
     this.bcryptRounds = this.integer('BCRYPT_ROUNDS', 12, 10, 31)
 
-    this.jwtSecret = this.string('JWT_SECRET')
+    this.jwtSecret = this.string('JWT_SECRET', undefined, 32)
 
     this.jwtExpiresInString = this.string('JWT_EXPIRES_IN', '1h')
 
@@ -52,7 +52,7 @@ export class ServerConfig {
     return this.environment === 'test'
   }
 
-  private string(name: string, defaultValue?: string): string {
+  private string(name: string, defaultValue?: string, minLength?: number): string {
     const value = process.env[name]
 
     if (defaultValue && !value) {
@@ -61,6 +61,10 @@ export class ServerConfig {
 
     if (!value) {
       throw new InternalServerError(`${name} must be set`)
+    }
+
+    if (minLength && value.length < minLength) {
+      throw new InternalServerError(`${name} must be at least ${String(minLength)} characters`)
     }
 
     return value

@@ -5,9 +5,9 @@ import { RegisterClientHandler } from '../../../commands/client/RegisterClient/R
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(GetClientProjectsHandler)

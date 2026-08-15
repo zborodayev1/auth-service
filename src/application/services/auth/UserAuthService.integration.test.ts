@@ -2,9 +2,9 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { UserAuthService } from './UserAuthService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
-import { getTestContainer, disconnectTestDb } from '../../../tests/helpers/container'
-import { truncateAll } from '../../../tests/helpers/db'
-import { seedUser } from '../../../tests/helpers/userSeed'
+import { getTestContainer, disconnectTestDb } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const service = container.get(UserAuthService)

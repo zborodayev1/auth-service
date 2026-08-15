@@ -7,9 +7,9 @@ import { UpdateUserFieldHandler } from '../../user/UpdateUserField/UpdateUserFie
 import { UpdateUserFieldCommand } from '../../user/UpdateUserField/UpdateUserFieldCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedProjectWithField } from '../../../../tests/helpers/projectSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedProjectWithField } from '@tests/helpers/projectSeed'
 import { RegisterUserHandler } from '../../user/RegisterUser/RegisterUserHandler'
 import { RegisterUserCommand } from '../../user/RegisterUser/RegisterUserCommand'
 

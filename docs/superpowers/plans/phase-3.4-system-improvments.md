@@ -1,13 +1,13 @@
 ---
-title: Phase 3.4 — Security Hardening
+title: Phase 3.4 — System impovments
 date: 2026-08-03
 status: backlog
 priority: medium — pre-production hardening
 ---
 
-# Phase 3.4 — Security Hardening
+# Phase 3.4 — impovments
 
-Three independent improvements that reduce attack surface and improve observability. None require architectural changes.
+Five independent improvements that reduce attack surface, improve observability, and clean up test imports. None require architectural changes.
 
 ---
 
@@ -126,9 +126,46 @@ if (this.jwtSecret.length < 32) {
 
 ---
 
+---
+
+## 3.4.5 — `@test/*` Path Alias for Test Helpers
+
+**Problem:** Test files import helpers via deep relative paths (`../../../../tests/helpers/container`). Every moved file breaks imports. No alias exists for `src/tests/`.
+
+**Scope:** two files — `tsconfig.json` + `vitest.config.ts`. No source files touched.
+
+**tsconfig.json** — add to `paths`:
+
+```json
+"@test/*": ["./src/tests/*"]
+```
+
+**vitest.config.ts** — add to `resolve.alias`:
+
+```ts
+'@test': r('src/tests'),
+```
+
+After both changes, update all existing test imports:
+
+```ts
+// before
+import { getTestContainer } from '../../../../tests/helpers/container'
+import { truncateAll } from '../../../../tests/helpers/db'
+
+// after
+import { getTestContainer } from '@test/helpers/container'
+import { truncateAll } from '@test/helpers/db'
+```
+
+**Note:** `tsconfig.json` is for type-checking only (build uses tsup which reads vitest alias at test time). Both must be updated so IDE + vitest agree.
+
+---
+
 ## Priority Order
 
-1. Rate limiting — lowest effort, direct security win
-2. Health check — trivial, needed before any deploy
-3. `JWT_SECRET` length check — one line, zero risk
-4. Correlation IDs — more wiring but essential for production debugging
+1. Rate limiting — lowest effort, direct security win ✅
+2. `@test/*` alias — pure config, unblocks cleaner test imports
+3. Health check — trivial, needed before any deploy
+4. `JWT_SECRET` length check — one line, zero risk
+5. Correlation IDs — more wiring but essential for production debugging

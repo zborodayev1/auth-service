@@ -4,9 +4,9 @@ import { LoginUserCommand } from './LoginUserCommand'
 import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/RefreshUserAccessTokenHandler'
 import { RefreshUserAccessTokenCommand } from '../RefreshUserAccessToken/RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const loginHandler = container.get(LoginUserHandler)

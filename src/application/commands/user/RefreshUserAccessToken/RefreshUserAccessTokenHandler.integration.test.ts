@@ -3,9 +3,9 @@ import { RefreshUserAccessTokenHandler } from './RefreshUserAccessTokenHandler'
 import { RefreshUserAccessTokenCommand } from './RefreshUserAccessTokenCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
-import { seedUser } from '../../../../tests/helpers/userSeed'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
+import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const handler = container.get(RefreshUserAccessTokenHandler)

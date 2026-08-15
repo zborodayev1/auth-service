@@ -9,8 +9,8 @@ import { RegisterClientCommand } from '../RegisterClient/RegisterClientCommand'
 import { GetClientProfileHandler } from '../../../queries/client/GetClientProfile/GetClientProfileHandler'
 import { GetClientProfileQuery } from '../../../queries/client/GetClientProfile/GetClientProfileQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
-import { getTestContainer } from '../../../../tests/helpers/container'
-import { truncateAll } from '../../../../tests/helpers/db'
+import { getTestContainer } from '@tests/helpers/container'
+import { truncateAll } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(RenameClientHandler)
