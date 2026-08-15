@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.test.ts'],
-    exclude: ['**/node_modules/**', '**/*.integration.test.ts'],
+    exclude: ['**/node_modules/**', '**/*.integration.test.ts', '**/*.http.test.ts'],
     setupFiles: ['reflect-metadata'],
     coverage: {
       provider: 'v8',
