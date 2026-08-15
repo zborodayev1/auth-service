@@ -28,7 +28,7 @@ export class GetUserFieldsHandler {
 
   async execute(query: GetUserFieldsQuery): Promise<GetUserFieldsResult> {
     const user = await this.users.findById(query.userId)
-    if (!user || user.projectId !== query.projectId)
+    if (user?.projectId !== query.projectId)
       throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
         userId: query.userId,
         projectId: query.projectId,

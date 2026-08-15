@@ -1,5 +1,5 @@
 export interface IJob {
-  start(): void
+  start(): Promise<void>
   stop(): Promise<void>
 }
 

@@ -13,8 +13,9 @@ export class SoftDeletePurgeJob implements IJob {
     @inject(ServerConfig) private readonly config: ServerConfig,
   ) {}
 
-  start(): void {
+  start(): Promise<void> {
     this.task = cron.schedule('0 * * * *', () => void this.purge())
+    return Promise.resolve()
   }
 
   async stop(): Promise<void> {

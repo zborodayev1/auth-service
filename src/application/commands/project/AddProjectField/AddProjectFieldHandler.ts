@@ -45,7 +45,7 @@ export class AddProjectFieldHandler {
 
     await this.projectFields.save(projectField)
 
-    this.schemaBuilder.invalidate(command.projectId)
+    await this.schemaBuilder.invalidate(command.projectId)
 
     return { fieldId: projectField.id }
   }

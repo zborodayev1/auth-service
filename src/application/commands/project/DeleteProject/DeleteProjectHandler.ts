@@ -57,7 +57,7 @@ export class DeleteProjectHandler {
       await this.projects.delete(command.projectId)
     })
 
-    this.schemaBuilder.invalidate(command.projectId)
+    await this.schemaBuilder.invalidate(command.projectId)
 
     return { success: true }
   }

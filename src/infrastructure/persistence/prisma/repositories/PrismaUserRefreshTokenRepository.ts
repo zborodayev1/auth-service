@@ -58,7 +58,9 @@ export class PrismaUserRefreshTokenRepository
 
   async deleteExpired(): Promise<void> {
     await this.prismaClient.userRefreshToken.deleteMany({
-      where: { expiresAt: { lt: new Date() } },
+      where: {
+        OR: [{ expiresAt: { lt: new Date() } }, { revokedAt: { not: null } }],
+      },
     })
   }
 
