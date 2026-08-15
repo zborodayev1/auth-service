@@ -1,6 +1,6 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import request from 'supertest'
-import { getTestApp, getHttpTestContainer, disconnectHttpTestDb } from '@tests/helpers/httpContainer'
+import { getTestApp, getHttpTestContainer } from '@tests/helpers/httpContainer'
 import { truncateAll } from '@tests/helpers/db'
 import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
 import { RegisterClientCommand } from '@app/commands/client/RegisterClient/RegisterClientCommand'
@@ -36,10 +36,6 @@ async function setupProject(): Promise<{ clientId: string; projectId: string; ap
 describe('User HTTP routes', () => {
   beforeEach(async () => {
     await truncateAll(container)
-  })
-
-  afterAll(async () => {
-    await disconnectHttpTestDb()
   })
 
   describe('POST /projects/:id/users/register', () => {

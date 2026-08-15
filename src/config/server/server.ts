@@ -21,7 +21,7 @@ export class ServerConfig {
   constructor() {
     this.port = this.integer('HTTP_PORT', 8080, 1, 65535)
 
-    this.bcryptRounds = this.integer('BCRYPT_ROUNDS', 12, 10, 31)
+    this.bcryptRounds = this.integer('BCRYPT_ROUNDS', 12, 4, 31)
 
     this.jwtSecret = this.string('JWT_SECRET', undefined, 32)
 

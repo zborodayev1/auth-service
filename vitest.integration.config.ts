@@ -8,9 +8,10 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.integration.test.ts', 'src/**/*.http.test.ts'],
-    setupFiles: ['reflect-metadata', './src/tests/setup.integration.ts'],
-    fileParallelism: false,
-    testTimeout: 15000,
+    setupFiles: ['reflect-metadata', './src/tests/setup.schema.ts'],
+    fileParallelism: true,
+    pool: 'vmForks',
+    testTimeout: 30000,
   },
   resolve: {
     alias: {
