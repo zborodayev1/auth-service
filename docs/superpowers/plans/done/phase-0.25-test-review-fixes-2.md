@@ -27,6 +27,7 @@ priority: medium — production logic bug + handler ownership gaps
 ### Task 1: UpdateProjectField — duplicate field name check ⚠ production code
 
 **Files:**
+
 - Modify: `src/application/commands/project/UpdateProjectField/UpdateProjectFieldHandler.ts`
 - Modify: `src/application/commands/project/UpdateProjectField/UpdateProjectFieldHandler.integration.test.ts`
 
@@ -39,6 +40,7 @@ Command signature: `UpdateProjectFieldCommand(projectId, clientId, fieldId, name
 Open `UpdateProjectFieldHandler.ts`.
 
 Add import:
+
 ```ts
 import { ConflictError } from '@shared/errors/ConflictError'
 ```
@@ -61,6 +63,7 @@ Note the `duplicate.id !== command.fieldId` guard — renaming a field to its ow
 Open `UpdateProjectFieldHandler.integration.test.ts`.
 
 Add imports:
+
 ```ts
 import { ConflictError } from '@shared/errors/ConflictError'
 import { AddProjectFieldHandler } from '../AddProjectField/AddProjectFieldHandler'
@@ -68,6 +71,7 @@ import { AddProjectFieldCommand } from '../AddProjectField/AddProjectFieldComman
 ```
 
 Add module-level resolution:
+
 ```ts
 const addField = container.get(AddProjectFieldHandler)
 ```
@@ -115,6 +119,7 @@ Expected: all existing tests pass + 2 new ones.
 ### Task 2: LogoutUserSession — userId ownership check ⚠ production code
 
 **Files:**
+
 - Modify: `src/application/commands/user/LogoutUserSession/LogoutUserSessionCommand.ts`
 - Modify: `src/application/commands/user/LogoutUserSession/LogoutUserSessionHandler.ts`
 - Modify: `src/application/commands/user/LogoutUserSession/LogoutUserSessionHandler.integration.test.ts`
@@ -148,10 +153,14 @@ Open `LogoutUserSessionHandler.ts`. After the `!session?.isActive()` guard, add:
 
 ```ts
 if (session.userId !== command.userId) {
-  throw new UnauthorizedError('Session does not belong to this user', 'SESSION_OWNERSHIP_VIOLATION', {
-    sessionId: command.sessionId,
-    commandUserId: command.userId,
-  })
+  throw new UnauthorizedError(
+    'Session does not belong to this user',
+    'SESSION_OWNERSHIP_VIOLATION',
+    {
+      sessionId: command.sessionId,
+      commandUserId: command.userId,
+    },
+  )
 }
 ```
 
@@ -164,6 +173,7 @@ All existing `new LogoutUserSessionCommand(sessionId)` calls must become `new Lo
 `seedUser` returns `userId` — destructure it wherever needed.
 
 Updated calls:
+
 ```ts
 // 'revokes session successfully'
 const { accessToken, userId } = await seedUser(container)
@@ -202,6 +212,7 @@ it('throws UnauthorizedError when userId does not own the session', async () => 
 - [x] **Step 5: Fix any other callers of LogoutUserSessionCommand**
 
 Search the codebase for other uses:
+
 ```bash
 grep -rn "LogoutUserSessionCommand" src/
 ```
@@ -221,6 +232,7 @@ Expected: all existing tests pass + 1 new one.
 ### Task 3: LogoutAllUserSessions — projectId verification ⚠ production code
 
 **Files:**
+
 - Modify: `src/application/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsCommand.ts`
 - Modify: `src/application/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsHandler.ts`
 - Modify: `src/application/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsHandler.integration.test.ts`
@@ -253,12 +265,14 @@ export class LogoutAllUserSessionsCommand {
 Open `LogoutAllUserSessionsHandler.ts`.
 
 Add imports:
+
 ```ts
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
 
 Add to constructor:
+
 ```ts
 @inject(UserRepository)
 private readonly users: UserRepository,
@@ -299,6 +313,7 @@ Remove the double-blank line before first `it` (nit — already present in file 
 - [x] **Step 4: Add project isolation test**
 
 Add imports if not present:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { RegisterUserHandler } from '../RegisterUser/RegisterUserHandler'
@@ -308,6 +323,7 @@ import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectC
 ```
 
 Add module-level resolutions if not present:
+
 ```ts
 const registerUser = container.get(RegisterUserHandler)
 const createProject = container.get(CreateProjectHandler)
@@ -334,7 +350,15 @@ it('does not invalidate sessions of users in other projects', async () => {
     new CreateProjectCommand('Other Project', clientId),
   )
   const { refreshToken: otherToken } = await registerUser.execute(
-    new RegisterUserCommand(otherProjectId, 'other@example.com', SEED.user.password, {}, null, null, null),
+    new RegisterUserCommand(
+      otherProjectId,
+      'other@example.com',
+      SEED.user.password,
+      {},
+      null,
+      null,
+      null,
+    ),
   )
 
   await handler.execute(new LogoutAllUserSessionsCommand(userId, projectId))
@@ -366,6 +390,7 @@ Expected: all existing tests pass + 2 new ones.
 ### Task 4: GetUserFieldHandler — error message capitalization nit
 
 **File:**
+
 - Modify: `src/application/queries/user/GetUserField/GetUserFieldHandler.ts`
 
 - [x] **Step 1: Fix title-case error message**

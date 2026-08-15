@@ -1,11 +1,11 @@
 ---
-title: Phase 3.4 — System impovments
+title: Phase 0.31 — System impovments
 date: 2026-08-03
-status: backlog
+status: done
 priority: medium — pre-production hardening
 ---
 
-# Phase 3.4 — impovments
+# Phase 0.31 — impovments
 
 Five independent improvements that reduce attack surface, improve observability, and clean up test imports. None require architectural changes.
 

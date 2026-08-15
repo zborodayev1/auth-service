@@ -1,11 +1,11 @@
 ---
-title: Phase 3.2 — Session Management API
+title: Phase 0.26 — Session Management API
 date: 2026-08-03
 status: done
 priority: low — functional gap, not a bug
 ---
 
-# Phase 3.2 — Session Management API
+# Phase 0.26 — Session Management API
 
 `ClientSession` and `UserSession` already store `deviceName`, `ipAddress`, `userAgent`, `createdAt` — clearly intended for display. No endpoints expose this data. No way to selectively revoke a non-current session.
 

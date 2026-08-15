@@ -27,6 +27,7 @@ priority: medium — test correctness and security gaps
 ### Task 1: Config hardening + truncateAll sync warning
 
 **Files:**
+
 - Modify: `vitest.integration.config.ts`
 - Modify: `src/tests/helpers/container.ts`
 - Modify: `src/tests/helpers/db.ts`
@@ -45,7 +46,9 @@ export default defineConfig({
     fileParallelism: false,
     testTimeout: 15000,
   },
-  resolve: { /* unchanged */ },
+  resolve: {
+    /* unchanged */
+  },
 })
 ```
 
@@ -75,11 +78,11 @@ Update the comment above `getTestContainer` to:
 Open `src/tests/helpers/db.ts`. Add a comment immediately before the `$transaction` call:
 
 ```ts
-  // KEEP IN SYNC with prisma/schema.prisma — add new models here or data leaks between tests.
-  await prisma.$transaction([
-    prisma.userFieldValue.deleteMany(),
-    // ... rest unchanged
-  ])
+// KEEP IN SYNC with prisma/schema.prisma — add new models here or data leaks between tests.
+await prisma.$transaction([
+  prisma.userFieldValue.deleteMany(),
+  // ... rest unchanged
+])
 ```
 
 - [x] **Step 4: Run tests**
@@ -95,6 +98,7 @@ Expected: all tests pass.
 ### Task 2: Mechanical cleanup
 
 **Files:**
+
 - Modify: `src/application/commands/project/CreateProject/CreateProjectHandler.integration.test.ts`
 - Modify: `src/application/commands/user/RegisterUser/RegisterUserHandler.integration.test.ts`
 - Modify: `src/application/commands/client/RegisterClient/RegisterClientHandler.integration.test.ts`
@@ -103,6 +107,7 @@ Expected: all tests pass.
 - Modify: `src/application/commands/user/DeleteUserSelf/DeleteUserSelfHandler.integration.test.ts`
 
 **Interfaces:**
+
 - Consumes: `seedProject(container)` from `../../../../tests/helpers/projectSeed`
 
 - [x] **Step 1: Remove redundant test in CreateProjectHandler**
@@ -132,6 +137,7 @@ Reason: `toBeTruthy()` in the first test already proves it's a non-empty string.
 Open `src/application/commands/user/RegisterUser/RegisterUserHandler.integration.test.ts`.
 
 Add import for the shared helper:
+
 ```ts
 import { seedProject, PROJECT_SEED } from '../../../../tests/helpers/projectSeed'
 ```
@@ -139,23 +145,35 @@ import { seedProject, PROJECT_SEED } from '../../../../tests/helpers/projectSeed
 Keep the existing `RegisterClientHandler` and `CreateProjectHandler` imports — they are still needed by the third test (`'allows same email in different projects'`) which creates a second client/project manually.
 
 Delete the local `setupProject` function:
+
 ```ts
 // DELETE:
 const setupProject = async (): Promise<string> => {
   const { clientId } = await registerClient.execute(
-    new RegisterClientCommand(SEED.client.name, SEED.client.email, SEED.client.password, null, null, null),
+    new RegisterClientCommand(
+      SEED.client.name,
+      SEED.client.email,
+      SEED.client.password,
+      null,
+      null,
+      null,
+    ),
   )
-  const { projectId } = await createProject.execute(new CreateProjectCommand(SEED.project.name, clientId))
+  const { projectId } = await createProject.execute(
+    new CreateProjectCommand(SEED.project.name, clientId),
+  )
   return projectId
 }
 ```
 
 In the first two `it` blocks, replace `await setupProject()` with:
+
 ```ts
 const { projectId } = await seedProject(container)
 ```
 
 The third test (`'allows same email in different projects'`) already uses inline client+project creation for `projectId2` — leave it as is, just replace its `await setupProject()` for `projectId1`:
+
 ```ts
 const { projectId: projectId1 } = await seedProject(container)
 ```
@@ -165,10 +183,13 @@ const { projectId: projectId1 } = await seedProject(container)
 Open `src/application/commands/client/RegisterClient/RegisterClientHandler.integration.test.ts`.
 
 In the `'returns clientId, accessToken, refreshToken'` test, replace:
+
 ```ts
 expect(result.clientId).toBeTruthy()
 ```
+
 with:
+
 ```ts
 expect(result.clientId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
 ```
@@ -180,10 +201,13 @@ Leave `accessToken` and `refreshToken` as `toBeTruthy()` — they are JWTs, not 
 Open `src/application/commands/project/CreateProject/CreateProjectHandler.integration.test.ts`.
 
 In the first (now only) test, replace:
+
 ```ts
 expect(result.projectId).toBeTruthy()
 ```
+
 with:
+
 ```ts
 expect(result.projectId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
 ```
@@ -195,6 +219,7 @@ Leave `apiKey` as `toBeTruthy()` — it is a raw crypto key string, not a UUID.
 In each file below, there is exactly one double blank line before the first `it(...)` inside the `describe` block (after `beforeEach`). Remove the extra blank line, leaving one.
 
 Files to fix:
+
 - `src/application/queries/client/GetClientProfile/GetClientProfileHandler.integration.test.ts`
 - `src/application/commands/user/RegisterUser/RegisterUserHandler.integration.test.ts`
 - `src/application/commands/user/UpdateUserField/UpdateUserFieldHandler.integration.test.ts`
@@ -213,11 +238,13 @@ Expected: all tests pass.
 ### Task 3: Strengthen auth flow tests
 
 **Files:**
+
 - Modify: `src/application/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler.integration.test.ts`
 - Modify: `src/application/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler.integration.test.ts`
 - Modify: `src/application/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler.integration.test.ts`
 
 **Interfaces:**
+
 - `LoginClientHandler` / `LoginClientCommand` — already imported in LogoutAll file; need to add to LogoutCurrent
 - `RefreshClientAccessTokenHandler` / `RefreshClientAccessTokenCommand` — already imported in all three files
 - `RegisterClientCommand(name, email, password, null, null, null)` — 6 args
@@ -256,9 +283,9 @@ it('chained rotation: token2 works, then fails after token3 issued', async () =>
   )
 
   expect(token3).toBeTruthy()
-  await expect(
-    refreshHandler.execute(new RefreshClientAccessTokenCommand(token2)),
-  ).rejects.toThrow(UnauthorizedError)
+  await expect(refreshHandler.execute(new RefreshClientAccessTokenCommand(token2))).rejects.toThrow(
+    UnauthorizedError,
+  )
 })
 ```
 
@@ -272,14 +299,21 @@ Add a new `it` block:
 it('does not invalidate sessions of other clients', async () => {
   const { clientId: clientIdA, refreshToken: tokenA } = await seed()
   const { refreshToken: tokenB } = await registerHandler.execute(
-    new RegisterClientCommand('Other Client', 'other@example.com', VALID.password, null, null, null),
+    new RegisterClientCommand(
+      'Other Client',
+      'other@example.com',
+      VALID.password,
+      null,
+      null,
+      null,
+    ),
   )
 
   await handler.execute(new LogoutAllClientSessionsCommand(clientIdA))
 
-  await expect(
-    refreshHandler.execute(new RefreshClientAccessTokenCommand(tokenA)),
-  ).rejects.toThrow(UnauthorizedError)
+  await expect(refreshHandler.execute(new RefreshClientAccessTokenCommand(tokenA))).rejects.toThrow(
+    UnauthorizedError,
+  )
 
   await expect(
     refreshHandler.execute(new RefreshClientAccessTokenCommand(tokenB)),
@@ -292,12 +326,14 @@ it('does not invalidate sessions of other clients', async () => {
 Open `LogoutCurrentClientSessionHandler.integration.test.ts`. The file already imports `accessTokenService` and `refreshHandler`.
 
 Add imports for `LoginClientHandler` and `LoginClientCommand` if not present:
+
 ```ts
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 ```
 
 Add module-level resolution if not present:
+
 ```ts
 const loginHandler = container.get(LoginClientHandler)
 ```
@@ -334,6 +370,7 @@ Expected: all tests pass including the 4 new ones.
 ### Task 4: Ownership boundary tests
 
 **Files:**
+
 - Modify: `src/application/commands/project/DeleteProject/DeleteProjectHandler.integration.test.ts`
 - Modify: `src/application/commands/project/RenameProject/RenameProjectHandler.integration.test.ts`
 - Modify: `src/application/commands/project/AddProjectField/AddProjectFieldHandler.integration.test.ts`
@@ -341,11 +378,13 @@ Expected: all tests pass including the 4 new ones.
 - Modify: `src/application/commands/project/UpdateProjectField/UpdateProjectFieldHandler.integration.test.ts`
 
 **Interfaces:**
+
 - All files already import `NotFoundError` or need: `import { NotFoundError } from '@shared/errors/NotFoundError'`
 - `seedProject(container)` from `../../../../tests/helpers/projectSeed` — already imported in all these files or add it
 - `seedProjectWithField(container)` — already imported in DeleteProjectField and UpdateProjectField files
 
 Command signatures (verified from existing tests):
+
 - `DeleteProjectCommand(clientId, projectId)`
 - `RenameProjectCommand(clientId, projectId, name)`
 - `AddProjectFieldCommand(projectId, clientId, name, type, required, defaultValue, allowedValues)` — e.g. `AddProjectFieldCommand('00000000...', projectId, 'field', 'string', false, null, [])`
@@ -357,6 +396,7 @@ Command signatures (verified from existing tests):
 Open `src/application/commands/project/DeleteProject/DeleteProjectHandler.integration.test.ts`.
 
 Ensure `NotFoundError` is imported (add if missing):
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -368,9 +408,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
   const { projectId } = await seedUser(container)
 
   await expect(
-    handler.execute(
-      new DeleteProjectCommand('00000000-0000-0000-0000-000000000000', projectId),
-    ),
+    handler.execute(new DeleteProjectCommand('00000000-0000-0000-0000-000000000000', projectId)),
   ).rejects.toThrow(NotFoundError)
 })
 ```
@@ -382,6 +420,7 @@ Note: `seedUser` is already imported in this file.
 Open `src/application/commands/project/RenameProject/RenameProjectHandler.integration.test.ts`.
 
 Add `NotFoundError` import:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -405,6 +444,7 @@ it('throws NotFoundError when clientId does not own the project', async () => {
 Open `src/application/commands/project/AddProjectField/AddProjectFieldHandler.integration.test.ts`.
 
 Add `NotFoundError` import (add if missing):
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -415,9 +455,9 @@ Add at end of `describe` block. The file already has the `addField` helper — r
 it('throws NotFoundError when clientId does not own the project', async () => {
   const { projectId } = await seedProject(container)
 
-  await expect(
-    addField('00000000-0000-0000-0000-000000000000', projectId),
-  ).rejects.toThrow(NotFoundError)
+  await expect(addField('00000000-0000-0000-0000-000000000000', projectId)).rejects.toThrow(
+    NotFoundError,
+  )
 })
 ```
 
@@ -435,7 +475,12 @@ it('throws NotFoundError when clientId does not own the field', async () => {
 
   await expect(
     handler.execute(
-      new DeleteProjectFieldCommand(fieldId, projectId, '00000000-0000-0000-0000-000000000000', false),
+      new DeleteProjectFieldCommand(
+        fieldId,
+        projectId,
+        '00000000-0000-0000-0000-000000000000',
+        false,
+      ),
     ),
   ).rejects.toThrow(NotFoundError)
 })
@@ -482,11 +527,13 @@ Expected: all tests pass including the 5 new ownership tests.
 ### Task 5: Handler security fixes ⚠ production code
 
 **Files:**
+
 - Modify: `src/application/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler.ts`
 - Modify: `src/application/commands/user/ChangeUserEmail/ChangeUserEmailHandler.ts`
 - Modify: `src/application/commands/user/ChangeUserPassword/ChangeUserPasswordHandler.ts`
 
 **Context:** All three handlers look up a domain object by ID but never verify ownership:
+
 - `LogoutCurrentClientSession`: fetches session by `sessionId`, checks `isActive()`, but never checks `session.clientId === command.clientId` — wrong client can revoke any session if they know the sessionId.
 - `ChangeUserEmail` / `ChangeUserPassword`: fetch user by `userId`, but never check `user.projectId === command.projectId` — wrong project's handlers could operate on a user from another project, and the email-conflict check in ChangeUserEmail runs against the wrong project.
 
@@ -498,22 +545,28 @@ Open `LogoutCurrentClientSessionHandler.ts`. After the `!session?.isActive()` gu
 
 ```ts
 if (session.clientId !== command.clientId) {
-  throw new UnauthorizedError('Session does not belong to this client', 'SESSION_OWNERSHIP_VIOLATION', {
-    sessionId: command.sessionId,
-    commandClientId: command.clientId,
-  })
+  throw new UnauthorizedError(
+    'Session does not belong to this client',
+    'SESSION_OWNERSHIP_VIOLATION',
+    {
+      sessionId: command.sessionId,
+      commandClientId: command.clientId,
+    },
+  )
 }
 ```
 
 - [x] **Step 2: ChangeUserEmailHandler — combine notFound + project ownership check**
 
 Open `ChangeUserEmailHandler.ts`. Find the block:
+
 ```ts
 if (!user)
   throw new NotFoundError('User not found', 'USER_NOT_FOUND', { ... })
 ```
 
 Replace with:
+
 ```ts
 if (!user || user.projectId !== command.projectId)
   throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
@@ -525,6 +578,7 @@ if (!user || user.projectId !== command.projectId)
 - [x] **Step 3: ChangeUserPasswordHandler — same pattern**
 
 Open `ChangeUserPasswordHandler.ts`. Find the block:
+
 ```ts
 const user = await this.users.findById(command.userId)
 if (!user)
@@ -532,6 +586,7 @@ if (!user)
 ```
 
 Replace with:
+
 ```ts
 const user = await this.users.findById(command.userId)
 if (!user || user.projectId !== command.projectId)
@@ -554,11 +609,13 @@ Expected: all existing tests pass (same-project paths unchanged).
 ### Task 6: Tests for handler security fixes
 
 **Files:**
+
 - Modify: `src/application/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler.integration.test.ts`
 - Modify: `src/application/commands/user/ChangeUserEmail/ChangeUserEmailHandler.integration.test.ts`
 - Modify: `src/application/commands/user/ChangeUserPassword/ChangeUserPasswordHandler.integration.test.ts`
 
 **Interfaces:**
+
 - `LogoutCurrentClientSessionCommand(sessionId, clientId)`
 - `ChangeUserEmailCommand(userId, projectId, newEmail, password)` — 4 args
 - `ChangeUserPasswordCommand(userId, projectId, currentPassword, newPassword)` — 4 args
@@ -587,6 +644,7 @@ it('throws UnauthorizedError when clientId does not own the session', async () =
 Open `ChangeUserEmailHandler.integration.test.ts`.
 
 Add imports:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { seedProject } from '../../../../tests/helpers/projectSeed'
@@ -612,6 +670,7 @@ it('throws NotFoundError when projectId does not match user project', async () =
 Open `ChangeUserPasswordHandler.integration.test.ts`.
 
 Add imports (only those not already present):
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { seedUser, SEED } from '../../../../tests/helpers/userSeed'
@@ -646,10 +705,12 @@ Expected: 3 new tests pass.
 ### Task 7: Missing client command edge-case tests
 
 **Files:**
+
 - Modify: `src/application/commands/client/ChangeClientEmail/ChangeClientEmailHandler.integration.test.ts`
 - Modify: `src/application/commands/client/ChangeClientPassword/ChangeClientPasswordHandler.integration.test.ts`
 
 **Interfaces:**
+
 - `ChangeClientEmailCommand(clientId, newEmail, password)`
 - `ChangeClientPasswordCommand(clientId, currentPassword, newPassword)`
 - `RefreshClientAccessTokenHandler` / `RefreshClientAccessTokenCommand`
@@ -660,6 +721,7 @@ Expected: 3 new tests pass.
 Open `ChangeClientEmailHandler.integration.test.ts`.
 
 Add import:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -670,7 +732,11 @@ Add at end of `describe` block:
 it('throws NotFoundError for unknown clientId', async () => {
   await expect(
     handler.execute(
-      new ChangeClientEmailCommand('00000000-0000-0000-0000-000000000000', 'new@example.com', VALID.password),
+      new ChangeClientEmailCommand(
+        '00000000-0000-0000-0000-000000000000',
+        'new@example.com',
+        VALID.password,
+      ),
     ),
   ).rejects.toThrow(NotFoundError)
 })
@@ -681,6 +747,7 @@ it('throws NotFoundError for unknown clientId', async () => {
 Open `ChangeClientPasswordHandler.integration.test.ts`.
 
 Add import:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -691,7 +758,11 @@ Add at end of `describe` block:
 it('throws NotFoundError for unknown clientId', async () => {
   await expect(
     handler.execute(
-      new ChangeClientPasswordCommand('00000000-0000-0000-0000-000000000000', VALID.password, 'newpassword456'),
+      new ChangeClientPasswordCommand(
+        '00000000-0000-0000-0000-000000000000',
+        VALID.password,
+        'newpassword456',
+      ),
     ),
   ).rejects.toThrow(NotFoundError)
 })
@@ -700,12 +771,14 @@ it('throws NotFoundError for unknown clientId', async () => {
 - [x] **Step 3: ChangeClientPassword — existing refresh token invalid after password change**
 
 In the same file, add imports:
+
 ```ts
 import { RefreshClientAccessTokenHandler } from '../RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '../RefreshClientAccessToken/RefreshClientAccessTokenCommand'
 ```
 
 Add module-level resolution:
+
 ```ts
 const refreshHandler = container.get(RefreshClientAccessTokenHandler)
 ```
@@ -737,6 +810,7 @@ Expected: 3 new tests pass.
 ### Task 8: Missing project ownership tests
 
 **Files:**
+
 - Modify: `src/application/commands/project/RenameApiKey/RenameApiKeyHandler.integration.test.ts`
 - Modify: `src/application/commands/project/RecoverProjectField/RecoverProjectFieldHandler.integration.test.ts`
 
@@ -747,6 +821,7 @@ Both handlers use `ProjectAccessService.verifyByProjectId(clientId, projectId)` 
 Open `RenameApiKeyHandler.integration.test.ts`.
 
 Add import:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -800,6 +875,7 @@ Expected: 2 new tests pass.
 ### Task 9: User field cross-project isolation ⚠ production code
 
 **Files:**
+
 - Modify: `src/application/commands/user/UpdateUserField/UpdateUserFieldHandler.ts`
 - Modify: `src/application/queries/user/GetUserField/GetUserFieldHandler.ts`
 - Modify: `src/application/queries/user/GetUserFields/GetUserFieldsHandler.ts`
@@ -818,11 +894,13 @@ Fix pattern for all three: load user by `userId`, verify `user.projectId === com
 Open `UpdateUserFieldHandler.ts`.
 
 Add import:
+
 ```ts
 import { UserRepository } from '@aggregates/user/UserRepository'
 ```
 
 Add to constructor:
+
 ```ts
 @inject(UserRepository)
 private readonly users: UserRepository,
@@ -840,6 +918,7 @@ if (!user || user.projectId !== command.projectId)
 ```
 
 Add `NotFoundError` import if not present:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -849,11 +928,13 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 Open `GetUserFieldHandler.ts`.
 
 Add import:
+
 ```ts
 import { UserRepository } from '@aggregates/user/UserRepository'
 ```
 
 Add to constructor:
+
 ```ts
 @inject(UserRepository)
 private readonly users: UserRepository,
@@ -886,6 +967,7 @@ if (!user || user.projectId !== query.projectId)
 ```
 
 Add import:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -895,6 +977,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 Open `UpdateUserFieldHandler.integration.test.ts`.
 
 Add imports:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { seedUser } from '../../../../tests/helpers/userSeed'
@@ -911,9 +994,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
   const { projectId: otherProjectId, fieldId: otherFieldId } = await seedUserWithField(container)
 
   await expect(
-    handler.execute(
-      new UpdateUserFieldCommand(userId, otherProjectId, otherFieldId, 'value'),
-    ),
+    handler.execute(new UpdateUserFieldCommand(userId, otherProjectId, otherFieldId, 'value')),
   ).rejects.toThrow(NotFoundError)
 })
 ```
@@ -923,6 +1004,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
 Open `GetUserFieldHandler.integration.test.ts`.
 
 Add import:
+
 ```ts
 import { seedUser } from '../../../../tests/helpers/userSeed'
 ```
@@ -947,6 +1029,7 @@ it('throws NotFoundError when userId does not belong to the project', async () =
 Open `GetUserFieldsHandler.integration.test.ts`.
 
 `seedUser` is already imported. Add:
+
 ```ts
 import { NotFoundError } from '@shared/errors/NotFoundError'
 ```
@@ -958,9 +1041,9 @@ it('throws NotFoundError when userId does not belong to the project', async () =
   const { userId } = await seedUser(container)
   const { projectId: otherProjectId } = await seedUserWithField(container)
 
-  await expect(
-    handler.execute(new GetUserFieldsQuery(userId, otherProjectId)),
-  ).rejects.toThrow(NotFoundError)
+  await expect(handler.execute(new GetUserFieldsQuery(userId, otherProjectId))).rejects.toThrow(
+    NotFoundError,
+  )
 })
 ```
 
@@ -985,6 +1068,7 @@ Open `src/tests/helpers/userSeed.ts`. On the `AddProjectFieldCommand` call (L50-
 These are different seeds so the names don't need to match, but tests in `GetUserFieldHandler` and `GetUserFieldsHandler` assert `expect(result.field.name).toBe('bio')` — this is testing the seed constant, not the handler. Either:
 
 Option A — add a constant to `userSeed.ts`:
+
 ```ts
 export const SEED = {
   // ... existing

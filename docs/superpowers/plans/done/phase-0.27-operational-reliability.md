@@ -1,11 +1,11 @@
 ---
-title: Phase 3.3 — Operational Reliability
+title: Phase 0.27 — Operational Reliability
 date: 2026-08-03
 status: done
 priority: medium — not blocking pre-launch, but required before sustained production traffic
 ---
 
-# Phase 3.3 — Operational Reliability
+# Phase 0.27 — Operational Reliability
 
 Three independent problems that surface under production load. Neither requires architectural overhaul now, but all need a clear resolution path before scaling.
 

@@ -1,11 +1,11 @@
 ---
-title: Phase 3.3.4 — Cleanup Job Half-Built: node-cron Installed, deleteExpired() Never Called
+title: Phase 0.28 — Cleanup Job Half-Built: node-cron Installed, deleteExpired() Never Called
 date: 2026-08-03
 status: done
 priority: medium — dead code + unclear intent; must resolve before 3.4.1
 ---
 
-# Phase 3.3.4 — Cleanup Job Half-Built
+# Phase 0.28 — Cleanup Job Half-Built
 
 `node-cron` was added to `dependencies` (commit `f44710c`) and `deleteExpired()` was added to all four token/session repository interfaces and implementations. But no scheduler was created. The cleanup infrastructure is half-built and never runs.
 
