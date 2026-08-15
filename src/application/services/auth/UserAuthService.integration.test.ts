@@ -1,19 +1,15 @@
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { UserAuthService } from './UserAuthService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { getTestContainer, disconnectTestDb } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation, getDbClient } from '@tests/helpers/db'
 import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
 const service = container.get(UserAuthService)
-const prisma = container.get(PrismaProvider)
 
 describe('UserAuthService', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   afterAll(async () => {
     await disconnectTestDb()
@@ -56,7 +52,7 @@ describe('UserAuthService', () => {
 
     it('throws REFRESH_TOKEN_EXPIRED for expired token', async () => {
       const { refreshToken } = await seedUser(container)
-      await prisma.userRefreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
+      await getDbClient(container).userRefreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
       const err = await service.refresh(refreshToken).catch((e: unknown) => e)
       expect(err).toBeInstanceOf(UnauthorizedError)
       expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_EXPIRED')

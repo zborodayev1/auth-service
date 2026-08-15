@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RecoverProjectFieldHandler } from './RecoverProjectFieldHandler'
 import { RecoverProjectFieldCommand } from './RecoverProjectFieldCommand'
 import { DeleteProjectFieldHandler } from '../DeleteProjectField/DeleteProjectFieldHandler'
@@ -7,7 +7,7 @@ import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFiel
 import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields/GetProjectFieldsQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProjectWithField } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
@@ -16,9 +16,7 @@ const deleteField = container.get(DeleteProjectFieldHandler)
 const getFields = container.get(GetProjectFieldsHandler)
 
 describe('RecoverProjectFieldHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('recovers soft-deleted field', async () => {
     const { clientId, projectId, fieldId } = await seedProjectWithField(container)

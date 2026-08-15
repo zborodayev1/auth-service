@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetClientProfileHandler } from './GetClientProfileHandler'
 import { GetClientProfileQuery } from './GetClientProfileQuery'
 import type { RegisterClientResult } from '../../../commands/client/RegisterClient/RegisterClientHandler'
@@ -6,7 +6,7 @@ import { RegisterClientHandler } from '../../../commands/client/RegisterClient/R
 import { RegisterClientCommand } from '../../../commands/client/RegisterClient/RegisterClientCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(GetClientProfileHandler)
@@ -24,9 +24,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('GetClientProfileHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns correct profile fields', async () => {
     const { clientId } = await seed()

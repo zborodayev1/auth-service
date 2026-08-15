@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetProjectApiKeyHandler } from './GetProjectApiKeyHandler'
 import { GetProjectApiKeyQuery } from './GetProjectApiKeyQuery'
 import { RotateApiKeyHandler } from '../../../commands/project/RotateApiKey/RotateApiKeyHandler'
 import { RotateApiKeyCommand } from '../../../commands/project/RotateApiKey/RotateApiKeyCommand'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 
@@ -13,9 +13,7 @@ const handler = container.get(GetProjectApiKeyHandler)
 const rotateKey = container.get(RotateApiKeyHandler)
 
 describe('GetProjectApiKeyHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns api key with correct shape', async () => {
     const { clientId, projectId } = await seedProject(container)

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { DeleteProjectFieldHandler } from './DeleteProjectFieldHandler'
 import { DeleteProjectFieldCommand } from './DeleteProjectFieldCommand'
 import { GetProjectFieldsHandler } from '../../../queries/project/GetProjectFields/GetProjectFieldsHandler'
@@ -8,7 +8,7 @@ import { UpdateUserFieldCommand } from '../../user/UpdateUserField/UpdateUserFie
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProjectWithField } from '@tests/helpers/projectSeed'
 import { RegisterUserHandler } from '../../user/RegisterUser/RegisterUserHandler'
 import { RegisterUserCommand } from '../../user/RegisterUser/RegisterUserCommand'
@@ -20,9 +20,7 @@ const updateUserField = container.get(UpdateUserFieldHandler)
 const registerUser = container.get(RegisterUserHandler)
 
 describe('DeleteProjectFieldHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('deletes field with no user data', async () => {
     const { clientId, projectId, fieldId } = await seedProjectWithField(container)

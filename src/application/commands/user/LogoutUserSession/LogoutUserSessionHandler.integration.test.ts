@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { LogoutUserSessionHandler } from './LogoutUserSessionHandler'
 import { LogoutUserSessionCommand } from './LogoutUserSessionCommand'
 import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/RefreshUserAccessTokenHandler'
@@ -6,7 +6,7 @@ import { RefreshUserAccessTokenCommand } from '../RefreshUserAccessToken/Refresh
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import jwt from 'jsonwebtoken'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -17,9 +17,7 @@ const getSessionId = (accessToken: string): string =>
   (jwt.decode(accessToken) as { sid: string }).sid
 
 describe('LogoutUserSessionHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('revokes session successfully', async () => {
     const { accessToken, userId } = await seedUser(container)

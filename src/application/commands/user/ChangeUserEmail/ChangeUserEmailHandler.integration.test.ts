@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ChangeUserEmailHandler } from './ChangeUserEmailHandler'
 import { ChangeUserEmailCommand } from './ChangeUserEmailCommand'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { RegisterUserHandler } from '../RegisterUser/RegisterUserHandler'
 import { RegisterUserCommand } from '../RegisterUser/RegisterUserCommand'
@@ -17,9 +17,7 @@ const handler = container.get(ChangeUserEmailHandler)
 const createProject = container.get(CreateProjectHandler)
 
 describe('ChangeUserEmailHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('changes email with valid password', async () => {
     const { userId, projectId } = await seedUser(container)

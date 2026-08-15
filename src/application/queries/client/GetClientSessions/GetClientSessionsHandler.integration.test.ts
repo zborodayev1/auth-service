@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetClientSessionsHandler } from './GetClientSessionsHandler'
 import { GetClientSessionsQuery } from './GetClientSessionsQuery'
 import { type RegisterClientResult, RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
@@ -12,7 +12,7 @@ import { LogoutAllClientSessionsCommand } from '@app/commands/client/LogoutAllCl
 import type { ClientAccessTokenService as IClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 
 const container = getTestContainer()
 const handler = container.get(GetClientSessionsHandler)
@@ -37,9 +37,7 @@ const login = (): ReturnType<typeof loginHandler.execute> =>
   loginHandler.execute(new LoginClientCommand(VALID.password, VALID.email, null, null, null))
 
 describe('GetClientSessionsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns empty array when client has no active sessions', async () => {
     const { clientId, accessToken } = await seed()

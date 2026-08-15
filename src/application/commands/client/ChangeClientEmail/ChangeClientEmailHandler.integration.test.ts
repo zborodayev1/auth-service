@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ChangeClientEmailHandler } from './ChangeClientEmailHandler'
 import { ChangeClientEmailCommand } from './ChangeClientEmailCommand'
 import {
@@ -10,7 +10,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { LoginClientHandler } from '../LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '../LoginClient/LoginClientCommand'
 
@@ -31,9 +31,7 @@ const seed = (): Promise<RegisterClientResult> =>
   )
 
 describe('ChangeClientEmailHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('changes email with valid password', async () => {
     const { clientId } = await seed()

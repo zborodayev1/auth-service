@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { DeleteProjectHandler } from './DeleteProjectHandler'
 import { DeleteProjectCommand } from './DeleteProjectCommand'
 import { GetClientProjectsHandler } from '../../../queries/client/GetClientProjects/GetClientProjectsHandler'
@@ -8,7 +8,7 @@ import { LoginUserCommand } from '../../user/LoginUser/LoginUserCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -17,9 +17,7 @@ const getProjects = container.get(GetClientProjectsHandler)
 const loginUser = container.get(LoginUserHandler)
 
 describe('DeleteProjectHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('deletes project successfully', async () => {
     const { clientId, projectId } = await seedUser(container)

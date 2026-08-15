@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { RevokeUserSessionHandler } from './RevokeUserSessionHandler'
 import { RevokeUserSessionCommand } from './RevokeUserSessionCommand'
 import { LoginUserHandler } from '../LoginUser/LoginUserHandler'
@@ -9,7 +9,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ValidationError } from '@shared/errors/ValidationError'
 import jwt from 'jsonwebtoken'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -21,9 +21,7 @@ const getSessionId = (accessToken: string): string =>
   (jwt.decode(accessToken) as { sid: string }).sid
 
 describe('RevokeUserSessionHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('revokes target session successfully', async () => {
     const { accessToken: at1, userId, projectId } = await seedUser(container)

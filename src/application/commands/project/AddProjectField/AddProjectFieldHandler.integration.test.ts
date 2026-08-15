@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { AddProjectFieldResult } from './AddProjectFieldHandler'
 import { AddProjectFieldHandler } from './AddProjectFieldHandler'
 import { AddProjectFieldCommand } from './AddProjectFieldCommand'
@@ -7,7 +7,7 @@ import { GetProjectFieldsQuery } from '../../../queries/project/GetProjectFields
 import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedProject, PROJECT_SEED } from '@tests/helpers/projectSeed'
 
 const container = getTestContainer()
@@ -22,9 +22,7 @@ const addField = (
   handler.execute(new AddProjectFieldCommand(projectId, clientId, name, 'string', false, null, []))
 
 describe('AddProjectFieldHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns fieldId', async () => {
     const { clientId, projectId } = await seedProject(container)

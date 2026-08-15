@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetProjectUsersHandler } from './GetProjectUsersHandler'
 import { GetProjectUsersQuery } from './GetProjectUsersQuery'
 import { RegisterUserHandler } from '../../../commands/user/RegisterUser/RegisterUserHandler'
 import { RegisterUserCommand } from '../../../commands/user/RegisterUser/RegisterUserCommand'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { SEED } from '@tests/helpers/userSeed'
 import { seedProject } from '@tests/helpers/projectSeed'
 import { NotFoundError } from '@shared/errors/NotFoundError'
@@ -14,9 +14,7 @@ const handler = container.get(GetProjectUsersHandler)
 const registerUser = container.get(RegisterUserHandler)
 
 describe('GetProjectUsersHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns seeded user with correct shape', async () => {
     const { clientId, projectId } = await seedProject(container)

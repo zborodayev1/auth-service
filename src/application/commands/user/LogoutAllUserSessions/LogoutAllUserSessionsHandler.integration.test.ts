@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { LogoutAllUserSessionsHandler } from './LogoutAllUserSessionsHandler'
 import { LogoutAllUserSessionsCommand } from './LogoutAllUserSessionsCommand'
 import { RefreshUserAccessTokenHandler } from '../RefreshUserAccessToken/RefreshUserAccessTokenHandler'
@@ -8,7 +8,7 @@ import { LoginUserCommand } from '../LoginUser/LoginUserCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../project/CreateProject/CreateProjectCommand'
@@ -23,9 +23,7 @@ const createProject = container.get(CreateProjectHandler)
 const registerUser = container.get(RegisterUserHandler)
 
 describe('LogoutAllUserSessionsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns success', async () => {
     const { userId, projectId } = await seedUser(container)

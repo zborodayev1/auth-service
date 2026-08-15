@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetUserFieldsHandler } from './GetUserFieldsHandler'
 import { GetUserFieldsQuery } from './GetUserFieldsQuery'
 import { UpdateUserFieldHandler } from '../../../commands/user/UpdateUserField/UpdateUserFieldHandler'
 import { UpdateUserFieldCommand } from '../../../commands/user/UpdateUserField/UpdateUserFieldCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, seedUserWithField, SEED } from '@tests/helpers/userSeed'
 import { CreateProjectHandler } from '../../../commands/project/CreateProject/CreateProjectHandler'
 import { CreateProjectCommand } from '../../../commands/project/CreateProject/CreateProjectCommand'
@@ -16,9 +16,7 @@ const updateHandler = container.get(UpdateUserFieldHandler)
 const createProject = container.get(CreateProjectHandler)
 
 describe('GetUserFieldsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns empty fields when project has no field definitions', async () => {
     const { userId, projectId } = await seedUser(container)

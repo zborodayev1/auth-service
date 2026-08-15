@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetUserSessionsHandler } from './GetUserSessionsHandler'
 import { GetUserSessionsQuery } from './GetUserSessionsQuery'
 import { LoginUserHandler } from '@app/commands/user/LoginUser/LoginUserHandler'
@@ -11,7 +11,7 @@ import { RegisterUserHandler } from '@app/commands/user/RegisterUser/RegisterUse
 import { RegisterUserCommand } from '@app/commands/user/RegisterUser/RegisterUserCommand'
 import jwt from 'jsonwebtoken'
 import { getTestContainer } from '@tests/helpers/container'
-import { truncateAll } from '@tests/helpers/db'
+import { useTransactionIsolation } from '@tests/helpers/db'
 import { seedUser, SEED } from '@tests/helpers/userSeed'
 
 const container = getTestContainer()
@@ -25,9 +25,7 @@ const getSessionId = (accessToken: string): string =>
   (jwt.decode(accessToken) as { sid: string }).sid
 
 describe('GetUserSessionsHandler', () => {
-  beforeEach(async () => {
-    await truncateAll(container)
-  })
+  useTransactionIsolation(container)
 
   it('returns empty array when user has no active sessions', async () => {
     const { accessToken, userId, projectId } = await seedUser(container)
