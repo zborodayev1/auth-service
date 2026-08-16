@@ -13,6 +13,10 @@ pnpm lint         # eslint src
 pnpm lint:fix     # eslint src --fix
 pnpm format       # prettier --write src
 pnpm format:check # prettier --check src
+pnpm test         # vitest run
+pnpm test:watch   # vitest (watch mode)
+pnpm test:coverage         # vitest run --coverage
+pnpm test:integration      # vitest run --config vitest.integration.config.ts
 ```
 
 Prisma:
@@ -29,39 +33,66 @@ See `docs/plans/phase-0.1-architecture.md` for full spec.
 
 **Layers:**
 - `src/domain/` — aggregates + value objects + repository interfaces (ports)
-- `src/application/` — command handlers, app services, factories
-- `src/infrastructure/` — Prisma repos, JWT, bcrypt, UUID, crypto, Pino logger
+- `src/application/` — command handlers, query handlers, app services, factories
+- `src/infrastructure/` — Prisma repos, JWT, bcrypt, UUID, crypto, Pino logger, Redis, jobs
 - `src/presentation/` — HTTP layer: controllers, routes, middleware, validators
-- `src/contexts/` — inversify context builders (ApplicationContext, InfrastructureContext, ServiceContext)
+- `src/contexts/` — inversify DI: `application/` (ClientContext, ProjectContext, UserContext), `infrastructure/` (AdaptersContext, HttpContext, PersistenceContext), ServiceContext
 - `src/libs/` — DDD base classes (AggregateRoot, ValueObject, Identifiable)
 - `src/shared/` — error types (AppError, ConflictError, NotFoundError, UnauthorizedError, ValidationError, InternalServerError)
 - `src/config/` — server config
+- `src/tests/` — test helpers
 - `src/application.ts` — Application class (wraps HttpServerFactory + http.Server)
 - `src/bootstrap.ts` — inversify Container, wires everything, starts server
 
-**Aggregates:** `Client`, `Project`, `ApiKey`, `RefreshToken`, `Session`
+**Aggregates:** `Client`, `ClientSession`, `ClientRefreshToken`, `Project`, `ApiKey`, `ProjectField`, `User`, `UserSession`, `UserRefreshToken`, `UserFieldValue`
 
-**Adding a new command:** create `Command.ts` + `Handler.ts` under `src/application/commands/<aggregate>/`, bind in `bootstrap.ts`, add route in `src/presentation/http/routes/`, add handler in controller.
+**Adding a new command:** create `Command.ts` + `Handler.ts` under `src/application/commands/<aggregate>/`, bind in context, add route in `src/presentation/http/routes/`, add handler in controller.
+
+**Adding a new query:** create `Query.ts` + `Handler.ts` under `src/application/queries/<aggregate>/`, bind in context, add route + controller handler.
 
 ## HTTP API
 
-### Client routes (`/client`)
+### Client routes (`/client`) — auth: clientJWT where noted
 
 | Method | Path | Auth |
 |--------|------|------|
-| POST | /client/register | — |
-| POST | /client/login | — |
-| POST | /client/refresh | — |
-| PATCH | /client/email | clientJWT |
-| PATCH | /client/password | clientJWT |
-| POST | /client/logout | clientJWT |
-| POST | /client/logout-all | clientJWT |
+| POST | /register | — |
+| POST | /login | — |
+| POST | /refresh | — |
+| GET | /me | clientJWT |
+| GET | /projects | clientJWT |
+| GET | /sessions | clientJWT |
+| PATCH | /name | clientJWT |
+| PATCH | /email | clientJWT |
+| PATCH | /password | clientJWT |
+| POST | /logout | clientJWT |
+| POST | /logout-all | clientJWT |
+| DELETE | /sessions/:sessionId | clientJWT |
 
 Refresh token delivered via httpOnly cookie.
 
-### User routes (`/projects/:projectId/users`)
+### Project routes (`/projects`) — auth: clientJWT
 
-All user endpoints require `Authorization: Bearer <apiKey>`. Endpoints marked `+userJWT` additionally require a user access token.
+| Method | Path | Notes |
+|--------|------|-------|
+| POST | / | create project |
+| GET | /:projectId | |
+| PATCH | /:projectId | rename |
+| DELETE | /:projectId | |
+| GET | /:projectId/fields | |
+| POST | /:projectId/fields | add field |
+| PATCH | /:projectId/fields/:fieldId | |
+| DELETE | /:projectId/fields/:fieldId | soft delete |
+| POST | /:projectId/fields/:fieldId/recover | |
+| GET | /:projectId/key | |
+| POST | /:projectId/key/rotate | |
+| PATCH | /:projectId/key | rename |
+| GET | /:projectId/users | admin |
+| GET | /:projectId/users/:userId | admin |
+| PATCH | /:projectId/users/:userId/fields/:fieldId | admin |
+| DELETE | /:projectId/users/:userId | admin |
+
+### User routes (`/projects/:projectId/users`) — auth: apiKey + userJWT where noted
 
 | Method | Path | Auth |
 |--------|------|------|
@@ -77,8 +108,10 @@ All user endpoints require `Authorization: Bearer <apiKey>`. Endpoints marked `+
 | GET | /me/fields | apiKey + userJWT |
 | GET | /me/fields/:fieldId | apiKey + userJWT |
 | PATCH | /me/fields/:fieldId | apiKey + userJWT |
+| GET | /me/sessions | apiKey + userJWT |
+| DELETE | /me/sessions/:sessionId | apiKey + userJWT |
 
-**Auth flow:** SDK sends apiKey on every request. For pre-auth endpoints (register/login/refresh) apiKey alone suffices. After login the user receives a userJWT — SDK stores it and sends it alongside apiKey on all subsequent calls. Revoking the apiKey immediately blocks all access including active sessions.
+**Auth flow:** SDK sends apiKey on every request. Pre-auth endpoints (register/login/refresh) need apiKey only. After login user receives userJWT — SDK sends it alongside apiKey on all subsequent calls. Revoking apiKey immediately blocks all access.
 
 ## Environment Variables
 
@@ -94,8 +127,6 @@ REFRESH_TOKEN_TTL_MS=2592000000
 
 ## Path Aliases
 
-Configured in `tsconfig.json`, resolved at runtime by `tsconfig-paths`, at build by `tsc-alias`:
-
 | Alias | Points to |
 |-------|-----------|
 | `@app/*` | `src/application/*` |
@@ -110,6 +141,8 @@ Configured in `tsconfig.json`, resolved at runtime by `tsconfig-paths`, at build
 | `@config/*` | `src/config/*` |
 | `@shared/*` | `src/shared/*` |
 | `@generated/*` | `src/generated/*` |
+| `@presentation/*` | `src/presentation/*` |
+| `@tests/*` | `src/tests/*` |
 
 ## Spec Phase Philosophy
 
@@ -133,13 +166,15 @@ reName(name: Name): Client { return new Client(this.id, name, ...) }
 ```
 
 **Pragmatic over strict DDD** — performance wins over purity when trade-off is clear:
-- `ProjectField` is a separate aggregate root with its own repository (not an entity inside `Project`). Reason: loading all fields every time `Project` is needed is wasteful. Commands for fields live under `commands/project/` (conceptual ownership), but `ProjectField` is loaded independently.
-- Same pattern applies to `ApiKey`, `UserSession`, `UserRefreshToken`, `UserFieldValue` — all separate aggregate roots despite belonging to parent aggregates conceptually.
+- `ProjectField`, `ApiKey`, `UserSession`, `UserRefreshToken`, `UserFieldValue`, `ClientSession`, `ClientRefreshToken` are all separate aggregate roots with their own repositories. Commands live under the parent aggregate's directory (conceptual ownership), but each is loaded independently.
 
 ## Prisma
 
 Schema: `prisma/schema.prisma`. Generated client: `src/generated/prisma/` (do not edit).
-Models: `Client`, `Project`, `ApiKey`, `RefreshToken`, `Session`.
+
+Models: `Client`, `Session` (ClientSession), `RefreshToken` (ClientRefreshToken), `Project`, `ApiKey`, `ProjectField`, `User`, `UserSession`, `UserRefreshToken`, `UserFieldValue`.
+
+Enum: `FieldType` (`string | number | boolean | date | enum`).
 
 ## TypeScript
 
