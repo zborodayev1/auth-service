@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import type { Request, Response, NextFunction } from 'express'
-import { requestStore } from '@infra/logger/RequestStore'
+import { requestStore } from '@infra/pino/RequestStore'
 
 export function correlationId(req: Request, res: Response, next: NextFunction): void {
   const header = req.headers['x-request-id']

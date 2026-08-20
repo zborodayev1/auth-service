@@ -5,9 +5,10 @@ import type { Request, Response } from 'express'
 import { LoginClientSchema } from '../validators/client/LoginClientValidator'
 import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
 import { LoginClientCommand } from '@app/commands/client/LoginClient/LoginClientCommand'
-import { ChangeClientEmailSchema } from '../validators/client/ChangeClientEmailValidator'
-import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
-import { ChangeClientEmailCommand } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailCommand'
+import {
+  RequestChangeClientEmailSchema,
+  TokenSchema,
+} from '../validators/client/ChangeClientEmailValidator'
 import { ChangeClientPasswordSchema } from '../validators/client/ChangeClientPasswordValidator'
 import { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { ChangeClientPasswordCommand } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordCommand'
@@ -32,6 +33,18 @@ import { GetClientSessionsQuery } from '@app/queries/client/GetClientSessions/Ge
 import { RevokeClientSessionHandler } from '@app/commands/client/RevokeClientSession/RevokeClientSessionHandler'
 import { RevokeClientSessionCommand } from '@app/commands/client/RevokeClientSession/RevokeClientSessionCommand'
 import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
+import { RequestClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/RequestClientEmailChange/RequestClientEmailChangeHandler'
+import { ConfirmClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/ConfirmClientEmailChange/ConfirmClientEmailChangeHandler'
+import { RequestClientEmailChangeCommand } from '@app/commands/client/ChangeEmail/RequestClientEmailChange/RequestClientEmailChangeCommand'
+import { ConfirmClientEmailChangeCommand } from '@app/commands/client/ChangeEmail/ConfirmClientEmailChange/ConfirmClientEmailChangeCommand'
+import {
+  RequestPasswordResetClientSchema,
+  ConfirmPasswordResetClientSchema,
+} from '../validators/client/PasswordResetClientValidator'
+import { RequestClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordHandler'
+import { ConfirmClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordHandler'
+import { RequestClientForgotPasswordCommand } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordCommand'
+import { ConfirmClientForgotPasswordCommand } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordCommand'
 
 @injectable()
 export class ClientController {
@@ -40,8 +53,10 @@ export class ClientController {
     private readonly registerHandler: RegisterClientHandler,
     @inject(LoginClientHandler)
     private readonly loginHandler: LoginClientHandler,
-    @inject(ChangeClientEmailHandler)
-    private readonly changeEmailHandler: ChangeClientEmailHandler,
+    @inject(RequestClientEmailChangeHandler)
+    private readonly requestEmailChangeHandler: RequestClientEmailChangeHandler,
+    @inject(ConfirmClientEmailChangeHandler)
+    private readonly confirmEmailChangeHandler: ConfirmClientEmailChangeHandler,
     @inject(ChangeClientPasswordHandler)
     private readonly changePasswordHandler: ChangeClientPasswordHandler,
     @inject(LogoutAllClientSessionsHandler)
@@ -60,6 +75,10 @@ export class ClientController {
     private readonly getSessionsHandler: GetClientSessionsHandler,
     @inject(RevokeClientSessionHandler)
     private readonly revokeSessionHandler: RevokeClientSessionHandler,
+    @inject(RequestClientForgotPasswordHandler)
+    private readonly requestForgotPasswordHandler: RequestClientForgotPasswordHandler,
+    @inject(ConfirmClientForgotPasswordHandler)
+    private readonly confirmForgotPasswordHandler: ConfirmClientForgotPasswordHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
@@ -118,13 +137,20 @@ export class ClientController {
     })
   }
 
-  async changeEmail(req: Request, res: Response): Promise<void> {
-    const body = ChangeClientEmailSchema.parse(req.body)
+  async requestChangeEmail(req: Request, res: Response): Promise<void> {
+    const body = RequestChangeClientEmailSchema.parse(req.body)
 
-    const result = await this.changeEmailHandler.execute(
-      new ChangeClientEmailCommand(req.auth.clientId, body.newEmail, body.password),
+    const result = await this.requestEmailChangeHandler.execute(
+      new RequestClientEmailChangeCommand(req.auth.clientId, body.newEmail, body.password),
     )
+    res.status(200).json(result)
+  }
 
+  async confirmChangeEmail(req: Request, res: Response): Promise<void> {
+    const { token } = TokenSchema.parse(req.body)
+    const result = await this.confirmEmailChangeHandler.execute(
+      new ConfirmClientEmailChangeCommand(token),
+    )
     res.status(200).json(result)
   }
 
@@ -221,6 +247,31 @@ export class ClientController {
 
     const result = await this.revokeSessionHandler.execute(
       new RevokeClientSessionCommand(sessionId, req.auth.clientId, req.auth.sessionId),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async requestPasswordReset(req: Request, res: Response): Promise<void> {
+    const body = RequestPasswordResetClientSchema.parse(req.body)
+
+    const result = await this.requestForgotPasswordHandler.execute(
+      new RequestClientForgotPasswordCommand(body.email),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async confirmPasswordReset(req: Request, res: Response): Promise<void> {
+    const body = ConfirmPasswordResetClientSchema.parse(req.body)
+
+    const result = await this.confirmForgotPasswordHandler.execute(
+      new ConfirmClientForgotPasswordCommand(
+        body.token,
+        req.headers['user-agent'] ?? null,
+        req.ip ?? null,
+        body.deviceName ?? null,
+      ),
     )
 
     res.status(200).json(result)

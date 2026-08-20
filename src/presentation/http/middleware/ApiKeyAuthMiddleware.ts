@@ -11,13 +11,11 @@ export class ApiKeyAuthMiddleware {
   ) {}
 
   async authenticate(req: Request, _: Response, next: NextFunction): Promise<void> {
-    const header = req.header('authorization')
+    const rawKey = req.header('x-api-key')
 
-    if (!header?.startsWith('Bearer ')) {
+    if (!rawKey) {
       throw new UnauthorizedError('Missing API key')
     }
-
-    const rawKey = header.substring(7)
 
     const payload = await this.apiKeyService.verify(rawKey)
 

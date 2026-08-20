@@ -8,6 +8,7 @@ export class ServerConfig {
   readonly port: number
   readonly bcryptRounds: number
   readonly jwtSecret: string
+  readonly resendApiKey: string
   readonly jwtExpiresInMs: number
   readonly jwtExpiresInString: string
   readonly refreshTokenTtlMs: number
@@ -17,6 +18,8 @@ export class ServerConfig {
   readonly logLevel: LogLevel
   readonly environment: Environment
   readonly softDeleteTtlMs: number
+  readonly pendingActionTtlMs: number
+  readonly emailTtlMs: number
 
   constructor() {
     this.port = this.integer('HTTP_PORT', 8080, 1, 65535)
@@ -24,6 +27,8 @@ export class ServerConfig {
     this.bcryptRounds = this.integer('BCRYPT_ROUNDS', 12, 4, 31)
 
     this.jwtSecret = this.string('JWT_SECRET', undefined, 32)
+
+    this.resendApiKey = this.string('RESEND_API_KEY')
 
     this.jwtExpiresInString = this.string('JWT_EXPIRES_IN', '1h')
 
@@ -39,9 +44,13 @@ export class ServerConfig {
 
     this.softDeleteTtlMs = this.duration('SOFT_DELETE_TTL', '7d')
 
+    this.pendingActionTtlMs = this.duration('PENDING_ACTION_TTL', '15m')
+
     this.logLevel = this.enumValue('LOG_LEVEL', logLevels, 'info')
 
     this.environment = this.enumValue('NODE_ENV', environments, 'development')
+
+    this.emailTtlMs = this.duration('EMAIL_TTL', '15m')
   }
 
   get isProduction(): boolean {

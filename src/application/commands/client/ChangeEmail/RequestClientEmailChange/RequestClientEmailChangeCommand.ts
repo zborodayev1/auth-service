@@ -1,4 +1,4 @@
-export class ChangeClientEmailCommand {
+export class RequestClientEmailChangeCommand {
   constructor(
     public readonly clientId: string,
     public readonly newEmail: string,

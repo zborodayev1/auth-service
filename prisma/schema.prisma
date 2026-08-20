@@ -203,3 +203,13 @@ model UserSession {
 
   @@index([userId])
 }
+
+model PendingAction {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique @db.Char(64)
+  context   Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

@@ -1,27 +1,31 @@
-import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { inject, injectable } from 'inversify'
-import { ChangeClientEmailCommand } from './ChangeClientEmailCommand'
-import { Email } from '@valueObjects/Email/Email'
+import { RequestClientEmailChangeCommand } from './RequestClientEmailChangeCommand'
+import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { PasswordHasher } from '@ports/PasswordHasher'
-import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ConflictError } from '@shared/errors/ConflictError'
+import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { Email } from '@valueObjects/Email/Email'
+import { EmailVerificationService } from '@services/email/EmailVerificationService'
 
-interface ChangeClientEmailResult {
-  email: string
+interface RequestClientEmailChangeResult {
+  success: true
 }
 
 @injectable()
-export class ChangeClientEmailHandler {
+export class RequestClientEmailChangeHandler {
   constructor(
     @inject(ClientRepository)
     private readonly clients: ClientRepository,
 
     @inject(PasswordHasher)
     private readonly passwordHasher: PasswordHasher,
+
+    @inject(EmailVerificationService)
+    private readonly emailVerificationService: EmailVerificationService,
   ) {}
 
-  async execute(command: ChangeClientEmailCommand): Promise<ChangeClientEmailResult> {
+  async execute(command: RequestClientEmailChangeCommand): Promise<RequestClientEmailChangeResult> {
     const client = await this.clients.findById(command.clientId)
     if (!client) {
       throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
@@ -49,9 +53,13 @@ export class ChangeClientEmailHandler {
       })
     }
 
-    const updated = client.changeEmail(newEmail)
-    await this.clients.save(updated)
+    await this.emailVerificationService.createEmailVerificationToken(command.newEmail, {
+      id: command.clientId,
+      email: command.newEmail,
+    })
 
-    return { email: command.newEmail }
+    return {
+      success: true,
+    }
   }
 }
