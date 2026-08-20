@@ -9,12 +9,6 @@ import { CreateProjectCommand } from '@app/commands/project/CreateProject/Create
 import { RotateApiKeyHandler } from '@app/commands/project/RotateApiKey/RotateApiKeyHandler'
 import { RotateApiKeyCommand } from '@app/commands/project/RotateApiKey/RotateApiKeyCommand'
 
-// NOTE: Routes requiring both apiKey + userJWT (GET /me, PATCH /me/email, etc.) cannot
-// be tested via HTTP currently because UserAuthMiddleware and ApiKeyAuthMiddleware both
-// read from the same `Authorization` header. A single request cannot carry both tokens
-// simultaneously. This is a known design gap — userJWT should be sent in a separate header.
-// Those routes are tested at the handler level via integration tests.
-
 const app = getTestApp()
 const container = getHttpTestContainer()
 
@@ -24,7 +18,9 @@ const USER = { email: 'user@example.com', password: 'userpassword123' }
 async function setupProject(): Promise<{ clientId: string; projectId: string; apiKey: string }> {
   const { clientId } = await container
     .get(RegisterClientHandler)
-    .execute(new RegisterClientCommand(CLIENT.name, CLIENT.email, CLIENT.password, null, null, null))
+    .execute(
+      new RegisterClientCommand(CLIENT.name, CLIENT.email, CLIENT.password, null, null, null),
+    )
 
   const { projectId, apiKey } = await container
     .get(CreateProjectHandler)
@@ -42,7 +38,7 @@ describe('User HTTP routes', () => {
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
       const body = res.body as { accessToken?: string; userId?: string }
 
@@ -51,7 +47,7 @@ describe('User HTTP routes', () => {
       expect(typeof body.userId).toBe('string')
     })
 
-    it('returns 401 with missing Authorization header', async () => {
+    it('returns 401 with missing X-API-Key header', async () => {
       const { projectId } = await setupProject()
 
       const res = await request(app)
@@ -66,7 +62,7 @@ describe('User HTTP routes', () => {
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', 'Bearer definitely-not-a-valid-key')
+        .set('X-API-Key', 'definitely-not-a-valid-key')
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       expect(res.status).toBe(401)
@@ -79,7 +75,7 @@ describe('User HTTP routes', () => {
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       expect(res.status).toBe(401)
@@ -90,12 +86,12 @@ describe('User HTTP routes', () => {
 
       await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       expect(res.status).toBe(409)
@@ -106,7 +102,7 @@ describe('User HTTP routes', () => {
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email })
 
       expect(res.status).toBe(400)
@@ -118,12 +114,12 @@ describe('User HTTP routes', () => {
       const { projectId, apiKey } = await setupProject()
       await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/login`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password })
       const body = res.body as { accessToken?: string }
 
@@ -138,18 +134,18 @@ describe('User HTTP routes', () => {
       const { projectId, apiKey } = await setupProject()
       await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/login`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: 'wrongpassword' })
 
       expect(res.status).toBe(401)
     })
 
-    it('returns 401 with missing Authorization header', async () => {
+    it('returns 401 with missing X-API-Key header', async () => {
       const res = await request(app)
         .post(`/projects/00000000-0000-0000-0000-000000000000/users/login`)
         .send({ email: USER.email, password: USER.password })
@@ -164,14 +160,14 @@ describe('User HTTP routes', () => {
 
       const registerRes = await request(app)
         .post(`/projects/${projectId}/users/register`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ email: USER.email, password: USER.password, fields: {} })
 
       const cookies = (registerRes.headers['set-cookie'] ?? []) as string[]
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/refresh`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .set('Cookie', cookies)
       const body = res.body as { accessToken?: string }
 
@@ -184,7 +180,7 @@ describe('User HTTP routes', () => {
 
       const res = await request(app)
         .post(`/projects/${projectId}/users/refresh`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
 
       expect(res.status).toBe(400)
     })
