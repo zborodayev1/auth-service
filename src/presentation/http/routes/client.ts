@@ -27,8 +27,32 @@ export class ClientRouter {
     router.post('/login', authRateLimiter, c.login.bind(c))
 
     router.patch('/name', mutateRequestRateLimiter, authenticate, c.changeName.bind(c))
-    router.patch('/email', mutateRequestRateLimiter, authenticate, c.changeEmail.bind(c))
+
+    router.patch(
+      '/request-change-email',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.requestChangeEmail.bind(c),
+    )
+    router.patch(
+      '/confirm-change-email',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.confirmChangeEmail.bind(c),
+    )
+
     router.patch('/password', mutateRequestRateLimiter, authenticate, c.changePassword.bind(c))
+
+    router.post(
+      '/request-password-reset',
+      authRateLimiter,
+      c.requestPasswordReset.bind(c),
+    )
+    router.post(
+      '/confirm-password-reset',
+      authRateLimiter,
+      c.confirmPasswordReset.bind(c),
+    )
 
     router.post('/logout', mutateRequestRateLimiter, authenticate, c.logoutCurrent.bind(c))
 
