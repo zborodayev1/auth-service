@@ -8,6 +8,7 @@ import { UserContext } from './contexts/application/UserContext'
 import { ProjectContext } from './contexts/application/ProjectContext'
 import { ServiceContextBuilder } from './contexts/ServiceContextBuilder'
 
+// test changes
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class Bootstrap {
   public static bootstrap(): Application {
