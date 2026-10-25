@@ -43,6 +43,10 @@ export class AdaptersContext implements ServiceContext {
         sendEmailVerificationEmail: async () => {
           /* empty */
         },
+
+        sendRegistrationAttemptNotice: async () => {
+          /* empty */
+        },
       })
     } else {
       container.bind(IEmailService).to(ResendEmailService).inSingletonScope()

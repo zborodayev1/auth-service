@@ -18,6 +18,7 @@ export async function createAndMigrateSchema(
 
   try {
     await client.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`)
+
     await client.query(`SET search_path TO "${schema}"`)
 
     const migrations = readdirSync(MIGRATIONS_DIR)

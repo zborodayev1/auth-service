@@ -4,6 +4,7 @@ import { GetUserProfileQuery } from './GetUserProfileQuery'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { FieldType } from '@aggregates/projectField/FieldType'
 import { UserFieldService } from '@services/user/UserFieldService'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface UserProfileField {
   name: string
@@ -11,7 +12,7 @@ interface UserProfileField {
   value: string | null
 }
 
-interface GetUserProfileResult {
+export interface GetUserProfileResult {
   userId: string
   email: string
   projectId: string
@@ -31,7 +32,10 @@ export class GetUserProfileHandler {
 
   async execute(query: GetUserProfileQuery): Promise<GetUserProfileResult> {
     const user = await this.users.findById(query.userId)
-    if (!user) throw new NotFoundError('User not found', 'USER_NOT_FOUND', { query: query })
+    if (!user)
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+        query: query,
+      })
 
     const profileFields = await this.fieldsService.getFieldsWithValues(query.userId, user.projectId)
 

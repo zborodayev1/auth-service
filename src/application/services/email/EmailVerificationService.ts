@@ -1,17 +1,17 @@
 import { injectable, inject } from 'inversify'
 import { createHash, randomBytes } from 'crypto'
-import type { IEmailService } from '@ports/IEmailService'
-import { IEmailService as IEmailServiceToken } from '@ports/IEmailService'
+import { IEmailService } from '@ports/IEmailService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { ServerConfig } from '@config/server/server'
 import { PendingActionRepository } from '@aggregates/pendingAction/PendingActionRepository'
 import { PendingAction, PendingActionContext } from '@aggregates/pendingAction/PendingAction'
 import { IdGenerator } from '@ports/IdGenerator'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class EmailVerificationService {
   constructor(
-    @inject(IEmailServiceToken) private readonly emailService: IEmailService,
+    @inject(IEmailService) private readonly emailService: IEmailService,
 
     @inject(ServerConfig) private readonly config: ServerConfig,
 
@@ -59,7 +59,11 @@ export class EmailVerificationService {
     const action = await this.actions.consumeByTokenHash(hash)
 
     if (!action || action.isExpired()) {
-      throw new UnauthorizedError('Invalid or expired code', 'INVALID_CODE', {})
+      throw new UnauthorizedError(
+        'Invalid or expired code',
+        AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        {},
+      )
     }
 
     return action.context as TContext

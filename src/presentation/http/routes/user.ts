@@ -23,6 +23,36 @@ export class UserRouter {
     const authenticateApiKey = this.apiKeyAuth.authenticate.bind(this.apiKeyAuth)
     const c = this.controller
 
+    router.get(
+      '/me',
+      queryRequestRateLimiter,
+      authenticateApiKey,
+      authenticate,
+      c.getProfile.bind(c),
+    )
+
+    router.get(
+      '/me/fields',
+      queryRequestRateLimiter,
+      authenticateApiKey,
+      authenticate,
+      c.getFields.bind(c),
+    )
+    router.get(
+      '/me/fields/:fieldId',
+      queryRequestRateLimiter,
+      authenticateApiKey,
+      authenticate,
+      c.getField.bind(c),
+    )
+    router.get(
+      '/me/sessions',
+      queryRequestRateLimiter,
+      authenticateApiKey,
+      authenticate,
+      c.getSessions.bind(c),
+    )
+
     router.post('/register', mutateRequestRateLimiter, authenticateApiKey, c.register.bind(c))
     router.post('/login', authRateLimiter, authenticateApiKey, c.login.bind(c))
     router.post('/refresh', authRateLimiter, authenticateApiKey, c.refresh.bind(c))
@@ -43,13 +73,6 @@ export class UserRouter {
       c.logoutAll.bind(c),
     )
 
-    router.get(
-      '/me',
-      queryRequestRateLimiter,
-      authenticateApiKey,
-      authenticate,
-      c.getProfile.bind(c),
-    )
     router.patch(
       '/me/email',
       mutateRequestRateLimiter,
@@ -64,49 +87,29 @@ export class UserRouter {
       authenticate,
       c.changePassword.bind(c),
     )
-    router.delete(
-      '/me',
-      mutateRequestRateLimiter,
-      authenticateApiKey,
-      authenticate,
-      c.deleteSelf.bind(c),
-    )
 
-    router.get(
-      '/me/fields',
-      queryRequestRateLimiter,
-      authenticateApiKey,
-      authenticate,
-      c.getFields.bind(c),
-    )
-    router.get(
-      '/me/fields/:fieldId',
-      queryRequestRateLimiter,
-      authenticateApiKey,
-      authenticate,
-      c.getField.bind(c),
-    )
     router.patch(
       '/me/fields/:fieldId',
       mutateRequestRateLimiter,
       authenticateApiKey,
       authenticate,
-      c.update.bind(c),
+      c.setField.bind(c),
     )
 
-    router.get(
-      '/me/sessions',
-      queryRequestRateLimiter,
-      authenticateApiKey,
-      authenticate,
-      c.getSessions.bind(c),
-    )
     router.delete(
       '/me/sessions/:sessionId',
       mutateRequestRateLimiter,
       authenticateApiKey,
       authenticate,
       c.revokeSession.bind(c),
+    )
+
+    router.delete(
+      '/me',
+      mutateRequestRateLimiter,
+      authenticateApiKey,
+      authenticate,
+      c.deleteSelf.bind(c),
     )
 
     return router

@@ -8,6 +8,7 @@ import { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRef
 import { UserRefreshTokenFactory } from '@factories/UserRefreshTokenFactory'
 import { UserRefreshToken } from '@aggregates/userRefreshToken/UserRefreshToken'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class UserRefreshTokenService {
@@ -34,17 +35,17 @@ export class UserRefreshTokenService {
     const token = await this.refreshTokens.findByHash(hash)
 
     if (!token) {
-      throw new UnauthorizedError('Refresh token is invalid', 'REFRESH_TOKEN_INVALID')
+      throw new UnauthorizedError('Refresh token is invalid', AUTH_ERROR_CODES.UNAUTHENTICATED)
     }
 
     if (token.isExpired()) {
-      throw new UnauthorizedError('Expired refresh token', 'REFRESH_TOKEN_EXPIRED', {
+      throw new UnauthorizedError('Expired refresh token', AUTH_ERROR_CODES.TOKEN_EXPIRED, {
         token: token,
       })
     }
 
     if (token.isRevoked()) {
-      throw new UnauthorizedError('Revoked refresh token', 'REFRESH_TOKEN_REVOKED', {
+      throw new UnauthorizedError('Revoked refresh token', AUTH_ERROR_CODES.TOKEN_EXPIRED, {
         token: token,
       })
     }
@@ -56,7 +57,7 @@ export class UserRefreshTokenService {
     if (token.isUsed()) {
       await this.refreshTokens.revokeAllBySessionId(token.sessionId)
 
-      throw new UnauthorizedError('Refresh token reuse detected', 'REFRESH_TOKEN_REUSE_DETECTED', {
+      throw new UnauthorizedError('Refresh token reuse detected', AUTH_ERROR_CODES.TOKEN_REUSED, {
         token: token,
       })
     }

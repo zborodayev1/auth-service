@@ -4,8 +4,9 @@ import { FieldType } from '@aggregates/projectField/FieldType'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { UserFieldService } from '@services/user/UserFieldService'
 import { NotFoundError } from '@shared/errors/NotFoundError'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
-interface GetUserFieldsResult {
+export interface GetUserFieldsResult {
   fields: {
     id: string
     name: string
@@ -29,7 +30,7 @@ export class GetUserFieldsHandler {
   async execute(query: GetUserFieldsQuery): Promise<GetUserFieldsResult> {
     const user = await this.users.findById(query.userId)
     if (user?.projectId !== query.projectId)
-      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         userId: query.userId,
         projectId: query.projectId,
       })

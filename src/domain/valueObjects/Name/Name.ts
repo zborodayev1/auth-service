@@ -1,5 +1,6 @@
 import { ValidationError } from '@shared/errors/ValidationError'
 import { NameVO } from '@libs/ddd/VO/NameVO'
+import { VALIDATION_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 export class Name extends NameVO<Name> {
   private constructor(value: string) {
@@ -12,7 +13,7 @@ export class Name extends NameVO<Name> {
     if (trimmed.length < 8 || trimmed.length > 64) {
       throw new ValidationError(
         'Invalid name: must be 8-64 characters long',
-        'INVALID_NAME_LENGTH',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
         {
           minLength: 8,
           maxLength: 64,
@@ -24,7 +25,7 @@ export class Name extends NameVO<Name> {
     if (!/^[\p{L}\p{N} '_-]+$/u.test(trimmed)) {
       throw new ValidationError(
         'Invalid name: contains forbidden characters',
-        'INVALID_NAME_CHARACTERS',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
         {
           forbiddenCharacters: trimmed.match(/[^\p{L}\p{N} '_-]/gu),
           name: trimmed,

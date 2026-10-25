@@ -41,4 +41,12 @@ export class PrismaClientRepository extends PrismaRepository implements ClientRe
       },
     })
   }
+
+  async deleteById(clinetId: string): Promise<void> {
+    await this.prismaClient.client.delete({
+      where: {
+        id: clinetId,
+      },
+    })
+  }
 }

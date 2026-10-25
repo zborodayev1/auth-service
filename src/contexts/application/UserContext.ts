@@ -6,7 +6,7 @@ import { LoginUserHandler } from '@app/commands/user/LoginUser/LoginUserHandler'
 import { LogoutUserSessionHandler } from '@app/commands/user/LogoutUserSession/LogoutUserSessionHandler'
 import { LogoutAllUserSessionsHandler } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsHandler'
 import { RefreshUserAccessTokenHandler } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenHandler'
-import { UpdateUserFieldHandler } from '@app/commands/user/UpdateUserField/UpdateUserFieldHandler'
+import { SetUserFieldHandler } from '@app/commands/user/SetUserField/SetUserFieldHandler'
 import { ChangeUserEmailHandler } from '@app/commands/user/ChangeUserEmail/ChangeUserEmailHandler'
 import { ChangeUserPasswordHandler } from '@app/commands/user/ChangeUserPassword/ChangeUserPasswordHandler'
 import { DeleteUserSelfHandler } from '@app/commands/user/DeleteUserSelf/DeleteUserSelfHandler'
@@ -34,7 +34,7 @@ export class UserContext implements ServiceContext {
     container.bind(LogoutUserSessionHandler).toSelf()
     container.bind(LogoutAllUserSessionsHandler).toSelf()
     container.bind(RefreshUserAccessTokenHandler).toSelf()
-    container.bind(UpdateUserFieldHandler).toSelf()
+    container.bind(SetUserFieldHandler).toSelf()
     container.bind(ChangeUserEmailHandler).toSelf()
     container.bind(ChangeUserPasswordHandler).toSelf()
     container.bind(DeleteUserSelfHandler).toSelf()

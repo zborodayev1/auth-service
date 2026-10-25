@@ -3,7 +3,7 @@ import { GetProjectQuery } from './GetProjectQuery'
 import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
-interface GetProjectResult {
+export interface GetProjectResult {
   id: string
   name: string
   createdAt: Date

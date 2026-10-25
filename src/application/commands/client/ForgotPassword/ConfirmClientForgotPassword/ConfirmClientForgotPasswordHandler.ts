@@ -8,6 +8,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ClientAuthService } from '@services/auth/ClientAuthService'
 import { TokenPair } from '@services/auth/types'
 import { PendingActionContext } from '@aggregates/pendingAction/PendingAction'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface ForgotPasswordContext extends PendingActionContext {
   clientId: string
@@ -40,7 +41,9 @@ export class ConfirmClientForgotPasswordHandler {
 
       const client = await this.clients.findById(ctx.clientId)
       if (!client)
-        throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', { clientId: ctx.clientId })
+        throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+          clientId: ctx.clientId,
+        })
 
       await this.sessions.revokeAllByClientId(ctx.clientId)
       return this.authService.login({

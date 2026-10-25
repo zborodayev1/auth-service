@@ -2,6 +2,7 @@ import { Project } from '@aggregates/project/Project'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { User } from '@aggregates/user/User'
 import { UserRepository } from '@aggregates/user/UserRepository'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { injectable, inject } from 'inversify'
 
@@ -16,12 +17,12 @@ export class ProjectAccessService {
     const project = await this.projects.findById(projectId)
 
     if (!project)
-      throw new NotFoundError('Project not found', 'PROJECT_NOT_FOUND', {
+      throw new NotFoundError('Project not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         query: { clientId, projectId },
       })
 
     if (project.ownerId !== clientId)
-      throw new NotFoundError('Project not found', 'ACCESS_DENIED', {
+      throw new NotFoundError('Project not found', NOT_FOUND_ERROR_CODES.ACCESS_DENIED, {
         query: { clientId, projectId },
         project: project,
       })
@@ -35,16 +36,20 @@ export class ProjectAccessService {
   ): Promise<{ project: Project; user: User }> {
     const user = await this.users.findById(userId)
     if (!user)
-      throw new NotFoundError('User not found', 'USER_NOT_FOUND', { query: { clientId, userId } })
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+        query: { clientId, userId },
+      })
 
     const project = await this.projects.findById(user.projectId)
     if (!project)
-      throw new NotFoundError('Project not found', 'PROJECT_NOT_FOUND', {
+      throw new NotFoundError('Project not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         query: { clientId, userId },
       })
 
     if (project.ownerId !== clientId)
-      throw new NotFoundError('Project not found', 'ACCESS_DENIED', { query: { clientId, userId } })
+      throw new NotFoundError('Project not found', NOT_FOUND_ERROR_CODES.ACCESS_DENIED, {
+        query: { clientId, userId },
+      })
 
     return { project: project, user: user }
   }

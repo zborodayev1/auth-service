@@ -8,6 +8,11 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import {
+  AUTH_ERROR_CODES,
+  CONFLICT_ERROR_CODES,
+  NOT_FOUND_ERROR_CODES,
+} from '@shared/errors/ErrorCodes'
 
 interface ChangeClientPasswordResult {
   success: boolean
@@ -31,15 +36,9 @@ export class ChangeClientPasswordHandler {
   async execute(command: ChangeClientPasswordCommand): Promise<ChangeClientPasswordResult> {
     Password.validateRaw(command.newPassword)
 
-    if (command.currentPassword === command.newPassword) {
-      throw new ConflictError('New password must differ from current', 'PASSWORD_NOT_DIFFERENT', {
-        clientId: command.clientId,
-      })
-    }
-
     const client = await this.clients.findById(command.clientId)
     if (!client) {
-      throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
+      throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         clientId: command.clientId,
       })
     }
@@ -50,9 +49,23 @@ export class ChangeClientPasswordHandler {
     )
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedError('Current password is incorrect', 'INVALID_PASSWORD', {
-        clientId: command.clientId,
-      })
+      throw new UnauthorizedError(
+        'Current password is incorrect',
+        AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        {
+          clientId: command.clientId,
+        },
+      )
+    }
+
+    if (command.currentPassword === command.newPassword) {
+      throw new ConflictError(
+        'New password must differ from current',
+        CONFLICT_ERROR_CODES.PRECONDITION_FAILED,
+        {
+          clientId: command.clientId,
+        },
+      )
     }
 
     const hash = await this.passwordHasher.hash(command.newPassword)

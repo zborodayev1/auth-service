@@ -5,6 +5,7 @@ import { UserRepository } from '@aggregates/user/UserRepository'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { UserAuthService } from '@services/auth/UserAuthService'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface LoginUserResult {
   userId: string
@@ -30,12 +31,12 @@ export class LoginUserHandler {
 
     const user = await this.users.findByProjectAndEmail(command.projectId, email)
     if (!user) {
-      throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS')
+      throw new UnauthorizedError('Invalid credentials', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
     }
 
     const valid = await this.passwordHasher.verify(command.password, user.password.getHash())
     if (!valid) {
-      throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS')
+      throw new UnauthorizedError('Invalid credentials', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
     }
 
     const tokens = await this.authService.login({

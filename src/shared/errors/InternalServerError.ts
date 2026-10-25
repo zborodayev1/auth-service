@@ -1,13 +1,6 @@
 import { AppError } from './AppError'
+import type { InternalErrorCode } from './ErrorCodes'
 
-export class InternalServerError extends AppError {
+export class InternalServerError extends AppError<InternalErrorCode> {
   readonly httpStatus = 500
-
-  constructor(
-    message: string,
-    reason = 'INTERNAL_SERVER_ERROR',
-    details?: Record<string, unknown>,
-  ) {
-    super(message, 'INTERNAL_SERVER_ERROR', reason, details)
-  }
 }

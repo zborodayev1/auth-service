@@ -3,6 +3,7 @@ import { Project } from '@aggregates/project/Project'
 import { ApiKey } from '@aggregates/project/ApiKey'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { Name } from '@valueObjects/Name/Name'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 type PrismaProjectWithApiKey = Prisma.ProjectGetPayload<{
   include: { apiKey: true }
@@ -10,7 +11,7 @@ type PrismaProjectWithApiKey = Prisma.ProjectGetPayload<{
 
 export function projectToDomain(raw: PrismaProjectWithApiKey): Project {
   if (!raw.apiKey)
-    throw new NotFoundError('Project has no apiKey', 'PROJECT_HAS_NO_API_KEY', {
+    throw new NotFoundError('Project has no apiKey', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
       projectId: raw.id,
     })
 

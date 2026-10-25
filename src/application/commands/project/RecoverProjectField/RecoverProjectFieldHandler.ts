@@ -6,6 +6,7 @@ import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldValueRepository'
 import { UnitOfWork } from '@ports/UnitOfWork'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface RecoverProjectFieldResult {
   fieldId: string
@@ -35,7 +36,7 @@ export class RecoverProjectFieldHandler {
     )
 
     if (!field)
-      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+      throw new NotFoundError('Field not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         command: command,
       })
 

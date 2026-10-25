@@ -1,46 +1,51 @@
-import { LoginUserHandler } from '@app/commands/user/LoginUser/LoginUserHandler'
-import { LogoutAllUserSessionsHandler } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsHandler'
-import { LogoutUserSessionHandler } from '@app/commands/user/LogoutUserSession/LogoutUserSessionHandler'
-import { RefreshUserAccessTokenHandler } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenHandler'
-import { RegisterUserHandler } from '@app/commands/user/RegisterUser/RegisterUserHandler'
-import { ServerConfig } from '@config/server/server'
 import { injectable, inject } from 'inversify'
 import type { Request, Response } from 'express'
-import { RegisterUserSchema } from '../validators/user/RegisterUserValidator'
-import { RegisterUserCommand } from '@app/commands/user/RegisterUser/RegisterUserCommand'
-import { LoginUserSchema } from '../validators/user/LoginUserValidator'
-import { LoginUserCommand } from '@app/commands/user/LoginUser/LoginUserCommand'
-import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
-import { RefreshUserAccessTokenCommand } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenCommand'
-import { LogoutAllUserSessionsCommand } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsCommand'
-import { LogoutUserSessionCommand } from '@app/commands/user/LogoutUserSession/LogoutUserSessionCommand'
-import {
-  UpdateUserFieldBodySchema,
-  UpdateUserFieldParamSchema,
-} from '../validators/user/UpdateUserFieldValidator'
-import { UpdateUserFieldHandler } from '@app/commands/user/UpdateUserField/UpdateUserFieldHandler'
-import { UpdateUserFieldCommand } from '@app/commands/user/UpdateUserField/UpdateUserFieldCommand'
-import { GetUserProfileHandler } from '@app/queries/user/GetUserProfile/GetUserProfileHandler'
-import { GetUserProfileQuery } from '@app/queries/user/GetUserProfile/GetUserProfileQuery'
+
+import { ServerConfig } from '@config/server/server'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
+import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+
 import { ChangeUserEmailHandler } from '@app/commands/user/ChangeUserEmail/ChangeUserEmailHandler'
-import { ChangeUserEmailSchema } from '../validators/user/ChangeUserEmailValidator'
 import { ChangeUserEmailCommand } from '@app/commands/user/ChangeUserEmail/ChangeUserEmailCommand'
 import { ChangeUserPasswordHandler } from '@app/commands/user/ChangeUserPassword/ChangeUserPasswordHandler'
-import { ChangeUserPasswordSchema } from '../validators/user/ChangeUserPasswordValidator'
 import { ChangeUserPasswordCommand } from '@app/commands/user/ChangeUserPassword/ChangeUserPasswordCommand'
 import { DeleteUserSelfHandler } from '@app/commands/user/DeleteUserSelf/DeleteUserSelfHandler'
-import { DeleteUserSelfSchema } from '../validators/user/DeleteUserSelfValidator'
 import { DeleteUserSelfCommand } from '@app/commands/user/DeleteUserSelf/DeleteUserSelfCommand'
-import { GetUserFieldsHandler } from '@app/queries/user/GetUserFields/GetUserFieldsHandler'
-import { GetUserFieldsQuery } from '@app/queries/user/GetUserFields/GetUserFieldsQuery'
-import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
-import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQuery'
-import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { GetUserSessionsHandler } from '@app/queries/user/GetUserSessions/GetUserSessionsHandler'
-import { GetUserSessionsQuery } from '@app/queries/user/GetUserSessions/GetUserSessionsQuery'
+import { LoginUserHandler } from '@app/commands/user/LoginUser/LoginUserHandler'
+import { LoginUserCommand } from '@app/commands/user/LoginUser/LoginUserCommand'
+import { LogoutAllUserSessionsHandler } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsHandler'
+import { LogoutAllUserSessionsCommand } from '@app/commands/user/LogoutAllUserSessions/LogoutAllUserSessionsCommand'
+import { LogoutUserSessionHandler } from '@app/commands/user/LogoutUserSession/LogoutUserSessionHandler'
+import { LogoutUserSessionCommand } from '@app/commands/user/LogoutUserSession/LogoutUserSessionCommand'
+import { RefreshUserAccessTokenHandler } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenHandler'
+import { RefreshUserAccessTokenCommand } from '@app/commands/user/RefreshUserAccessToken/RefreshUserAccessTokenCommand'
+import { RegisterUserHandler } from '@app/commands/user/RegisterUser/RegisterUserHandler'
+import { RegisterUserCommand } from '@app/commands/user/RegisterUser/RegisterUserCommand'
 import { RevokeUserSessionHandler } from '@app/commands/user/RevokeUserSession/RevokeUserSessionHandler'
 import { RevokeUserSessionCommand } from '@app/commands/user/RevokeUserSession/RevokeUserSessionCommand'
+import { SetUserFieldHandler } from '@app/commands/user/SetUserField/SetUserFieldHandler'
+import { SetUserFieldCommand } from '@app/commands/user/SetUserField/SetUserFieldCommand'
+
+import { GetUserFieldHandler } from '@app/queries/user/GetUserField/GetUserFieldHandler'
+import { GetUserFieldQuery } from '@app/queries/user/GetUserField/GetUserFieldQuery'
+import { GetUserFieldsHandler } from '@app/queries/user/GetUserFields/GetUserFieldsHandler'
+import { GetUserFieldsQuery } from '@app/queries/user/GetUserFields/GetUserFieldsQuery'
+import { GetUserProfileHandler } from '@app/queries/user/GetUserProfile/GetUserProfileHandler'
+import { GetUserProfileQuery } from '@app/queries/user/GetUserProfile/GetUserProfileQuery'
+import { GetUserSessionsHandler } from '@app/queries/user/GetUserSessions/GetUserSessionsHandler'
+import { GetUserSessionsQuery } from '@app/queries/user/GetUserSessions/GetUserSessionsQuery'
+
+import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
 import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
+import {
+  RegisterUserSchema,
+  LoginUserSchema,
+  DeleteUserSelfSchema,
+  ChangeUserPasswordSchema,
+  ChangeUserEmailSchema,
+  SetUserFieldBodySchema,
+  UserFieldParamsSchema,
+} from '../validators/user/UserValidator'
 
 @injectable()
 export class UserController {
@@ -55,8 +60,8 @@ export class UserController {
     private readonly logoutCurrentHandler: LogoutUserSessionHandler,
     @inject(LogoutAllUserSessionsHandler)
     private readonly logoutAllHandler: LogoutAllUserSessionsHandler,
-    @inject(UpdateUserFieldHandler)
-    private readonly updateHandler: UpdateUserFieldHandler,
+    @inject(SetUserFieldHandler)
+    private readonly setHandler: SetUserFieldHandler,
     @inject(GetUserProfileHandler)
     private readonly getProfileHandler: GetUserProfileHandler,
     @inject(ChangeUserEmailHandler)
@@ -81,7 +86,8 @@ export class UserController {
   async register(req: Request, res: Response): Promise<void> {
     const body = RegisterUserSchema.parse(req.body)
 
-    if (!req.projectAuth) throw new UnauthorizedError('Missing API key')
+    if (!req.projectAuth)
+      throw new UnauthorizedError('Missing API key', AUTH_ERROR_CODES.UNAUTHENTICATED)
 
     const { accessToken, refreshToken, userId } = await this.registerHandler.execute(
       new RegisterUserCommand(
@@ -111,7 +117,8 @@ export class UserController {
   async login(req: Request, res: Response): Promise<void> {
     const body = LoginUserSchema.parse(req.body)
 
-    if (!req.projectAuth) throw new UnauthorizedError('Missing API key')
+    if (!req.projectAuth)
+      throw new UnauthorizedError('Missing API key', AUTH_ERROR_CODES.UNAUTHENTICATED)
 
     const { accessToken, refreshToken, userId } = await this.loginHandler.execute(
       new LoginUserCommand(
@@ -181,16 +188,16 @@ export class UserController {
     res.status(200).json(result)
   }
 
-  async update(req: Request, res: Response): Promise<void> {
-    const body = UpdateUserFieldBodySchema.parse(req.body)
+  async setField(req: Request, res: Response): Promise<void> {
+    const body = SetUserFieldBodySchema.parse(req.body)
 
-    const params = UpdateUserFieldParamSchema.parse(req.params)
+    const params = UserFieldParamsSchema.parse(req.params)
 
-    const result = await this.updateHandler.execute(
-      new UpdateUserFieldCommand(
+    const result = await this.setHandler.execute(
+      new SetUserFieldCommand(
         req.userAuth.userId,
         req.userAuth.projectId,
-        params.id,
+        params.fieldId,
         String(body.value),
       ),
     )
@@ -237,9 +244,9 @@ export class UserController {
   }
 
   async getField(req: Request, res: Response): Promise<void> {
-    const params = UpdateUserFieldParamSchema.parse(req.params)
+    const params = UserFieldParamsSchema.parse(req.params)
     const result = await this.getFieldHandler.execute(
-      new GetUserFieldQuery(req.userAuth.userId, req.userAuth.projectId, params.id),
+      new GetUserFieldQuery(req.userAuth.userId, req.userAuth.projectId, params.fieldId),
     )
     res.status(200).json(result)
   }

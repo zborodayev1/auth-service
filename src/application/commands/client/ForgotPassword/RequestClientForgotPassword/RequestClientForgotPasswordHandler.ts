@@ -24,7 +24,6 @@ export class RequestClientForgotPasswordHandler {
     const email = Email.create(command.email)
     const client = await this.clients.findByEmail(email)
 
-    // no user enumeration — always return success
     if (!client) return { success: true }
 
     await this.emailVerificationService.createPasswordResetToken(command.email, {

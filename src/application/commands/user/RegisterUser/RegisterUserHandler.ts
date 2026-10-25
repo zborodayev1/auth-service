@@ -13,8 +13,9 @@ import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldVa
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { UserFieldValue } from '@aggregates/userFieldValue/UserFieldValue'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { CONFLICT_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
-interface RegisterUserResult {
+export interface RegisterUserResult {
   userId: string
   accessToken: string
   refreshToken: string
@@ -49,7 +50,7 @@ export class RegisterUserHandler {
 
     const exists = await this.users.findByProjectAndEmail(command.projectId, email)
     if (exists) {
-      throw new ConflictError(`Email already taken`, 'EMAIL_TAKEN', {
+      throw new ConflictError(`Email already taken`, CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
         email: email.toString(),
       })
     }

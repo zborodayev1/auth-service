@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 import { ClientSessionRepository } from '@aggregates/clientSession/ClientSessionRepository'
 import { ClientAccessTokenService } from '@ports/ClientAccessTokenService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class ClientAuthMiddleware {
@@ -19,7 +20,7 @@ export class ClientAuthMiddleware {
     const header = req.header('authorization')
 
     if (!header?.startsWith('Bearer ')) {
-      throw new UnauthorizedError('Missing bearer token')
+      throw new UnauthorizedError('Missing bearer token', AUTH_ERROR_CODES.UNAUTHENTICATED)
     }
 
     const token = header.substring(7)
@@ -29,15 +30,15 @@ export class ClientAuthMiddleware {
     const session = await this.sessions.findById(payload.sessionId)
 
     if (!session) {
-      throw new UnauthorizedError('Session not found')
+      throw new UnauthorizedError('Session not found', AUTH_ERROR_CODES.UNAUTHENTICATED)
     }
 
     if (!session.isActive()) {
-      throw new UnauthorizedError('Session expired', 'SESSION_EXPIRED')
+      throw new UnauthorizedError('Session expired', AUTH_ERROR_CODES.SESSION_EXPIRED)
     }
 
     if (session.clientId !== payload.clientId) {
-      throw new UnauthorizedError('Invalid session')
+      throw new UnauthorizedError('Invalid session', AUTH_ERROR_CODES.UNAUTHENTICATED)
     }
 
     req.auth = payload

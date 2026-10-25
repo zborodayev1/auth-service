@@ -1,4 +1,5 @@
 import { ValueObject } from '@libs/ddd/ValueObject'
+import { VALIDATION_ERROR_CODES } from '@shared/errors/ErrorCodes'
 import { ValidationError } from '@shared/errors/ValidationError'
 
 export class Email extends ValueObject<Email> {
@@ -9,7 +10,7 @@ export class Email extends ValueObject<Email> {
   static create(raw: string): Email {
     const trimmed = raw.toLowerCase().trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      throw new ValidationError('Invalid email format', 'INVALID_EMAIL_FORMAT', {
+      throw new ValidationError('Invalid email format', VALIDATION_ERROR_CODES.INVALID_INPUT, {
         email: trimmed,
       })
     }

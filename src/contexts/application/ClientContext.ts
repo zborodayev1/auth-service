@@ -1,7 +1,6 @@
 import { Container, injectable } from 'inversify'
 import { ServiceContext } from '../ServiceContext'
 
-import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
 import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
 import { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
@@ -24,11 +23,15 @@ import { ClientController } from '@presentation/http/controllers/ClientControlle
 import { ClientAuthMiddleware } from '@presentation/http/middleware/ClientAuthMiddleware'
 import { RequestClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordHandler'
 import { ConfirmClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordHandler'
+import { RequestRegisterClientHandler } from '@app/commands/client/RegisterClient/RequestRegisterClient/RequestRegisterClientHandler'
+import { ConfirmRegisterClientHandler } from '@app/commands/client/RegisterClient/ConfirmRegisterClient/ConfirmRegisterClientHandler'
+import { AdminRegisterClientHandler } from '@app/commands/client/admin/AdminRegisterClient/AdminRegisterClientHandler'
 
 @injectable()
 export class ClientContext implements ServiceContext {
   register(container: Container): void {
-    container.bind(RegisterClientHandler).toSelf()
+    container.bind(RequestRegisterClientHandler).toSelf()
+    container.bind(ConfirmRegisterClientHandler).toSelf()
     container.bind(LoginClientHandler).toSelf()
     container.bind(ChangeClientPasswordHandler).toSelf()
     container.bind(LogoutCurrentClientSessionHandler).toSelf()
@@ -43,6 +46,7 @@ export class ClientContext implements ServiceContext {
     container.bind(ConfirmClientEmailChangeHandler).toSelf()
     container.bind(RequestClientForgotPasswordHandler).toSelf()
     container.bind(ConfirmClientForgotPasswordHandler).toSelf()
+    container.bind(AdminRegisterClientHandler).toSelf()
 
     container.bind(ClientAuthService).toSelf().inSingletonScope()
     container.bind(ClientRefreshTokenService).toSelf().inSingletonScope()

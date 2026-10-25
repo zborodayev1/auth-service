@@ -5,6 +5,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { ProjectFieldFactory } from '@factories/ProjectFieldFactory'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
+import { CONFLICT_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 export interface AddProjectFieldResult {
   fieldId: string
@@ -28,7 +29,7 @@ export class AddProjectFieldHandler {
     const exists = await this.projectFields.findByProjectAndName(command.projectId, command.name)
 
     if (exists) {
-      throw new ConflictError('Project field already exists', 'FIELD_ALREADY_EXISTS', {
+      throw new ConflictError('Project field already exists', CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
         command: command,
         field: exists,
       })

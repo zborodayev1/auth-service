@@ -1,11 +1,11 @@
 import { inject, injectable } from 'inversify'
 import { RequestRegisterClientCommand } from './RequestRegisterClientCommand'
 import { ClientRepository } from '@aggregates/client/ClientRepository'
-import { ConflictError } from '@shared/errors/ConflictError'
 import { Email } from '@valueObjects/Email/Email'
 import { EmailVerificationService } from '@services/email/EmailVerificationService'
 import { PasswordHasher } from '@ports/PasswordHasher'
 import { Password } from '@valueObjects/Password/Password'
+import { IEmailService } from '@ports/IEmailService'
 
 interface RequestRegisterClientResult {
   success: boolean
@@ -22,6 +22,8 @@ export class RequestRegisterClientHandler {
 
     @inject(PasswordHasher)
     private readonly passwordHasher: PasswordHasher,
+
+    @inject(IEmailService) private readonly emailService: IEmailService,
   ) {}
 
   async execute(command: RequestRegisterClientCommand): Promise<RequestRegisterClientResult> {
@@ -29,9 +31,8 @@ export class RequestRegisterClientHandler {
 
     const exists = await this.clients.findByEmail(email)
     if (exists) {
-      throw new ConflictError(`Email already taken`, 'EMAIL_TAKEN', {
-        email: email.toString(),
-      })
+      await this.emailService.sendRegistrationAttemptNotice(command.email)
+      return { success: true }
     }
 
     Password.validateRaw(command.password)

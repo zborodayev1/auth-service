@@ -1,9 +1,6 @@
 import { AppError } from './AppError'
+import type { ConflictCode } from './ErrorCodes'
 
-export class ConflictError extends AppError {
+export class ConflictError extends AppError<ConflictCode> {
   readonly httpStatus = 409
-
-  constructor(message: string, reason = 'CONFLICT', details?: Record<string, unknown>) {
-    super(message, 'CONFLICT', reason, details)
-  }
 }

@@ -7,6 +7,11 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { Email } from '@valueObjects/Email/Email'
 import { EmailVerificationService } from '@services/email/EmailVerificationService'
+import {
+  AUTH_ERROR_CODES,
+  CONFLICT_ERROR_CODES,
+  NOT_FOUND_ERROR_CODES,
+} from '@shared/errors/ErrorCodes'
 
 interface RequestClientEmailChangeResult {
   success: true
@@ -28,7 +33,7 @@ export class RequestClientEmailChangeHandler {
   async execute(command: RequestClientEmailChangeCommand): Promise<RequestClientEmailChangeResult> {
     const client = await this.clients.findById(command.clientId)
     if (!client) {
-      throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
+      throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         clientId: command.clientId,
       })
     }
@@ -38,16 +43,20 @@ export class RequestClientEmailChangeHandler {
       client.password.getHash(),
     )
     if (!isPasswordValid)
-      throw new UnauthorizedError('Current password is incorrect', 'INVALID_PASSWORD', {
-        clientId: command.clientId,
-      })
+      throw new UnauthorizedError(
+        'Current password is incorrect',
+        AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        {
+          clientId: command.clientId,
+        },
+      )
 
     const newEmail = Email.create(command.newEmail)
 
     const exists = await this.clients.findByEmail(newEmail)
 
     if (exists) {
-      throw new ConflictError('Email already taken', 'EMAIL_TAKEN', {
+      throw new ConflictError('Email already taken', CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
         email: newEmail.toString(),
         clientId: command.clientId,
       })

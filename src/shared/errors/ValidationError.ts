@@ -1,9 +1,6 @@
 import { AppError } from './AppError'
+import type { ValidationCode } from './ErrorCodes'
 
-export class ValidationError extends AppError {
+export class ValidationError extends AppError<ValidationCode> {
   readonly httpStatus = 400
-
-  constructor(message: string, reason = 'VALIDATION_ERROR', details?: Record<string, unknown>) {
-    super(message, 'VALIDATION_ERROR', reason, details)
-  }
 }

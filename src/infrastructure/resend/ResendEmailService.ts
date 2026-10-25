@@ -116,4 +116,35 @@ export class ResendEmailService implements IEmailService {
       html: emailShell('Verify your email', 'Your email verification token', body),
     })
   }
+  async sendRegistrationAttemptNotice(to: string): Promise<void> {
+    const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#18181b;">
+      Registration attempt
+    </h1>
+
+    <p style="margin:0 0 20px;font-size:15px;color:#52525b;line-height:1.6;">
+      Someone tried to create a new account using this email address.
+    </p>
+
+    <p style="margin:0 0 20px;font-size:15px;color:#52525b;line-height:1.6;">
+      If this was you, you already have an account. Please sign in to your existing account.
+    </p>
+
+    <p style="margin:0;font-size:13px;color:#71717a;line-height:1.6;">
+      If you didn't try to create an account, you can safely ignore this email.
+      No changes were made to your account.
+    </p>
+  `
+
+    await this.resend.emails.send({
+      from: FROM,
+      to,
+      subject: 'Registration attempt',
+      html: emailShell(
+        'Registration attempt',
+        'Someone tried to create an account using your email',
+        body,
+      ),
+    })
+  }
 }

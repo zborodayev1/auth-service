@@ -7,6 +7,7 @@ import { NotFoundError } from '@shared/errors/NotFoundError'
 import { Email } from '@valueObjects/Email/Email'
 import { PendingActionContext } from '@aggregates/pendingAction/PendingAction'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { CONFLICT_ERROR_CODES, NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface ConfirmClientEmailChangeResult {
   newEmail: string
@@ -39,7 +40,7 @@ export class ConfirmClientEmailChangeHandler {
       const client = await this.clients.findById(ctx.id)
 
       if (!client) {
-        throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
+        throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
           clientId: ctx.id,
         })
       }
@@ -49,7 +50,7 @@ export class ConfirmClientEmailChangeHandler {
       const exists = await this.clients.findByEmail(newEmail)
 
       if (exists && exists.id !== client.id) {
-        throw new ConflictError('Email already taken', 'EMAIL_TAKEN', {
+        throw new ConflictError('Email already taken', CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
           email: newEmail.toString(),
           clientId: ctx.id,
         })

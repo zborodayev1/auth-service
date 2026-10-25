@@ -18,18 +18,7 @@ export class PinoLogger implements ILogger {
       name: 'auth-service',
     }
 
-    if (!this.serverConfig.isProduction) {
-      options.transport = {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'HH:MM:ss',
-          ignore: 'pid,hostname',
-        },
-      }
-    }
-
-    this.logger = pino(options)
+    this.logger = pino(options, pino.destination('./logs/app.log'))
   }
 
   private ctx(extra?: Record<string, unknown>): Record<string, unknown> {

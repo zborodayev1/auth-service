@@ -31,7 +31,7 @@ model Project {
   name      String @db.VarChar(64)
 
   ownerId   String @db.Uuid
-  owner   Client @relation(fields: [ownerId], references: [id])
+  owner   Client @relation(fields: [ownerId], references: [id],   onDelete: Cascade)
 
   fields    ProjectField[]
   users     User[]
@@ -51,7 +51,7 @@ model ApiKey {
   revoked Boolean @default(false)
 
   projectId String @unique @db.Uuid
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id],  onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -73,8 +73,8 @@ model Client {
 model RefreshToken {
     id String @id @default(uuid()) @db.Uuid
 
-    sessionId String @db.Uuid
-    session Session @relation(fields:[sessionId], references:[id])
+    sessionId String? @db.Uuid
+    session Session? @relation(fields:[sessionId], references:[id], onDelete: SetNull)
 
     hash String @unique @db.Char(64)
 
@@ -93,7 +93,7 @@ model Session {
     id                String   @id @default(uuid()) @db.Uuid
 
     clientId          String   @db.Uuid
-    client            Client   @relation(fields: [clientId], references: [id])
+    client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
     refreshTokens RefreshToken[]
 
@@ -113,7 +113,7 @@ model Session {
 model ProjectField {
   id        String @id @default(uuid()) @db.Uuid
   projectId String @db.Uuid
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id],  onDelete: Cascade)
 
   name  String @db.VarChar(64)
 
@@ -132,9 +132,9 @@ model ProjectField {
 model UserFieldValue {
   id        String       @id @default(uuid()) @db.Uuid
   userId    String       @db.Uuid
-  user      User         @relation(fields: [userId], references: [id])
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   fieldId   String       @db.Uuid
-  field     ProjectField @relation(fields: [fieldId], references: [id])
+  field     ProjectField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
   value     String
   updatedAt DateTime     @updatedAt
 
@@ -148,7 +148,7 @@ model UserFieldValue {
 model User {
   id        String @id @default(uuid()) @db.Uuid
   projectId String @db.Uuid
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id],onDelete: Cascade)
 
   sessions UserSession[]
   fieldValues UserFieldValue[]
@@ -164,8 +164,8 @@ model User {
 
 model UserRefreshToken {
   id        String @id @default(uuid()) @db.Uuid
-  sessionId String @db.Uuid
-  session UserSession @relation(fields:[sessionId], references:[id])
+  sessionId String? @db.Uuid
+  session UserSession? @relation(fields:[sessionId], references:[id], onDelete: SetNull)
 
   hash String @unique @db.Char(64)
 
@@ -184,7 +184,7 @@ model UserSession {
   id        String @id @default(uuid()) @db.Uuid
 
   userId          String   @db.Uuid
-  user            User   @relation(fields: [userId], references: [id])
+  user            User   @relation(fields: [userId], references: [id],onDelete: Cascade)
 
   expiresAt         DateTime
   revokedAt         DateTime?

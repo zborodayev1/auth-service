@@ -1,0 +1,67 @@
+import { ProjectFieldRepository } from '@aggregates/projectField/ProjectFieldRepository'
+import { UserRepository } from '@aggregates/user/UserRepository'
+import { inject, injectable } from 'inversify'
+import { SetUserFieldCommand } from './SetUserFieldCommand'
+import { NotFoundError } from '@shared/errors/NotFoundError'
+import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
+import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
+import { UserFieldValueRepository } from '@aggregates/userFieldValue/UserFieldValueRepository'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
+
+export interface SetUserFieldResult {
+  fieldId: string
+  value: string
+}
+
+@injectable()
+export class SetUserFieldHandler {
+  constructor(
+    @inject(ProjectFieldRepository)
+    private readonly projectFields: ProjectFieldRepository,
+
+    @inject(UserRepository)
+    private readonly users: UserRepository,
+
+    @inject(SchemaBuilderService)
+    private readonly schemaBuilder: SchemaBuilderService,
+
+    @inject(UserFieldValueFactory)
+    private readonly fieldFactory: UserFieldValueFactory,
+
+    @inject(UserFieldValueRepository)
+    private readonly userFields: UserFieldValueRepository,
+  ) {}
+
+  async execute(command: SetUserFieldCommand): Promise<SetUserFieldResult> {
+    const field = await this.projectFields.findByIdAndProject(command.fieldId, command.projectId)
+
+    if (!field) {
+      throw new NotFoundError('Field not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+        command: command,
+      })
+    }
+
+    const user = await this.users.findById(command.userId)
+    if (user?.projectId !== command.projectId)
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+        userId: command.userId,
+        projectId: command.projectId,
+      })
+
+    const validated = this.schemaBuilder.build([field]).parse({ [command.fieldId]: command.value })
+
+    const serialized = String(validated[command.fieldId])
+
+    const existing = await this.userFields.findByUserAndField(command.userId, field.id)
+
+    let params = existing
+      ? { id: existing.id, userId: command.userId, fieldId: field.id, value: serialized }
+      : { userId: command.userId, fieldId: field.id, value: serialized }
+
+    const fieldValue = this.fieldFactory.create(params)
+
+    await this.userFields.save(fieldValue)
+
+    return { fieldId: field.id, value: serialized }
+  }
+}

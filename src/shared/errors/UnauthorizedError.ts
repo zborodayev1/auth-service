@@ -1,13 +1,6 @@
 import { AppError } from './AppError'
+import type { AuthCode } from './ErrorCodes'
 
-export class UnauthorizedError extends AppError {
+export class UnauthorizedError extends AppError<AuthCode> {
   readonly httpStatus = 401
-
-  constructor(
-    message = 'Unauthorized',
-    reason = 'UNAUTHORIZED',
-    details?: Record<string, unknown>,
-  ) {
-    super(message, 'UNAUTHORIZED', reason, details)
-  }
 }

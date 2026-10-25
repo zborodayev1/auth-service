@@ -11,6 +11,7 @@ import { Email } from '@valueObjects/Email/Email'
 import { Name } from '@valueObjects/Name/Name'
 import { Password } from '@valueObjects/Password/Password'
 import { Client } from '@aggregates/client/Client'
+import { CONFLICT_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface ConfirmRegisterClientResult {
   clientId: string
@@ -53,7 +54,7 @@ export class ConfirmRegisterClientHandler {
 
       const exists = await this.clients.findByEmail(email)
       if (exists) {
-        throw new ConflictError(`Email already taken`, 'EMAIL_TAKEN', {
+        throw new ConflictError(`Email already taken`, CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
           email: email.toString(),
         })
       }

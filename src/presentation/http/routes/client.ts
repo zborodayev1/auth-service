@@ -23,18 +23,19 @@ export class ClientRouter {
     router.get('/projects', queryRequestRateLimiter, authenticate, c.getProjects.bind(c))
     router.get('/me', queryRequestRateLimiter, authenticate, c.getProfile.bind(c))
 
-    router.post('/register', mutateRequestRateLimiter, c.register.bind(c))
+    router.post('/register', authRateLimiter, c.requestRegister.bind(c))
+    router.post('/confirm-register', authRateLimiter, c.confirmRegister.bind(c))
     router.post('/login', authRateLimiter, c.login.bind(c))
 
     router.patch('/name', mutateRequestRateLimiter, authenticate, c.changeName.bind(c))
 
-    router.patch(
+    router.post(
       '/request-change-email',
       mutateRequestRateLimiter,
       authenticate,
       c.requestChangeEmail.bind(c),
     )
-    router.patch(
+    router.post(
       '/confirm-change-email',
       mutateRequestRateLimiter,
       authenticate,
@@ -43,16 +44,8 @@ export class ClientRouter {
 
     router.patch('/password', mutateRequestRateLimiter, authenticate, c.changePassword.bind(c))
 
-    router.post(
-      '/request-password-reset',
-      authRateLimiter,
-      c.requestPasswordReset.bind(c),
-    )
-    router.post(
-      '/confirm-password-reset',
-      authRateLimiter,
-      c.confirmPasswordReset.bind(c),
-    )
+    router.post('/request-password-reset', authRateLimiter, c.requestPasswordReset.bind(c))
+    router.post('/confirm-password-reset', authRateLimiter, c.confirmPasswordReset.bind(c))
 
     router.post('/logout', mutateRequestRateLimiter, authenticate, c.logoutCurrent.bind(c))
 

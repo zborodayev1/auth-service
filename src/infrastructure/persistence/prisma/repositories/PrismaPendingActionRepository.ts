@@ -67,15 +67,15 @@ export class PrismaPendingActionRepository
 
   async consumeByTokenHash(hash: string): Promise<PendingAction | null> {
     const rows = await this.prismaClient.$queryRaw<PrismaPendingActionRow[]>`
-  DELETE FROM "PendingAction"
-  WHERE "tokenHash" = ${hash}
-  RETURNING
-    "id",
-    "tokenHash",
-    "context",
-    "expiresAt",
-    "createdAt"
-`
+    DELETE FROM "PendingAction"
+    WHERE "tokenHash" = ${hash}
+    RETURNING
+      "id",
+      "tokenHash",
+      "context",
+      "expiresAt",
+      "createdAt"
+  `
 
     return rows[0] ? pendingActionToDomain(rows[0]) : null
   }

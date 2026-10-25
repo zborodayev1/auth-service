@@ -34,22 +34,21 @@ import { GetProjectUsersHandler } from '@app/queries/project/GetProjectUsers/Get
 import { GetProjectUsersQuery } from '@app/queries/project/GetProjectUsers/GetProjectUsersQuery'
 import { GetProjectUserHandler } from '@app/queries/project/GetProjectUser/GetProjectUserHandler'
 import { GetProjectUserQuery } from '@app/queries/project/GetProjectUser/GetProjectUserQuery'
-
-import { CreateProjectSchema } from '../validators/project/CreateProjectValidator'
-import { AddProjectFieldSchema } from '../validators/project/AddProjectFieldValidator'
-import { UpdateProjectFieldSchema } from '../validators/project/UpdateProjectFieldValidator'
-import { ProjectIdParamSchema } from '../validators/project/ProjectIdParamValidator'
-import { FieldIdParamSchema } from '../validators/project/FieldIdParamValidator'
-import { RenameProjectSchema } from '../validators/project/RenameProjectValidator'
-import { RenameApiKeySchema } from '../validators/project/RenameApiKeyValidator'
-import { RotateApiKeySchema } from '../validators/project/RotateApiKeyValidator'
-import { UserIdParamSchema } from '../validators/project/UserIdParamValidator'
-import { PaginationQuerySchema } from '../validators/project/PaginationQueryValidator'
 import {
-  UpdateProjectUserFieldBodySchema,
+  CreateProjectSchema,
+  ProjectIdParamSchema,
+  RenameProjectSchema,
+  RotateApiKeySchema,
+  RenameApiKeySchema,
+  PaginationQuerySchema,
+  UserIdParamSchema,
   UpdateProjectUserFieldParamSchema,
-} from '../validators/project/UpdateProjectUserFieldValidator'
-import { DeleteProjectFieldQuerySchema } from '../validators/project/DeleteProjectFieldValidator'
+  UpdateProjectUserFieldBodySchema,
+  AddProjectFieldSchema,
+  UpdateProjectFieldSchema,
+  DeleteProjectFieldQuerySchema,
+  ProjectFieldParamsSchema,
+} from '../validators/project/ProjectValidator'
 
 @injectable()
 export class ProjectController {
@@ -223,8 +222,7 @@ export class ProjectController {
   }
 
   async updateField(req: Request, res: Response): Promise<void> {
-    const { projectId } = ProjectIdParamSchema.parse(req.params)
-    const { fieldId } = FieldIdParamSchema.parse(req.params)
+    const { projectId, fieldId } = ProjectFieldParamsSchema.parse(req.params)
     const body = UpdateProjectFieldSchema.parse(req.body)
 
     const result = await this.updateFieldHandler.execute(
@@ -243,8 +241,7 @@ export class ProjectController {
   }
 
   async recoverField(req: Request, res: Response): Promise<void> {
-    const { projectId } = ProjectIdParamSchema.parse(req.params)
-    const { fieldId } = FieldIdParamSchema.parse(req.params)
+    const { projectId, fieldId } = ProjectFieldParamsSchema.parse(req.params)
 
     const result = await this.recoverFieldHandler.execute(
       new RecoverProjectFieldCommand(projectId, fieldId, req.auth.clientId),
@@ -254,8 +251,7 @@ export class ProjectController {
   }
 
   async deleteField(req: Request, res: Response): Promise<void> {
-    const { projectId } = ProjectIdParamSchema.parse(req.params)
-    const { fieldId } = FieldIdParamSchema.parse(req.params)
+    const { projectId, fieldId } = ProjectFieldParamsSchema.parse(req.params)
     const { force } = DeleteProjectFieldQuerySchema.parse(req.query)
 
     const result = await this.deleteFieldHandler.execute(

@@ -8,6 +8,7 @@ import { PasswordHasher } from '@ports/PasswordHasher'
 import { UnitOfWork } from '@ports/UnitOfWork'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES, NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface DeleteUserSelfResult {
   success: boolean
@@ -36,7 +37,7 @@ export class DeleteUserSelfHandler {
   async execute(command: DeleteUserSelfCommand): Promise<DeleteUserSelfResult> {
     const user = await this.users.findById(command.userId)
     if (user?.projectId !== command.projectId) {
-      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         userId: command.userId,
         projectId: command.projectId,
       })
@@ -47,9 +48,13 @@ export class DeleteUserSelfHandler {
       user.password.getHash(),
     )
     if (!isPasswordValid) {
-      throw new UnauthorizedError('Current password is incorrect', 'INVALID_PASSWORD', {
-        userId: command.userId,
-      })
+      throw new UnauthorizedError(
+        'Current password is incorrect',
+        AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        {
+          userId: command.userId,
+        },
+      )
     }
 
     await this.unitOfWork.execute(async () => {

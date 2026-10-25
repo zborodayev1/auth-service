@@ -1,79 +1,134 @@
-import { afterAll, describe, expect, it } from 'vitest'
+import { describe, expect } from 'vitest'
 import { ClientAuthService } from './ClientAuthService'
-import { RegisterClientHandler } from '../../commands/client/RegisterClient/RegisterClientHandler'
-import { RegisterClientCommand } from '../../commands/client/RegisterClient/RegisterClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
-import { getTestContainer, disconnectTestDb } from '@tests/helpers/container'
-import { useTransactionIsolation, getDbClient } from '@tests/helpers/db'
+import { getDbClient } from '@tests/helpers/getDbClient'
+import { environment } from '@tests/setup'
+import { integrationTest } from '@tests/helpers/integrationTest'
+import { seedClient } from '@tests/fixtures/client'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
-const container = getTestContainer()
+const container = environment.container.container
 const service = container.get(ClientAuthService)
-const registerHandler = container.get(RegisterClientHandler)
-
-const CLIENT = { name: 'Test Client', email: 'client@example.com', password: 'password123' }
-
-const seedClient = (): ReturnType<typeof registerHandler.execute> =>
-  registerHandler.execute(
-    new RegisterClientCommand(CLIENT.name, CLIENT.email, CLIENT.password, null, null, null),
-  )
 
 describe('ClientAuthService', () => {
-  useTransactionIsolation(container)
-
-  afterAll(async () => {
-    await disconnectTestDb()
-  })
-
   describe('login()', () => {
-    it('returns accessToken and refreshToken', async () => {
-      const { clientId } = await seedClient()
-      const result = await service.login({ clientId, userAgent: null, ipAddress: null, deviceName: null })
+    integrationTest('returns accessToken and refreshToken', async () => {
+      const { clientId } = await seedClient(container)
+      const result = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
       expect(result.accessToken).toBeTruthy()
       expect(result.refreshToken).toBeTruthy()
     })
 
-    it('multiple logins succeed independently', async () => {
-      const { clientId } = await seedClient()
-      const first = await service.login({ clientId, userAgent: null, ipAddress: null, deviceName: null })
-      const second = await service.login({ clientId, userAgent: null, ipAddress: null, deviceName: null })
+    integrationTest('multiple logins succeed independently', async () => {
+      const { clientId } = await seedClient(container)
+      const first = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
+      const second = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
       expect(first.refreshToken).not.toBe(second.refreshToken)
+    })
+
+    integrationTest('login refresh token can be used to refresh tokens', async () => {
+      const { clientId } = await seedClient(container)
+
+      const loginResult = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
+
+      const refreshResult = await service.refresh(loginResult.refreshToken)
+
+      expect(refreshResult.accessToken).toBeTruthy()
+      expect(refreshResult.refreshToken).toBeTruthy()
+      expect(refreshResult.refreshToken).not.toBe(loginResult.refreshToken)
+    })
+
+    integrationTest('multiple logins create independently usable sessions', async () => {
+      const { clientId } = await seedClient(container)
+
+      const first = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
+
+      const second = await service.login({
+        clientId,
+        userAgent: null,
+        ipAddress: null,
+        deviceName: null,
+      })
+
+      const firstRefresh = await service.refresh(first.refreshToken)
+      const secondRefresh = await service.refresh(second.refreshToken)
+
+      expect(firstRefresh.refreshToken).not.toBe(secondRefresh.refreshToken)
+      expect(firstRefresh.accessToken).toBeTruthy()
+      expect(secondRefresh.accessToken).toBeTruthy()
     })
   })
 
   describe('refresh()', () => {
-    it('returns new accessToken and refreshToken', async () => {
-      const { refreshToken } = await seedClient()
+    integrationTest('returns new accessToken and refreshToken', async () => {
+      const { refreshToken } = await seedClient(container)
       const result = await service.refresh(refreshToken)
+
       expect(result.accessToken).toBeTruthy()
       expect(result.refreshToken).toBeTruthy()
     })
 
-    it('rotated token differs from original', async () => {
-      const { refreshToken } = await seedClient()
+    integrationTest('rotated token differs from original', async () => {
+      const { refreshToken } = await seedClient(container)
       const result = await service.refresh(refreshToken)
+
       expect(result.refreshToken).not.toBe(refreshToken)
     })
 
-    it('throws REFRESH_TOKEN_REUSE_DETECTED on second use of same token', async () => {
-      const { refreshToken } = await seedClient()
+    integrationTest('throws REFRESH_TOKEN_REUSE_DETECTED on second use of same token', async () => {
+      const { refreshToken } = await seedClient(container)
       await service.refresh(refreshToken)
+
       const err = await service.refresh(refreshToken).catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_REUSE_DETECTED')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.TOKEN_REUSED)
     })
 
-    it('throws REFRESH_TOKEN_EXPIRED for expired token', async () => {
-      const { refreshToken } = await seedClient()
-      await getDbClient(container).refreshToken.updateMany({ where: {}, data: { expiresAt: new Date(0) } })
+    integrationTest('throws REFRESH_TOKEN_EXPIRED for expired token', async () => {
+      const { refreshToken } = await seedClient(container)
+
+      await getDbClient(container).refreshToken.updateMany({
+        where: {},
+        data: { expiresAt: new Date(0) },
+      })
+
       const err = await service.refresh(refreshToken).catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_EXPIRED')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.TOKEN_EXPIRED)
     })
 
-    it('throws REFRESH_TOKEN_INVALID for unknown token', async () => {
+    integrationTest('throws REFRESH_TOKEN_INVALID for unknown token', async () => {
       const err = await service.refresh('not-a-real-token').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_INVALID')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.UNAUTHENTICATED)
     })
   })
 })
