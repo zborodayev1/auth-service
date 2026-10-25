@@ -1,4 +1,5 @@
 import { ValueObject } from '@libs/ddd/ValueObject'
+import { VALIDATION_ERROR_CODES } from '@shared/errors/ErrorCodes'
 import { ValidationError } from '@shared/errors/ValidationError'
 
 export class Password extends ValueObject<Password> {
@@ -10,7 +11,7 @@ export class Password extends ValueObject<Password> {
     if (!raw || raw.length < 8)
       throw new ValidationError(
         'Invalid password: must be at least 8 characters long',
-        'INVALID_PASSWORD_LENGTH',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
         {
           minLength: 8,
           actualLength: raw.length,
@@ -19,7 +20,7 @@ export class Password extends ValueObject<Password> {
     if (raw.length > 128)
       throw new ValidationError(
         'Invalid password: must not exceed 128 characters',
-        'INVALID_PASSWORD_LENGTH',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
         {
           maxLength: 128,
           actualLength: raw.length,
@@ -28,10 +29,14 @@ export class Password extends ValueObject<Password> {
   }
 
   static fromHash(hash: string): Password {
-    if (!hash) throw new ValidationError('Invalid password hash', 'INVALID_PASSWORD_HASH')
+    if (!hash)
+      throw new ValidationError('Invalid password hash', VALIDATION_ERROR_CODES.INVALID_INPUT)
 
     if (!/^\$2[aby]?\$/.test(hash))
-      throw new ValidationError('Invalid password hash format', 'INVALID_PASSWORD_HASH_FORMAT')
+      throw new ValidationError(
+        'Invalid password hash format',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
+      )
 
     return new Password(hash)
   }

@@ -8,6 +8,7 @@ import { ClientSessionFactory } from '@factories/ClientSessionFactory'
 import { ClientRefreshTokenRepository } from '@aggregates/clientRefreshToken/ClientRefreshTokenRepository'
 import { ClientLoginContext, TokenPair } from './types'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class ClientAuthService {
@@ -41,10 +42,14 @@ export class ClientAuthService {
     const session = await this.sessions.findById(token.sessionId)
 
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Session is invalid or has been revoked', 'INVALID_SESSION', {
-        session: session,
-        token: token,
-      })
+      throw new UnauthorizedError(
+        'Session is invalid or has been revoked',
+        AUTH_ERROR_CODES.SESSION_EXPIRED,
+        {
+          session: session,
+          token: token,
+        },
+      )
     }
 
     const [refresh] = await this.unitOfWork.execute(async () => {

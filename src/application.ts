@@ -7,6 +7,7 @@ import { JobManager } from '@infra/jobs/JobManager'
 import { PrismaProvider } from '@infra/persistence/prisma/PrismaProvider'
 import { RedisProvider } from '@infra/redis/RedisProvider'
 import { InternalServerError } from '@shared/errors/InternalServerError'
+import { INTERNAL_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class Application {
@@ -58,7 +59,10 @@ export class Application {
   }
   private getHttpServer(): http.Server {
     if (!this.server) {
-      throw new InternalServerError('HTTP server is not initialized')
+      throw new InternalServerError(
+        'HTTP server is not initialized',
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
+      )
     }
 
     return this.server

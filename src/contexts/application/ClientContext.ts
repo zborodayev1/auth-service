@@ -1,9 +1,7 @@
 import { Container, injectable } from 'inversify'
 import { ServiceContext } from '../ServiceContext'
 
-import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
 import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
-import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
 import { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
 import { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
@@ -13,6 +11,8 @@ import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/Ge
 import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
 import { GetClientSessionsHandler } from '@app/queries/client/GetClientSessions/GetClientSessionsHandler'
 import { RevokeClientSessionHandler } from '@app/commands/client/RevokeClientSession/RevokeClientSessionHandler'
+import { RequestClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/RequestClientEmailChange/RequestClientEmailChangeHandler'
+import { ConfirmClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/ConfirmClientEmailChange/ConfirmClientEmailChangeHandler'
 
 import { ClientAuthService } from '@services/auth/ClientAuthService'
 import { ClientRefreshTokenService } from '@services/refresh-token/ClientRefreshTokenService'
@@ -21,13 +21,18 @@ import { ClientRefreshTokenFactory } from '@factories/ClientRefreshTokenFactory'
 
 import { ClientController } from '@presentation/http/controllers/ClientController'
 import { ClientAuthMiddleware } from '@presentation/http/middleware/ClientAuthMiddleware'
+import { RequestClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordHandler'
+import { ConfirmClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordHandler'
+import { RequestRegisterClientHandler } from '@app/commands/client/RegisterClient/RequestRegisterClient/RequestRegisterClientHandler'
+import { ConfirmRegisterClientHandler } from '@app/commands/client/RegisterClient/ConfirmRegisterClient/ConfirmRegisterClientHandler'
+import { AdminRegisterClientHandler } from '@app/commands/client/admin/AdminRegisterClient/AdminRegisterClientHandler'
 
 @injectable()
 export class ClientContext implements ServiceContext {
   register(container: Container): void {
-    container.bind(RegisterClientHandler).toSelf()
+    container.bind(RequestRegisterClientHandler).toSelf()
+    container.bind(ConfirmRegisterClientHandler).toSelf()
     container.bind(LoginClientHandler).toSelf()
-    container.bind(ChangeClientEmailHandler).toSelf()
     container.bind(ChangeClientPasswordHandler).toSelf()
     container.bind(LogoutCurrentClientSessionHandler).toSelf()
     container.bind(LogoutAllClientSessionsHandler).toSelf()
@@ -37,6 +42,11 @@ export class ClientContext implements ServiceContext {
     container.bind(GetClientProjectsHandler).toSelf()
     container.bind(GetClientSessionsHandler).toSelf()
     container.bind(RevokeClientSessionHandler).toSelf()
+    container.bind(RequestClientEmailChangeHandler).toSelf()
+    container.bind(ConfirmClientEmailChangeHandler).toSelf()
+    container.bind(RequestClientForgotPasswordHandler).toSelf()
+    container.bind(ConfirmClientForgotPasswordHandler).toSelf()
+    container.bind(AdminRegisterClientHandler).toSelf()
 
     container.bind(ClientAuthService).toSelf().inSingletonScope()
     container.bind(ClientRefreshTokenService).toSelf().inSingletonScope()

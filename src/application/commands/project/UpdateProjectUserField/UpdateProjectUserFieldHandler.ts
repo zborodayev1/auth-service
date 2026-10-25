@@ -6,6 +6,7 @@ import { ProjectAccessService } from '@services/project/ProjectAccessService'
 import { UserFieldValueFactory } from '@factories/UserFieldValueFactory'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { NotFoundError } from '@shared/errors/NotFoundError'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface UpdateProjectUserFieldResult {
   fieldId: string
@@ -37,7 +38,7 @@ export class UpdateProjectUserFieldHandler {
     const field = await this.projectFields.findByIdAndProject(command.fieldId, user.projectId)
 
     if (!field) {
-      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+      throw new NotFoundError('Field not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         command: command,
       })
     }

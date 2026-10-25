@@ -8,6 +8,11 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { UserSessionRepository } from '@aggregates/userSession/UserSessionRepository'
+import {
+  AUTH_ERROR_CODES,
+  CONFLICT_ERROR_CODES,
+  NOT_FOUND_ERROR_CODES,
+} from '@shared/errors/ErrorCodes'
 
 interface ChangeUserPasswordResult {
   success: boolean
@@ -32,15 +37,19 @@ export class ChangeUserPasswordHandler {
     Password.validateRaw(command.newPassword)
 
     if (command.currentPassword === command.newPassword) {
-      throw new ConflictError('New password must differ from current', 'PASSWORD_NOT_DIFFERENT', {
-        userId: command.userId,
-        projectId: command.projectId,
-      })
+      throw new ConflictError(
+        'New password must differ from current',
+        CONFLICT_ERROR_CODES.PRECONDITION_FAILED,
+        {
+          userId: command.userId,
+          projectId: command.projectId,
+        },
+      )
     }
 
     const user = await this.users.findById(command.userId)
     if (user?.projectId !== command.projectId)
-      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         userId: command.userId,
         projectId: command.projectId,
       })
@@ -51,10 +60,14 @@ export class ChangeUserPasswordHandler {
     )
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedError('Current password is incorrect', 'INVALID_PASSWORD', {
-        userId: command.userId,
-        projectId: command.projectId,
-      })
+      throw new UnauthorizedError(
+        'Current password is incorrect',
+        AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        {
+          userId: command.userId,
+          projectId: command.projectId,
+        },
+      )
     }
 
     const hash = await this.passwordHasher.hash(command.newPassword)

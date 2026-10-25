@@ -1,9 +1,6 @@
 import { AppError } from './AppError'
+import type { NotFoundCode } from './ErrorCodes'
 
-export class NotFoundError extends AppError {
+export class NotFoundError extends AppError<NotFoundCode> {
   readonly httpStatus = 404
-
-  constructor(message: string, reason = 'NOT_FOUND', details?: Record<string, unknown>) {
-    super(message, 'NOT_FOUND', reason, details)
-  }
 }

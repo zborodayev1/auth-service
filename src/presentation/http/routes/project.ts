@@ -16,45 +16,10 @@ export class ProjectRouter {
     const authenticate = this.auth.authenticate.bind(this.auth)
     const c = this.controller
 
-    // Project CRUD
-    router.post('/', mutateRequestRateLimiter, authenticate, c.create.bind(c))
+    // GET
     router.get('/:projectId', queryRequestRateLimiter, authenticate, c.getProject.bind(c))
-    router.patch('/:projectId', mutateRequestRateLimiter, authenticate, c.renameProject.bind(c))
-    router.delete('/:projectId', mutateRequestRateLimiter, authenticate, c.deleteProject.bind(c))
-
-    // Project fields
     router.get('/:projectId/fields', queryRequestRateLimiter, authenticate, c.getFields.bind(c))
-    router.post('/:projectId/fields', mutateRequestRateLimiter, authenticate, c.addField.bind(c))
-    router.patch(
-      '/:projectId/fields/:fieldId',
-      mutateRequestRateLimiter,
-      authenticate,
-      c.updateField.bind(c),
-    )
-    router.delete(
-      '/:projectId/fields/:fieldId',
-      mutateRequestRateLimiter,
-      authenticate,
-      c.deleteField.bind(c),
-    )
-    router.post(
-      '/:projectId/fields/:fieldId/recover',
-      mutateRequestRateLimiter,
-      authenticate,
-      c.recoverField.bind(c),
-    )
-
-    // ApiKey
     router.get('/:projectId/key', queryRequestRateLimiter, authenticate, c.getApiKey.bind(c))
-    router.post(
-      '/:projectId/key/rotate',
-      mutateRequestRateLimiter,
-      authenticate,
-      c.rotateApiKey.bind(c),
-    )
-    router.patch('/:projectId/key', mutateRequestRateLimiter, authenticate, c.renameApiKey.bind(c))
-
-    // Users (admin)
     router.get('/:projectId/users', mutateRequestRateLimiter, authenticate, c.getUsers.bind(c))
     router.get(
       '/:projectId/users/:userId',
@@ -62,11 +27,47 @@ export class ProjectRouter {
       authenticate,
       c.getUser.bind(c),
     )
+
+    // POST
+    router.post('/', mutateRequestRateLimiter, authenticate, c.create.bind(c))
+    router.post('/:projectId/fields', mutateRequestRateLimiter, authenticate, c.addField.bind(c))
+    router.post(
+      '/:projectId/fields/:fieldId/recover',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.recoverField.bind(c),
+    )
+    router.post(
+      '/:projectId/key/rotate',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.rotateApiKey.bind(c),
+    )
+
+    // PATCH
+
+    router.patch('/:projectId', mutateRequestRateLimiter, authenticate, c.renameProject.bind(c))
+    router.patch(
+      '/:projectId/fields/:fieldId',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.updateField.bind(c),
+    )
+    router.patch('/:projectId/key', mutateRequestRateLimiter, authenticate, c.renameApiKey.bind(c))
     router.patch(
       '/:projectId/users/:userId/fields/:fieldId',
       mutateRequestRateLimiter,
       authenticate,
       c.updateUserField.bind(c),
+    )
+
+    // DELETE
+    router.delete('/:projectId', mutateRequestRateLimiter, authenticate, c.deleteProject.bind(c))
+    router.delete(
+      '/:projectId/fields/:fieldId',
+      mutateRequestRateLimiter,
+      authenticate,
+      c.deleteField.bind(c),
     )
     router.delete(
       '/:projectId/users/:userId',

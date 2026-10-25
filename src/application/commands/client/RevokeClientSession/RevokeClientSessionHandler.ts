@@ -3,6 +3,7 @@ import { ClientSessionRepository } from '@aggregates/clientSession/ClientSession
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { ValidationError } from '@shared/errors/ValidationError'
 import { RevokeClientSessionCommand } from './RevokeClientSessionCommand'
+import { NOT_FOUND_ERROR_CODES, VALIDATION_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface RevokeClientSessionResult {
   success: boolean
@@ -19,14 +20,14 @@ export class RevokeClientSessionHandler {
     if (command.sessionId === command.currentSessionId) {
       throw new ValidationError(
         'Cannot revoke current session via this endpoint. Use /logout instead.',
-        'CURRENT_SESSION_REVOKE',
+        VALIDATION_ERROR_CODES.INVALID_INPUT,
       )
     }
 
     const session = await this.sessions.findByIdAndClientId(command.sessionId, command.clientId)
 
     if (!session?.isActive()) {
-      throw new NotFoundError('Session not found', 'SESSION_NOT_FOUND', {
+      throw new NotFoundError('Session not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         sessionId: command.sessionId,
       })
     }

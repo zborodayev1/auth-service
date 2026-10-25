@@ -1,47 +1,68 @@
-import { RegisterClientHandler } from '@app/commands/client/RegisterClient/RegisterClientHandler'
-import { RegisterClientSchema } from '../validators/client/RegisterClientValidator'
-import { RegisterClientCommand } from '@app/commands/client/RegisterClient/RegisterClientCommand'
+import { injectable, inject } from 'inversify'
 import type { Request, Response } from 'express'
-import { LoginClientSchema } from '../validators/client/LoginClientValidator'
-import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
-import { LoginClientCommand } from '@app/commands/client/LoginClient/LoginClientCommand'
-import { ChangeClientEmailSchema } from '../validators/client/ChangeClientEmailValidator'
-import { ChangeClientEmailHandler } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailHandler'
-import { ChangeClientEmailCommand } from '@app/commands/client/ChangeClientEmail/ChangeClientEmailCommand'
-import { ChangeClientPasswordSchema } from '../validators/client/ChangeClientPasswordValidator'
+
+import { ServerConfig } from '@config/server/server'
+
+import { ConfirmClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/ConfirmClientEmailChange/ConfirmClientEmailChangeHandler'
+import { ConfirmClientEmailChangeCommand } from '@app/commands/client/ChangeEmail/ConfirmClientEmailChange/ConfirmClientEmailChangeCommand'
+import { RequestClientEmailChangeHandler } from '@app/commands/client/ChangeEmail/RequestClientEmailChange/RequestClientEmailChangeHandler'
+import { RequestClientEmailChangeCommand } from '@app/commands/client/ChangeEmail/RequestClientEmailChange/RequestClientEmailChangeCommand'
 import { ChangeClientPasswordHandler } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordHandler'
 import { ChangeClientPasswordCommand } from '@app/commands/client/ChangeClientPassword/ChangeClientPasswordCommand'
+import { ConfirmClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordHandler'
+import { ConfirmClientForgotPasswordCommand } from '@app/commands/client/ForgotPassword/ConfirmClientForgotPassword/ConfirmClientForgotPasswordCommand'
+import { RequestClientForgotPasswordHandler } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordHandler'
+import { RequestClientForgotPasswordCommand } from '@app/commands/client/ForgotPassword/RequestClientForgotPassword/RequestClientForgotPasswordCommand'
+import { LoginClientHandler } from '@app/commands/client/LoginClient/LoginClientHandler'
+import { LoginClientCommand } from '@app/commands/client/LoginClient/LoginClientCommand'
 import { LogoutAllClientSessionsHandler } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsHandler'
 import { LogoutAllClientSessionsCommand } from '@app/commands/client/LogoutAllClientSessions/LogoutAllClientSessionsCommand'
 import { LogoutCurrentClientSessionHandler } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionHandler'
 import { LogoutCurrentClientSessionCommand } from '@app/commands/client/LogoutCurrentClientSession/LogoutCurrentClientSessionCommand'
 import { RefreshClientAccessTokenHandler } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenHandler'
 import { RefreshClientAccessTokenCommand } from '@app/commands/client/RefreshClientAccessToken/RefreshClientAccessTokenCommand'
-import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
-import { inject, injectable } from 'inversify'
-import { ServerConfig } from '@config/server/server'
-import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
-import { GetClientProjectsQuery } from '@app/queries/client/GetClientProjects/GetClientProjectsQuery'
-import { GetClientProfileQuery } from '@app/queries/client/GetClientProfile/GetClientProfileQuery'
-import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/GetClientProfileHandler'
-import { ChangeClientNameSchema } from '../validators/client/ChangeClientNameValidator'
+import { ConfirmRegisterClientHandler } from '@app/commands/client/RegisterClient/ConfirmRegisterClient/ConfirmRegisterClientHandler'
+import { ConfirmRegisterClientCommand } from '@app/commands/client/RegisterClient/ConfirmRegisterClient/ConfirmRegisterClientCommand'
+import { RequestRegisterClientHandler } from '@app/commands/client/RegisterClient/RequestRegisterClient/RequestRegisterClientHandler'
+import { RequestRegisterClientCommand } from '@app/commands/client/RegisterClient/RequestRegisterClient/RequestRegisterClientCommand'
 import { RenameClientHandler } from '@app/commands/client/RenameClient/RenameClientHandler'
 import { RenameClientCommand } from '@app/commands/client/RenameClient/RenameClientCommand'
-import { GetClientSessionsHandler } from '@app/queries/client/GetClientSessions/GetClientSessionsHandler'
-import { GetClientSessionsQuery } from '@app/queries/client/GetClientSessions/GetClientSessionsQuery'
 import { RevokeClientSessionHandler } from '@app/commands/client/RevokeClientSession/RevokeClientSessionHandler'
 import { RevokeClientSessionCommand } from '@app/commands/client/RevokeClientSession/RevokeClientSessionCommand'
-import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
 
+import { GetClientProfileHandler } from '@app/queries/client/GetClientProfile/GetClientProfileHandler'
+import { GetClientProfileQuery } from '@app/queries/client/GetClientProfile/GetClientProfileQuery'
+import { GetClientProjectsHandler } from '@app/queries/client/GetClientProjects/GetClientProjectsHandler'
+import { GetClientProjectsQuery } from '@app/queries/client/GetClientProjects/GetClientProjectsQuery'
+import { GetClientSessionsHandler } from '@app/queries/client/GetClientSessions/GetClientSessionsHandler'
+import { GetClientSessionsQuery } from '@app/queries/client/GetClientSessions/GetClientSessionsQuery'
+
+import { RefreshTokenCookiesSchema } from '../validators/refreshToken/RefreshTokenCookies'
+import { SessionIdParamSchema } from '../validators/session/SessionIdParamValidator'
+import {
+  RequestRegisterClientSchema,
+  ConfirmRegisterClientSchema,
+  LoginClientSchema,
+  RequestChangeClientEmailSchema,
+  ChangeClientPasswordSchema,
+  ChangeClientNameSchema,
+  RequestPasswordResetClientSchema,
+  ConfirmPasswordResetClientSchema,
+  ConfirmChangeClientEmailSchema,
+} from '../validators/client/ClientValidator'
 @injectable()
 export class ClientController {
   constructor(
-    @inject(RegisterClientHandler)
-    private readonly registerHandler: RegisterClientHandler,
+    @inject(RequestRegisterClientHandler)
+    private readonly requestRegisterHandler: RequestRegisterClientHandler,
+    @inject(ConfirmRegisterClientHandler)
+    private readonly confirmRegisterHandler: ConfirmRegisterClientHandler,
     @inject(LoginClientHandler)
     private readonly loginHandler: LoginClientHandler,
-    @inject(ChangeClientEmailHandler)
-    private readonly changeEmailHandler: ChangeClientEmailHandler,
+    @inject(RequestClientEmailChangeHandler)
+    private readonly requestEmailChangeHandler: RequestClientEmailChangeHandler,
+    @inject(ConfirmClientEmailChangeHandler)
+    private readonly confirmEmailChangeHandler: ConfirmClientEmailChangeHandler,
     @inject(ChangeClientPasswordHandler)
     private readonly changePasswordHandler: ChangeClientPasswordHandler,
     @inject(LogoutAllClientSessionsHandler)
@@ -60,19 +81,31 @@ export class ClientController {
     private readonly getSessionsHandler: GetClientSessionsHandler,
     @inject(RevokeClientSessionHandler)
     private readonly revokeSessionHandler: RevokeClientSessionHandler,
+    @inject(RequestClientForgotPasswordHandler)
+    private readonly requestForgotPasswordHandler: RequestClientForgotPasswordHandler,
+    @inject(ConfirmClientForgotPasswordHandler)
+    private readonly confirmForgotPasswordHandler: ConfirmClientForgotPasswordHandler,
 
     @inject(ServerConfig)
     private readonly serverConfig: ServerConfig,
   ) {}
 
-  async register(req: Request, res: Response): Promise<void> {
-    const body = RegisterClientSchema.parse(req.body)
+  async requestRegister(req: Request, res: Response): Promise<void> {
+    const body = RequestRegisterClientSchema.parse(req.body)
 
-    const { accessToken, refreshToken, clientId } = await this.registerHandler.execute(
-      new RegisterClientCommand(
-        body.name,
-        body.email,
-        body.password,
+    const result = await this.requestRegisterHandler.execute(
+      new RequestRegisterClientCommand(body.name, body.email, body.password),
+    )
+
+    res.status(200).json(result)
+  }
+
+  async confirmRegister(req: Request, res: Response): Promise<void> {
+    const body = ConfirmRegisterClientSchema.parse(req.body)
+
+    const { clientId, accessToken, refreshToken } = await this.confirmRegisterHandler.execute(
+      new ConfirmRegisterClientCommand(
+        body.token,
         req.headers['user-agent'] ?? null,
         req.ip ?? null,
         body.deviceName ?? null,
@@ -86,10 +119,7 @@ export class ClientController {
       maxAge: this.serverConfig.cookieMaxAge,
     })
 
-    res.status(201).json({
-      clientId,
-      accessToken,
-    })
+    res.status(200).json({ clientId, accessToken })
   }
 
   async login(req: Request, res: Response): Promise<void> {
@@ -118,13 +148,20 @@ export class ClientController {
     })
   }
 
-  async changeEmail(req: Request, res: Response): Promise<void> {
-    const body = ChangeClientEmailSchema.parse(req.body)
+  async requestChangeEmail(req: Request, res: Response): Promise<void> {
+    const body = RequestChangeClientEmailSchema.parse(req.body)
 
-    const result = await this.changeEmailHandler.execute(
-      new ChangeClientEmailCommand(req.auth.clientId, body.newEmail, body.password),
+    const result = await this.requestEmailChangeHandler.execute(
+      new RequestClientEmailChangeCommand(req.auth.clientId, body.newEmail, body.password),
     )
+    res.status(200).json(result)
+  }
 
+  async confirmChangeEmail(req: Request, res: Response): Promise<void> {
+    const { token } = ConfirmChangeClientEmailSchema.parse(req.body)
+    const result = await this.confirmEmailChangeHandler.execute(
+      new ConfirmClientEmailChangeCommand(token),
+    )
     res.status(200).json(result)
   }
 
@@ -224,5 +261,37 @@ export class ClientController {
     )
 
     res.status(200).json(result)
+  }
+
+  async requestPasswordReset(req: Request, res: Response): Promise<void> {
+    const body = RequestPasswordResetClientSchema.parse(req.body)
+
+    const { success } = await this.requestForgotPasswordHandler.execute(
+      new RequestClientForgotPasswordCommand(body.email),
+    )
+
+    res.status(200).json(success)
+  }
+
+  async confirmPasswordReset(req: Request, res: Response): Promise<void> {
+    const body = ConfirmPasswordResetClientSchema.parse(req.body)
+
+    const { accessToken, refreshToken } = await this.confirmForgotPasswordHandler.execute(
+      new ConfirmClientForgotPasswordCommand(
+        body.token,
+        req.headers['user-agent'] ?? null,
+        req.ip ?? null,
+        body.deviceName ?? null,
+      ),
+    )
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: this.serverConfig.isProduction,
+      sameSite: 'strict',
+      maxAge: this.serverConfig.cookieMaxAge,
+    })
+
+    res.status(200).json({ accessToken })
   }
 }

@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { GetUserSessionsQuery } from './GetUserSessionsQuery'
 import { UserSessionRepository } from '@aggregates/userSession/UserSessionRepository'
 
-interface UserSessionDto {
+export interface UserSessionDto {
   id: string
   deviceName: string | null
   ipAddress: string | null

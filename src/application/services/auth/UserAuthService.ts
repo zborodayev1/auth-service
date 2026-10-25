@@ -9,6 +9,8 @@ import { UserRefreshTokenRepository } from '@aggregates/userRefreshToken/UserRef
 import { UserAccessTokenService } from '@ports/UserAccessTokenService'
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { UnitOfWork } from '@ports/UnitOfWork'
+import { AUTH_ERROR_CODES, NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
+import { NotFoundError } from '@shared/errors/NotFoundError'
 
 @injectable()
 export class UserAuthService {
@@ -43,16 +45,20 @@ export class UserAuthService {
 
     const session = await this.sessions.findById(token.sessionId)
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Session is invalid or has been revoked', 'INVALID_SESSION', {
-        session: session,
-        token: token,
-      })
+      throw new UnauthorizedError(
+        'Session is invalid or has been revoked',
+        AUTH_ERROR_CODES.SESSION_EXPIRED,
+        {
+          session: session,
+          token: token,
+        },
+      )
     }
 
     const project = await this.projects.findById(session.projectId)
 
     if (!project) {
-      throw new UnauthorizedError('Invalid token', 'INVALID_TOKEN', {
+      throw new UnauthorizedError('Invalid token', AUTH_ERROR_CODES.UNAUTHENTICATED, {
         session: session,
         token: token,
       })
@@ -94,7 +100,7 @@ export class UserAuthService {
 
     const project = await this.projects.findById(context.projectId)
     if (!project)
-      throw new UnauthorizedError('Project not found', 'PROJECT_NOT_FOUND', {
+      throw new NotFoundError('Project not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         session: session,
         refreshToken: refreshToken,
       })

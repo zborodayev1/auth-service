@@ -4,7 +4,7 @@ import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { Name } from '@valueObjects/Name/Name'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
-interface RenameApiKeyResult {
+export interface RenameApiKeyResult {
   id: string
   name: string
 }

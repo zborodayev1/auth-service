@@ -2,6 +2,7 @@ import type { NextFunction, Response, Request } from 'express'
 import { inject, injectable } from 'inversify'
 import { ProjectApiKeyService } from '@ports/ProjectApiKeyService'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class ApiKeyAuthMiddleware {
@@ -11,13 +12,11 @@ export class ApiKeyAuthMiddleware {
   ) {}
 
   async authenticate(req: Request, _: Response, next: NextFunction): Promise<void> {
-    const header = req.header('authorization')
+    const rawKey = req.header('x-api-key')
 
-    if (!header?.startsWith('Bearer ')) {
-      throw new UnauthorizedError('Missing API key')
+    if (!rawKey) {
+      throw new UnauthorizedError('Missing API key', AUTH_ERROR_CODES.UNAUTHENTICATED)
     }
-
-    const rawKey = header.substring(7)
 
     const payload = await this.apiKeyService.verify(rawKey)
 

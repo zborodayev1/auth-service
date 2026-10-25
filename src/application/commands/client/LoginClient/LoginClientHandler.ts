@@ -5,8 +5,9 @@ import { inject, injectable } from 'inversify'
 import { LoginClientCommand } from './LoginClientCommand'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { ClientAuthService } from '@services/auth/ClientAuthService'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
-interface LoginClientResult {
+export interface LoginClientResult {
   clientId: string
   accessToken: string
   refreshToken: string
@@ -30,12 +31,12 @@ export class LoginClientHandler {
 
     const client = await this.clients.findByEmail(email)
     if (!client) {
-      throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS')
+      throw new UnauthorizedError('Invalid credentials', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
     }
 
     const valid = await this.passwordHasher.verify(command.password, client.password.getHash())
     if (!valid) {
-      throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS')
+      throw new UnauthorizedError('Invalid credentials', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
     }
 
     const tokens = await this.authService.login({

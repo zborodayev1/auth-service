@@ -6,7 +6,15 @@ import { ProjectField } from '@aggregates/projectField/ProjectField'
 import { UserFieldValue } from '@aggregates/userFieldValue/UserFieldValue'
 
 const stubField = (id: string): ProjectField =>
-  ProjectField.create({ id, projectId: 'proj-1', name: `field-${id}`, type: 'string', required: false, defaultValue: null, enumValues: [] })
+  ProjectField.create({
+    id,
+    projectId: 'proj-1',
+    name: `field-${id}`,
+    type: 'string',
+    required: false,
+    defaultValue: null,
+    enumValues: [],
+  })
 
 const stubValue = (fieldId: string, value: string): UserFieldValue =>
   UserFieldValue.create({ id: `val-${fieldId}`, userId: 'user-1', fieldId, value })

@@ -3,6 +3,7 @@ import { RenameClientCommand } from './RenameClientCommand'
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { Name } from '@valueObjects/Name/Name'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface RenameClientResult {
   name: string
@@ -18,7 +19,7 @@ export class RenameClientHandler {
   async execute(command: RenameClientCommand): Promise<RenameClientResult> {
     const client = await this.clients.findById(command.clientId)
     if (!client)
-      throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', {
+      throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         command: command,
       })
 

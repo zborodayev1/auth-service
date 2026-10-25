@@ -34,6 +34,8 @@ import { ISchemaCache } from '@ports/ISchemaCache'
 import { RedisProvider } from '@infra/redis/RedisProvider'
 import { RedisSchemaCache } from '@infra/redis/RedisSchemaCache'
 import { SchemaInvalidationListener } from '@infra/redis/SchemaInvalidationListener'
+import { PendingActionRepository } from '@aggregates/pendingAction/PendingActionRepository'
+import { PrismaPendingActionRepository } from '@infra/persistence/prisma/repositories/PrismaPendingActionRepository'
 
 @injectable()
 export class PersistenceContext implements ServiceContext {
@@ -64,5 +66,6 @@ export class PersistenceContext implements ServiceContext {
     container.bind(IJob).to(CleanupJob).inSingletonScope()
     container.bind(IJob).to(SchemaInvalidationListener).inSingletonScope()
     container.bind(JobManager).toSelf().inSingletonScope()
+    container.bind(PendingActionRepository).to(PrismaPendingActionRepository).inSingletonScope()
   }
 }

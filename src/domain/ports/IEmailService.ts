@@ -1,0 +1,7 @@
+export interface IEmailService {
+  sendPasswordResetEmail(to: string, token: string): Promise<void>
+  sendEmailVerificationEmail(to: string, token: string): Promise<void>
+  sendRegistrationAttemptNotice(to: string): Promise<void>
+}
+
+export const IEmailService: unique symbol = Symbol('IEmailService')

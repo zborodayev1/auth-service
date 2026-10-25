@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify'
 import { GetClientProfileQuery } from './GetClientProfileQuery'
 import { ClientRepository } from '@aggregates/client/ClientRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface GetClientProfileResult {
   id: string
@@ -21,7 +22,9 @@ export class GetClientProfileHandler {
     const client = await this.clients.findById(query.clientId)
 
     if (!client) {
-      throw new NotFoundError('Client not found', 'CLIENT_NOT_FOUND', { id: query.clientId })
+      throw new NotFoundError('Client not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
+        id: query.clientId,
+      })
     }
 
     return {

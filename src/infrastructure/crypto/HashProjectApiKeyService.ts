@@ -3,6 +3,7 @@ import { ProjectApiKeyService, ProjectApiKeyPayload } from '@ports/ProjectApiKey
 import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { Hasher } from '@ports/Hasher'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class HashProjectApiKeyService implements ProjectApiKeyService {
@@ -16,8 +17,10 @@ export class HashProjectApiKeyService implements ProjectApiKeyService {
 
     const project = await this.projects.findByApiKeyHash(hash)
 
-    if (!project) throw new UnauthorizedError('Invalid API key', 'INVALID_API_KEY')
-    if (project.apiKey.revoked) throw new UnauthorizedError('Invalid API key', 'INVALID_API_KEY')
+    if (!project)
+      throw new UnauthorizedError('Invalid API key', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
+    if (project.apiKey.revoked)
+      throw new UnauthorizedError('Invalid API key', AUTH_ERROR_CODES.INVALID_CREDENTIALS)
 
     return { projectId: project.id }
   }

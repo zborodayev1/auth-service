@@ -8,6 +8,7 @@ import type { Hasher } from '@ports/Hasher'
 import type { KeyGenerator } from '@ports/KeyGenerator'
 import type { ServerConfig } from '@config/server/server'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 const FUTURE = new Date(Date.now() + 60_000)
 const PAST = new Date(0)
@@ -27,7 +28,11 @@ const makeToken = (overrides?: {
     new Date(),
   )
 
-interface MockRepo { findByHash: Mock; revokeAllBySessionId: Mock; save: Mock }
+interface MockRepo {
+  findByHash: Mock
+  revokeAllBySessionId: Mock
+  save: Mock
+}
 
 const makeRepo = (token: ClientRefreshToken | null = null): MockRepo => ({
   findByHash: vi.fn().mockResolvedValue(token),
@@ -40,38 +45,53 @@ const makeUoW = (): UnitOfWork => ({
 })
 const makeHasher = (): Hasher => ({ hash: (s: string): string => `h:${s}` })
 const makeKeyGen = (): KeyGenerator => ({ generate: (): string => 'raw' })
-const makeConfig = (): ServerConfig => ({ refreshTokenTtlMs: 60_000 } as ServerConfig)
+const makeConfig = (): ServerConfig => ({ refreshTokenTtlMs: 60_000 }) as ServerConfig
 const makeFactory = (): ClientRefreshTokenFactory =>
   ({
     create: vi.fn(() =>
-      ClientRefreshToken.create({ id: 'new-token', sessionId: 'session-1', hash: 'h:raw', expiresAt: FUTURE }),
+      ClientRefreshToken.create({
+        id: 'new-token',
+        sessionId: 'session-1',
+        hash: 'h:raw',
+        expiresAt: FUTURE,
+      }),
     ),
   }) as unknown as ClientRefreshTokenFactory
 
 const makeService = (repo: MockRepo = makeRepo()): ClientRefreshTokenService =>
-  new ClientRefreshTokenService(makeUoW(), repo as unknown as ClientRefreshTokenRepository, makeFactory(), makeHasher(), makeConfig(), makeKeyGen())
+  new ClientRefreshTokenService(
+    makeUoW(),
+    repo as unknown as ClientRefreshTokenRepository,
+    makeFactory(),
+    makeHasher(),
+    makeConfig(),
+    makeKeyGen(),
+  )
 
 describe('ClientRefreshTokenService', () => {
   describe('requireValid()', () => {
     it('throws REFRESH_TOKEN_INVALID when token not found', async () => {
       const svc = makeService(makeRepo(null))
       const err = await svc.requireValid('raw').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_INVALID')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.UNAUTHENTICATED)
     })
 
     it('throws REFRESH_TOKEN_EXPIRED when token is expired', async () => {
       const svc = makeService(makeRepo(makeToken({ expiresAt: PAST })))
       const err = await svc.requireValid('raw').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_EXPIRED')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.TOKEN_EXPIRED)
     })
 
     it('throws REFRESH_TOKEN_REVOKED when token is revoked', async () => {
       const svc = makeService(makeRepo(makeToken({ revokedAt: new Date() })))
       const err = await svc.requireValid('raw').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_REVOKED')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.TOKEN_EXPIRED)
     })
 
     it('returns token when valid', async () => {
@@ -94,7 +114,7 @@ describe('ClientRefreshTokenService', () => {
       const err = await svc.detectReuse(usedToken).catch((e: unknown) => e)
       expect(repo.revokeAllBySessionId).toHaveBeenCalledWith(usedToken.sessionId)
       expect(err).toBeInstanceOf(UnauthorizedError)
-      expect((err as UnauthorizedError).reason).toBe('REFRESH_TOKEN_REUSE_DETECTED')
+      expect((err as UnauthorizedError).code).toBe(AUTH_ERROR_CODES.TOKEN_REUSED)
     })
   })
 

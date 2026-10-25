@@ -21,8 +21,7 @@ const field = (overrides: Partial<ProjectFieldDefinition> = {}): ProjectFieldDef
   ...overrides,
 })
 
-const makeService = (cache = makeCache()): SchemaBuilderService =>
-  new SchemaBuilderService(cache)
+const makeService = (cache = makeCache()): SchemaBuilderService => new SchemaBuilderService(cache)
 
 describe('SchemaBuilderService', () => {
   describe('build()', () => {

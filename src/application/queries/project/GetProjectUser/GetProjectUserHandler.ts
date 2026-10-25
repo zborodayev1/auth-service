@@ -10,7 +10,7 @@ interface UserProfileField {
   value: string | null
 }
 
-interface GetProjectUserResult {
+export interface GetProjectUserResult {
   id: string
   email: string
   projectId: string

@@ -2,6 +2,7 @@ import { UserSessionRepository } from '@aggregates/userSession/UserSessionReposi
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
 import { inject, injectable } from 'inversify'
 import { LogoutUserSessionCommand } from './LogoutUserSessionCommand'
+import { AUTH_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface LogoutUserSessionResult {
   success: boolean
@@ -18,7 +19,7 @@ export class LogoutUserSessionHandler {
     const session = await this.sessions.findById(command.sessionId)
 
     if (!session?.isActive()) {
-      throw new UnauthorizedError('Invalid or expired session', 'EXPIRED_SESSION', {
+      throw new UnauthorizedError('Invalid or expired session', AUTH_ERROR_CODES.SESSION_EXPIRED, {
         command: command,
         session: session,
       })
@@ -27,7 +28,7 @@ export class LogoutUserSessionHandler {
     if (session.userId !== command.userId) {
       throw new UnauthorizedError(
         'Session does not belong to this user',
-        'SESSION_OWNERSHIP_VIOLATION',
+        AUTH_ERROR_CODES.UNAUTHENTICATED,
         {
           sessionId: command.sessionId,
           commandUserId: command.userId,

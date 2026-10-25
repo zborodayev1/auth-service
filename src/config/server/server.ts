@@ -2,12 +2,14 @@ import { InternalServerError } from '@shared/errors/InternalServerError'
 import { injectable } from 'inversify'
 import ms, { type StringValue } from 'ms'
 import { Environment, environments, LogLevel, logLevels } from './types'
+import { INTERNAL_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class ServerConfig {
   readonly port: number
   readonly bcryptRounds: number
   readonly jwtSecret: string
+  readonly resendApiKey: string
   readonly jwtExpiresInMs: number
   readonly jwtExpiresInString: string
   readonly refreshTokenTtlMs: number
@@ -17,6 +19,9 @@ export class ServerConfig {
   readonly logLevel: LogLevel
   readonly environment: Environment
   readonly softDeleteTtlMs: number
+  readonly pendingActionTtlMs: number
+  readonly emailTtlMs: number
+  readonly exposeErrorCodes: boolean
 
   constructor() {
     this.port = this.integer('HTTP_PORT', 8080, 1, 65535)
@@ -24,6 +29,8 @@ export class ServerConfig {
     this.bcryptRounds = this.integer('BCRYPT_ROUNDS', 12, 4, 31)
 
     this.jwtSecret = this.string('JWT_SECRET', undefined, 32)
+
+    this.resendApiKey = this.string('RESEND_API_KEY')
 
     this.jwtExpiresInString = this.string('JWT_EXPIRES_IN', '1h')
 
@@ -39,9 +46,22 @@ export class ServerConfig {
 
     this.softDeleteTtlMs = this.duration('SOFT_DELETE_TTL', '7d')
 
+    this.pendingActionTtlMs = this.duration('PENDING_ACTION_TTL', '15m')
+
     this.logLevel = this.enumValue('LOG_LEVEL', logLevels, 'info')
 
     this.environment = this.enumValue('NODE_ENV', environments, 'development')
+
+    this.emailTtlMs = this.duration('EMAIL_TTL', '15m')
+
+    this.exposeErrorCodes = this.boolean('EXPOSE_ERROR_CODES', false)
+
+    if (this.isProduction && this.exposeErrorCodes) {
+      throw new InternalServerError(
+        'EXPOSE_ERROR_CODES cannot be enabled in production',
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
+      )
+    }
   }
 
   get isProduction(): boolean {
@@ -60,11 +80,14 @@ export class ServerConfig {
     }
 
     if (!value) {
-      throw new InternalServerError(`${name} must be set`)
+      throw new InternalServerError(`${name} must be set`, INTERNAL_ERROR_CODES.INTERNAL_ERROR)
     }
 
     if (minLength && value.length < minLength) {
-      throw new InternalServerError(`${name} must be at least ${String(minLength)} characters`)
+      throw new InternalServerError(
+        `${name} must be at least ${String(minLength)} characters`,
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
+      )
     }
 
     return value
@@ -77,6 +100,7 @@ export class ServerConfig {
     if (!Number.isInteger(value) || value < min || value > max) {
       throw new InternalServerError(
         `${name} must be an integer between ${String(min)} and ${String(max)}. Received: ${String(raw ?? defaultValue)}`,
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
       )
     }
 
@@ -91,6 +115,7 @@ export class ServerConfig {
     if (typeof value !== 'number' || value <= 0) {
       throw new InternalServerError(
         `${name} must be a valid positive duration (e.g. "1h", "30m", "7d"). Received: ${raw}`,
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
       )
     }
 
@@ -107,9 +132,31 @@ export class ServerConfig {
     if (!values.includes(raw as T[number])) {
       throw new InternalServerError(
         `${name} must be one of: ${values.join(', ')}. Received: ${raw}`,
+        INTERNAL_ERROR_CODES.INTERNAL_ERROR,
       )
     }
 
     return raw as T[number]
+  }
+
+  private boolean(name: string, defaultValue: boolean): boolean {
+    const raw = process.env[name]
+
+    if (raw === undefined) {
+      return defaultValue
+    }
+
+    if (raw === 'true') {
+      return true
+    }
+
+    if (raw === 'false') {
+      return false
+    }
+
+    throw new InternalServerError(
+      `${name} must be "true" or "false". Received: ${raw}`,
+      INTERNAL_ERROR_CODES.INTERNAL_ERROR,
+    )
   }
 }

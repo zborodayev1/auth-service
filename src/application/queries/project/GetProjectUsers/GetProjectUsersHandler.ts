@@ -3,7 +3,7 @@ import { GetProjectUsersQuery } from './GetProjectUsersQuery'
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
 
-interface GetProjectUsersResult {
+export interface GetProjectUsersResult {
   users: {
     id: string
     email: string

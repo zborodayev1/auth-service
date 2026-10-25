@@ -3,6 +3,7 @@ import { UserSessionRepository } from '@aggregates/userSession/UserSessionReposi
 import { UserRepository } from '@aggregates/user/UserRepository'
 import { LogoutAllUserSessionsCommand } from './LogoutAllUserSessionsCommand'
 import { NotFoundError } from '@shared/errors/NotFoundError'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface LogoutAllUserSessionsResult {
   success: boolean
@@ -21,7 +22,7 @@ export class LogoutAllUserSessionsHandler {
   async execute(command: LogoutAllUserSessionsCommand): Promise<LogoutAllUserSessionsResult> {
     const user = await this.users.findById(command.userId)
     if (user?.projectId !== command.projectId)
-      throw new NotFoundError('User not found', 'USER_NOT_FOUND', {
+      throw new NotFoundError('User not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         userId: command.userId,
         projectId: command.projectId,
       })

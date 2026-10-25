@@ -5,6 +5,7 @@ import { ConflictError } from '@shared/errors/ConflictError'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import { SchemaBuilderService } from '@services/schema/SchemaBuilderService'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
+import { CONFLICT_ERROR_CODES, NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface UpdateProjectFieldResult {
   fieldId: string
@@ -26,13 +27,13 @@ export class UpdateProjectFieldHandler {
     const field = await this.projectFields.findByIdAndProject(command.fieldId, command.projectId)
 
     if (!field)
-      throw new NotFoundError('Field not found', 'FIELD_NOT_FOUND', {
+      throw new NotFoundError('Field not found', NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND, {
         command: command,
       })
 
     const duplicate = await this.projectFields.findByProjectAndName(command.projectId, command.name)
     if (duplicate && duplicate.id !== command.fieldId)
-      throw new ConflictError('Project field already exists', 'FIELD_ALREADY_EXISTS', {
+      throw new ConflictError('Project field already exists', CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
         command: command,
         field: duplicate,
       })

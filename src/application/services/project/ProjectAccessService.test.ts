@@ -5,12 +5,11 @@ import type { UserRepository } from '@aggregates/user/UserRepository'
 import { NotFoundError } from '@shared/errors/NotFoundError'
 import type { Project } from '@aggregates/project/Project'
 import type { User } from '@aggregates/user/User'
+import { NOT_FOUND_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
-const stubProject = (ownerId: string): Project =>
-  ({ id: 'proj-1', ownerId } as unknown as Project)
+const stubProject = (ownerId: string): Project => ({ id: 'proj-1', ownerId }) as unknown as Project
 
-const stubUser = (projectId: string): User =>
-  ({ id: 'user-1', projectId } as unknown as User)
+const stubUser = (projectId: string): User => ({ id: 'user-1', projectId }) as unknown as User
 
 const makeProjects = (project: Project | null): ProjectRepository =>
   ({ findById: vi.fn().mockResolvedValue(project) }) as unknown as ProjectRepository
@@ -23,20 +22,25 @@ describe('ProjectAccessService', () => {
     it('throws NotFoundError PROJECT_NOT_FOUND when project missing', async () => {
       const svc = new ProjectAccessService(makeProjects(null), makeUsers(null))
       const err = await svc.verifyByProjectId('client-1', 'proj-1').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(NotFoundError)
-      expect((err as NotFoundError).reason).toBe('PROJECT_NOT_FOUND')
+
+      expect((err as NotFoundError).code).toBe(NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND)
     })
 
     it('throws NotFoundError ACCESS_DENIED when wrong owner', async () => {
       const svc = new ProjectAccessService(makeProjects(stubProject('other')), makeUsers(null))
       const err = await svc.verifyByProjectId('client-1', 'proj-1').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(NotFoundError)
-      expect((err as NotFoundError).reason).toBe('ACCESS_DENIED')
+
+      expect((err as NotFoundError).code).toBe(NOT_FOUND_ERROR_CODES.ACCESS_DENIED)
     })
 
     it('returns project when owner matches', async () => {
       const project = stubProject('client-1')
       const svc = new ProjectAccessService(makeProjects(project), makeUsers(null))
+
       await expect(svc.verifyByProjectId('client-1', 'proj-1')).resolves.toBe(project)
     })
   })
@@ -45,15 +49,19 @@ describe('ProjectAccessService', () => {
     it('throws NotFoundError USER_NOT_FOUND when user missing', async () => {
       const svc = new ProjectAccessService(makeProjects(null), makeUsers(null))
       const err = await svc.verifyByUserId('client-1', 'user-1').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(NotFoundError)
-      expect((err as NotFoundError).reason).toBe('USER_NOT_FOUND')
+
+      expect((err as NotFoundError).code).toBe(NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND)
     })
 
     it('throws NotFoundError PROJECT_NOT_FOUND when project missing', async () => {
       const svc = new ProjectAccessService(makeProjects(null), makeUsers(stubUser('proj-1')))
       const err = await svc.verifyByUserId('client-1', 'user-1').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(NotFoundError)
-      expect((err as NotFoundError).reason).toBe('PROJECT_NOT_FOUND')
+
+      expect((err as NotFoundError).code).toBe(NOT_FOUND_ERROR_CODES.RESOURCE_NOT_FOUND)
     })
 
     it('throws NotFoundError ACCESS_DENIED when wrong owner', async () => {
@@ -62,16 +70,21 @@ describe('ProjectAccessService', () => {
         makeUsers(stubUser('proj-1')),
       )
       const err = await svc.verifyByUserId('client-1', 'user-1').catch((e: unknown) => e)
+
       expect(err).toBeInstanceOf(NotFoundError)
-      expect((err as NotFoundError).reason).toBe('ACCESS_DENIED')
+
+      expect((err as NotFoundError).code).toBe(NOT_FOUND_ERROR_CODES.ACCESS_DENIED)
     })
 
     it('returns { project, user } when all valid', async () => {
       const project = stubProject('client-1')
       const user = stubUser('proj-1')
       const svc = new ProjectAccessService(makeProjects(project), makeUsers(user))
+
       const result = await svc.verifyByUserId('client-1', 'user-1')
+
       expect(result.project).toBe(project)
+
       expect(result.user).toBe(user)
     })
   })

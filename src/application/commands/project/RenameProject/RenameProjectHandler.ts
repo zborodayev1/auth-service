@@ -4,6 +4,7 @@ import { ProjectRepository } from '@aggregates/project/ProjectRepository'
 import { ConflictError } from '@shared/errors/ConflictError'
 import { Name } from '@valueObjects/Name/Name'
 import { ProjectAccessService } from '@services/project/ProjectAccessService'
+import { CONFLICT_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 interface RenameProjectResult {
   projectId: string
@@ -27,7 +28,9 @@ export class RenameProjectHandler {
 
     const exists = await this.projects.findByOwnerAndName(command.clientId, newName)
     if (exists && exists.id !== command.projectId)
-      throw new ConflictError('Project name already taken', 'NAME_TAKEN', { command })
+      throw new ConflictError('Project name already taken', CONFLICT_ERROR_CODES.ALREADY_EXISTS, {
+        command,
+      })
 
     const updated = project.reName(newName)
     await this.projects.save(updated)

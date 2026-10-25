@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit'
 
-const skipInTest = (): boolean => process.env['NODE_ENV'] === 'test'
+const skipInTest = (): boolean => process.env['SKIP_RATE_LIMIT'] === 'true'
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

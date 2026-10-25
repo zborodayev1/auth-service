@@ -7,6 +7,7 @@ import { inject, injectable } from 'inversify'
 import jwt, { JsonWebTokenError } from 'jsonwebtoken'
 import { ValidationError } from '@shared/errors/ValidationError'
 import { UnauthorizedError } from '@shared/errors/UnauthorizedError'
+import { AUTH_ERROR_CODES, VALIDATION_ERROR_CODES } from '@shared/errors/ErrorCodes'
 
 @injectable()
 export class JwtClientAccessTokenService implements ClientAccessTokenService {
@@ -35,7 +36,7 @@ export class JwtClientAccessTokenService implements ClientAccessTokenService {
         typeof payload.sub !== 'string' ||
         typeof payload['sid'] !== 'string'
       ) {
-        throw new ValidationError('Invalid token payload', 'INVALID_TOKEN_PAYLOAD')
+        throw new ValidationError('Invalid token payload', VALIDATION_ERROR_CODES.INVALID_INPUT)
       }
       return {
         clientId: payload.sub,
@@ -43,7 +44,10 @@ export class JwtClientAccessTokenService implements ClientAccessTokenService {
       }
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
-        throw new UnauthorizedError('Invalid or expired token', 'INVALID_TOKEN')
+        throw new UnauthorizedError(
+          'Invalid or expired token',
+          AUTH_ERROR_CODES.INVALID_CREDENTIALS,
+        )
       }
       throw e
     }
