@@ -10,7 +10,7 @@ const UserPasswordSchema = z.string().min(8)
 
 const UserDeviceNameSchema = z.string()
 
-const UserIdSchema = z.uuid()
+// const UserIdSchema = z.uuid()
 
 const UserFieldIdSchema = z.uuid()
 

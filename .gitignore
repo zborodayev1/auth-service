@@ -8,4 +8,4 @@ generated
 *.diff
 .DS_Store
 coverage
-logs/*
+# logs/*
