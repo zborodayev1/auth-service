@@ -1,0 +1,6 @@
+allowBuilds:
+  '@prisma/engines': false
+  '@swc/core': false
+  bcrypt: false
+  esbuild: false
+  prisma: false
