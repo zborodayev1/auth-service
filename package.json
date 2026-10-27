@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "dump:ai": "pnpm dlx dumpall . -e node_modules -e dist -e .git -e pnpm-lock.yaml -e coverage -e .claude -e claude/settings.local.json -e .env -e .env.example -e .env.test -e .github/workflows/pr.yml -e .gitignore -e .prettierignore -e .prettierrc -e .superpowers -e docker-compose.yml -e docs -e prisma/migrations -e README.md -e src/application/factories -e src/generated/prisma -e src/application/commands -e src/application/queries -e src/infrastructure/persistence/prisma/mappers -e src/infrastructure/persistence/prisma/repositories -e src/presentation/http/validators -e *.png -e *.jpg -e *.test.ts -e *.integration.test.ts -e *.svg -e *.lock -o project.md && node scripts/clean-dump.js"
   },
   "repository": {
     "type": "git",

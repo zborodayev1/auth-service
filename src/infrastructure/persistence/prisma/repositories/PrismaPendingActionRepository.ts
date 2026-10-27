@@ -55,11 +55,11 @@ export class PrismaPendingActionRepository
     })
   }
 
-  async deleteExpired(before: Date): Promise<void> {
+  async deleteExpired(): Promise<void> {
     await this.prismaClient.pendingAction.deleteMany({
       where: {
         expiresAt: {
-          lt: before,
+          lt: new Date(),
         },
       },
     })

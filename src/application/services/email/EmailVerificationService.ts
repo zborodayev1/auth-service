@@ -29,7 +29,7 @@ export class EmailVerificationService {
       this.idGenerator.generate(),
       tokenHash,
       context,
-      new Date(Date.now() + this.config.emailTtlMs),
+      new Date(Date.now() + this.config.pendingActionTtlMs),
     )
 
     await this.actions.save(action)
